@@ -1,7 +1,6 @@
-pub mod card;
-pub mod deck;
+pub mod cards;
 pub mod player;
-pub mod table;
+pub mod play;
 pub mod error;
 
 pub use ron;
