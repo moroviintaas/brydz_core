@@ -8,7 +8,7 @@ use crate::cards::trump::Trump;
 use crate::play::axis::Axis;
 use crate::play::contract::Contract;
 use crate::play::deal::DealError::IndexedOverCurrentTrick;
-use crate::play::deck::{LAST_INDEX_IN_DEAL, QUARTER_SIZE};
+use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
 use crate::play::exhaust::ExhaustTable;
 use crate::play::score::Score;
 use crate::play::trick::TrickError::MissingCard;
@@ -36,27 +36,32 @@ impl Display for DealError{
 pub struct Deal {
     contract: Contract,
     tricks: [Trick; QUARTER_SIZE],
-    trick_number: usize,
+    completed_tricks_number: usize,
     exhaust_table: ExhaustTable,
-    current_trick: Option<Trick>
+    current_trick: Trick
 
 }
 impl Deal{
     pub fn new(contract: Contract) -> Self{
         let first_player = contract.owner().prev();
-        Self{contract, tricks: [Trick::new(first_player);QUARTER_SIZE], trick_number: 0,
-            exhaust_table: ExhaustTable::default(), current_trick: Some(Trick::new(first_player))}
+        Self{contract, tricks: [Trick::new(first_player);QUARTER_SIZE], completed_tricks_number: 0,
+            exhaust_table: ExhaustTable::default(), current_trick: Trick::new(first_player)}
     }
-    pub fn insert_trick(&mut self, trick: Trick) -> Result<(), DealError>{
-        match self.trick_number{
-            n@0..=LAST_INDEX_IN_DEAL => match trick.missing_card(){
+
+    pub fn current_trick(&self) -> &Trick{
+        &self.current_trick
+    }
+
+    fn insert_trick(&mut self, trick: Trick) -> Result<(), DealError>{
+        match self.completed_tricks_number {
+            n@0..=MAX_INDEX_IN_DEAL => match trick.missing_card(){
                 Some(s) => Err(DealError::TrickError(trick, MissingCard(s))),
                 None => {
                     for t in &self.tricks{
                         if let Some(c) = t.collision(&trick) {return Err(DealError::DuplicateCard(c))}
                     }
                     self.tricks[n] = trick;
-                    self.trick_number = n+1;
+                    self.completed_tricks_number = n+1;
                     Ok(())
                 }
 
@@ -65,11 +70,73 @@ impl Deal{
             _ => Err(DealError::DealFull),
         }
     }
+
+    pub fn completed_tricks(&self) -> usize{
+        self.completed_tricks_number
+    }
+
+    /// Inserts card to current trick in deal. If trick is closed (contains a card from each side (4)) it is closed and added to array of completed tricks.
+    /// # Returns:
+    /// `Ok(())` if card has been successfully added
+    /// `Err(DealError)` Hopefully an error describing problem
+    ///
+    /// # Examples:
+    /// ```
+    /// use bridge_core::cards::Card;
+    /// use bridge_core::cards::suit::Suit;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::play::auction::Doubling;
+    /// use bridge_core::play::contract::{Bid, Contract};
+    /// use bridge_core::play::deal::{Deal, DealError};
+    /// use bridge_core::player::side::Side;
+    /// use std::str::FromStr;
+    /// use bridge_core::play::axis::Axis;
+    /// use bridge_core::play::trick::TrickError;
+    /// let mut deal = Deal::new(
+    ///     Contract::new(Side::East, Bid::create_bid(Trump::Colored(Suit::Hearts), 1).unwrap()));
+    /// deal.trick_insert_card(Side::North, Card::from_str("king h").unwrap()).unwrap();
+    /// deal.trick_insert_card(Side::East, Card::from_str("ace h").unwrap()).unwrap();
+    /// deal.trick_insert_card(Side::South, Card::from_str("2 clubs").unwrap()).unwrap();
+    /// assert_eq!(deal.completed_tricks(), 0);
+    /// let r = deal.trick_insert_card(Side::West, Card::from_str("7 hearts").unwrap());
+    /// assert_eq!(r.unwrap(), Side::East);
+    /// assert_eq!(deal.completed_tricks(), 1);
+    /// assert_eq!(deal.side_winning_trick(0).unwrap(), Side::East);
+    /// let r = deal.trick_insert_card(Side::East, Card::from_str("10 h").unwrap());
+    /// assert_eq!(r.unwrap(), Side::South);
+    /// let r = deal.trick_insert_card(Side::South, Card::from_str("J hearts").unwrap());
+    /// assert_eq!(r, Err(DealError::TrickError(deal.current_trick().to_owned(), TrickError::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
+    ///
+    ///
+    /// ```
+    pub fn trick_insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError>{
+        if self.completed_tricks_number >= QUARTER_SIZE{
+            return Err(DealError::DealFull);
+        }
+        match self.current_trick.add_card_check_exhaust(side, card, &mut self.exhaust_table){
+            Ok(4) => {
+                match self.current_trick.taker(self.trump()){
+                    Ok(winner) => {
+                        self.insert_trick(self.current_trick);
+                        self.current_trick = Trick::new(winner);
+                        Ok(winner)
+                    }
+                    Err(e) => Err(DealError::TrickError(self.current_trick, e))
+                }
+            },
+            Ok(_) => Ok(side.next()),
+            Err(e) => Err(DealError::TrickError(self.current_trick, e))
+
+        }
+
+
+    }
+
     pub fn trump(&self) -> Trump{
         self.contract.bid().trump()
     }
     pub fn last_completed_trick(&self) -> Option<&Trick>{
-        match self.trick_number{
+        match self.completed_tricks_number {
             0 => None,
             i @1..=QUARTER_SIZE => Some(&self[i-1]),
             _ => panic!("Deal::Last_trick: deal overflow shouldn't happen")
@@ -105,41 +172,30 @@ impl Deal{
     /// use bridge_core::play::contract::{Contract, Bid};
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = Deal::new(Contract::new_d(South, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
-    /// let mut trick_1 = Trick::new(East);
-    /// trick_1.add_card(East, Card::from_str("k s").unwrap()).unwrap();
-    /// trick_1.add_card(South, Card::from_str("qs").unwrap()).unwrap();
-    /// trick_1.add_card(West, Card::from_str("js").unwrap()).unwrap();
-    /// trick_1.add_card(North, Card::from_str("a s").unwrap()).unwrap();
-    /// deal_1.insert_trick(trick_1).unwrap();
+    /// deal_1.trick_insert_card(East, Card::from_str("k s").unwrap()).unwrap();
+    /// deal_1.trick_insert_card(South, Card::from_str("qs").unwrap()).unwrap();
+    /// deal_1.trick_insert_card(West, Card::from_str("js").unwrap()).unwrap();
+    /// deal_1.trick_insert_card(North, Card::from_str("a s").unwrap()).unwrap();
     /// assert_eq!(deal_1.side_winning_trick(0), Ok(North));
     ///
     /// let mut deal_2 = Deal::new(Contract::new_d(East, Bid::create_bid(Trump::NoTrump, 1).unwrap(), Doubling::None));
-    /// let mut trick_2_1 = Trick::new(North);
-    /// /*
-    /// for i in 0..4usize{
-    ///     trick_2_1.add_card(SIDES[i], deck[i+40]).unwrap();
-    /// }*/
-    /// trick_2_1.add_card(North, Card::from_str("2 d").unwrap()).unwrap();
-    /// trick_2_1.add_card(East, Card::from_str("ace clubs").unwrap()).unwrap();
-    /// trick_2_1.add_card(South, Card::from_str("queen clubs").unwrap()).unwrap();
-    /// trick_2_1.add_card(West, Card::from_str("3 d").unwrap()).unwrap();
-    ///
-    /// let mut trick_2_2 = Trick::new(West);
-    ///
-    /// trick_2_2.add_card(West, Card::from_str("4 d").unwrap()).unwrap();
-    /// trick_2_2.add_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap();
-    /// trick_2_2.add_card(East, Card::from_str("king clubs").unwrap()).unwrap();
-    /// trick_2_2.add_card(South, Card::from_str("9s").unwrap()).unwrap();
-    /// deal_2.insert_trick(trick_2_1).unwrap();
+    /// deal_2.trick_insert_card(North, Card::from_str("2 d").unwrap()).unwrap();
+    /// deal_2.trick_insert_card(East, Card::from_str("ace clubs").unwrap()).unwrap();
+    /// deal_2.trick_insert_card(South, Card::from_str("queen clubs").unwrap()).unwrap();
+    /// deal_2.trick_insert_card(West, Card::from_str("3 d").unwrap()).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(0), Ok(West));
-    /// deal_2.insert_trick(trick_2_2).unwrap();
+    /// deal_2.trick_insert_card(West, Card::from_str("4 d").unwrap()).unwrap();
+    /// deal_2.trick_insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap();
+    /// deal_2.trick_insert_card(East, Card::from_str("king clubs").unwrap()).unwrap();
+    /// deal_2.trick_insert_card(South, Card::from_str("9s").unwrap()).unwrap();
+    /// //deal_2.insert_trick(trick_2_2).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(1), Ok(North));
     /// ```
     pub fn side_winning_trick(&self, index: usize) -> Result<Side, DealError>{
-        match index < self.trick_number{
+        match index < self.completed_tricks_number {
             true => self[index].taker(self.contract.bid().trump())
                 .map_err(|trick_err| DealError::TrickError(self[index], trick_err)),
-            false => Err(IndexedOverCurrentTrick(self.trick_number))
+            false => Err(IndexedOverCurrentTrick(self.completed_tricks_number))
         }
     }
     /// Counts tricks taken by `Side` (one player)
@@ -156,21 +212,30 @@ impl Deal{
     /// use bridge_core::play::contract::{Contract, Bid};
     /// use bridge_core::play::auction::Doubling;
     /// let mut deal = Deal::new(Contract::new(East, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap() ));
-    /// let mut trick_1 = Trick::new(North);
+    /// /*let mut trick_1 = Trick::new(North);
     /// trick_1.add_card(North, Card::from_str("Jack s").unwrap()).unwrap();
     /// trick_1.add_card(East, Card::from_str("10h").unwrap()).unwrap();
     /// trick_1.add_card(South, Card::from_str("4c").unwrap()).unwrap();
     /// trick_1.add_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
-    /// deal.insert_trick(trick_1).unwrap();
+    /// deal.insert_trick(trick_1).unwrap();*/
+    /// deal.trick_insert_card(North, Card::from_str("Jack s").unwrap()).unwrap();
+    /// deal.trick_insert_card(East, Card::from_str("10s").unwrap()).unwrap();
+    /// deal.trick_insert_card(South, Card::from_str("4s").unwrap()).unwrap();
+    /// deal.trick_insert_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
+    /// /*
     /// let mut trick_2 = trick_1.prepare_new(Trump::Colored(Diamonds)).unwrap();
-    /// let trmp = deal.trump();
-    /// assert_eq!(trmp, Trump::Colored(Diamonds));
     /// let mut trick_2 = deal.init_new_trick().unwrap();
     /// trick_2.add_card(West, Card::from_str("8s").unwrap()).unwrap();
     /// trick_2.add_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
     /// trick_2.add_card(East, Card::from_str("king clubs").unwrap()).unwrap();
     /// trick_2.add_card(South, Card::from_str("9s").unwrap()).unwrap();
     /// deal.insert_trick(trick_2).unwrap();
+    /// */
+    /// deal.trick_insert_card(West, Card::from_str("8h").unwrap()).unwrap();
+    /// deal.trick_insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
+    /// deal.trick_insert_card(East, Card::from_str("king hearts").unwrap()).unwrap();
+    /// deal.trick_insert_card(South, Card::from_str("9hearts").unwrap()).unwrap();
+    /// /*
     /// //let mut trick_3 = deal.init_new_trick().unwrap();
     /// let mut trick_3 = trick_2.prepare_new(Trump::Colored(Diamonds)).unwrap();
     /// trick_3.add_card(North, Card::from_str("ah").unwrap()).unwrap(); //winner
@@ -178,13 +243,18 @@ impl Deal{
     /// trick_3.add_card(South, Card::from_str("7h").unwrap()).unwrap();
     /// trick_3.add_card(West, Card::from_str("4s").unwrap()).unwrap();
     /// deal.insert_trick(trick_3).unwrap();
+    /// */
+    /// deal.trick_insert_card(North, Card::from_str("ac").unwrap()).unwrap(); //winner
+    /// deal.trick_insert_card(East, Card::from_str("qs").unwrap()).unwrap();
+    /// deal.trick_insert_card(South, Card::from_str("7h").unwrap()).unwrap();
+    /// deal.trick_insert_card(West, Card::from_str("4c").unwrap()).unwrap();
     /// assert_eq!(deal.tricks_taken(North), 2);
     /// assert_eq!(deal.tricks_taken(West), 1);
     /// assert_eq!(deal.tricks_taken(South), 0);
     /// assert_eq!(deal.tricks_taken(East), 0);
     /// ```
     pub fn tricks_taken(&self, side: Side) -> usize{
-        self.tricks[0..self.trick_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap() == side).count()
+        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap() == side).count()
     }
     /// Counts tricks taken by `Side` (one player)
     /// # Examples:
@@ -201,6 +271,7 @@ impl Deal{
     /// use bridge_core::play::auction::Doubling;
     /// use bridge_core::play::contract::{Contract, Bid};
     /// let mut deal = Deal::new(Contract::new(East, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
+    /// /*
     /// let mut trick_1 = Trick::new(North);
     /// trick_1.add_card(North, Card::from_str("Jack s").unwrap()).unwrap();
     /// trick_1.add_card(East, Card::from_str("10h").unwrap()).unwrap();
@@ -219,15 +290,28 @@ impl Deal{
     /// trick_3.add_card(South, Card::from_str("7h").unwrap()).unwrap();
     /// trick_3.add_card(West, Card::from_str("4s").unwrap()).unwrap();
     /// deal.insert_trick(trick_3).unwrap();
+    /// */
+    /// deal.trick_insert_card(North, Card::from_str("Jack s").unwrap()).unwrap();
+    /// deal.trick_insert_card(East, Card::from_str("10s").unwrap()).unwrap();
+    /// deal.trick_insert_card(South, Card::from_str("4s").unwrap()).unwrap();
+    /// deal.trick_insert_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
+    /// deal.trick_insert_card(West, Card::from_str("8h").unwrap()).unwrap();
+    /// deal.trick_insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
+    /// deal.trick_insert_card(East, Card::from_str("king hearts").unwrap()).unwrap();
+    /// deal.trick_insert_card(South, Card::from_str("9hearts").unwrap()).unwrap();
+    /// deal.trick_insert_card(North, Card::from_str("ac").unwrap()).unwrap(); //winner
+    /// deal.trick_insert_card(East, Card::from_str("qs").unwrap()).unwrap();
+    /// deal.trick_insert_card(South, Card::from_str("7h").unwrap()).unwrap();
+    /// deal.trick_insert_card(West, Card::from_str("4c").unwrap()).unwrap();
     /// assert_eq!(deal.tricks_taken_axis(Axis::NorthSouth), 2);
     /// assert_eq!(deal.tricks_taken_axis(Axis::EastWest), 1);
     /// ```
     pub fn tricks_taken_axis(&self, axis: Axis) -> usize{
-        self.tricks[0..self.trick_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap().axis() == axis).count()
+        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap().axis() == axis).count()
     }
 
     pub fn is_completed(&self) -> bool{
-        match self.trick_number{
+        match self.completed_tricks_number {
             n if n < QUARTER_SIZE => false,
             QUARTER_SIZE => true,
             //Infallible, I guess

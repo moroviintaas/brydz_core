@@ -17,7 +17,8 @@ pub enum TrickError{
     MissingCard(Side),
     CardSlotAlreadyUsed(Side),
     DuplicateCard(Card),
-    ViolatedOrder(Side)
+    ViolatedOrder(Side),
+    UsedPreviouslyExhaustedSuit(Suit),
 }
 impl Display for TrickError{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -81,6 +82,70 @@ impl Trick{
                         self.card_num += 1;
                         self[side] = Some(card);
                         Ok(())
+                    }
+                    true => Err(TrickError::DuplicateCard(card))
+                }
+
+                Some(_) => Err(CardSlotAlreadyUsed(side))
+            },
+            false => Err(ViolatedOrder(side_in_order))
+        }
+    }
+
+    /// Adds card to trick with support for checking and updating suit exhaust table
+    /// # Examples
+    /// ```
+    /// use bridge_core::cards::Card;
+    /// use bridge_core::play::exhaust::ExhaustTable;
+    /// use bridge_core::player::side::Side;
+    /// use bridge_core::play::trick::{Trick, TrickError};
+    /// use std::str::FromStr;
+    /// use bridge_core::cards::suit::Suit;
+    /// let mut exhaust_table = ExhaustTable::new();
+    /// let mut trick1 = Trick::new(Side::West);
+    /// trick1.add_card_check_exhaust(
+    ///     Side::West,
+    ///     Card::from_str("j c").unwrap(),
+    ///     &mut exhaust_table)
+    ///     .unwrap();
+    /// let r1 = trick1.add_card_check_exhaust(
+    ///     Side::North,
+    ///     Card::from_str("10 c").unwrap(),
+    ///     &mut exhaust_table);
+    /// assert_eq!(r1, Ok(2));
+    /// let r2 = trick1.add_card_check_exhaust(
+    ///     Side::East,
+    ///     Card::from_str("9 h").unwrap(),
+    ///     &mut exhaust_table);
+    /// assert_eq!(r2, Ok(3));
+    /// assert!(exhaust_table.get_exhaust(Side::East, Suit::Clubs));
+    /// let mut trick2 = Trick::new(Side::East);
+    /// let r3 = trick2.add_card_check_exhaust(
+    ///     Side::East,
+    ///     Card::from_str("9 c").unwrap(),
+    ///     &mut exhaust_table);
+    /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
+    ///
+    /// ```
+    pub fn add_card_check_exhaust(&mut self, side: Side, card: Card, exhaust_table: &mut ExhaustTable) -> Result<u8, TrickError>{
+        if exhaust_table.get_exhaust(side, card.suit()){
+            // This suit was already exhausted for player, therefore possible cheating
+            return Err(TrickError::UsedPreviouslyExhaustedSuit(card.suit()))
+        }
+        let side_in_order = self.first_player.next_i(self.card_num);
+        match side == side_in_order{
+            true => match self[side]{
+                None => match self.contains(&card){
+                    false => {
+                        if side != self.first_player{
+                            if card.suit() != self[self.first_player].unwrap().suit() {
+                                // mark suit of first card in trick as exhausted for the player
+                                exhaust_table.exhaust(&side, &self[self.first_player].unwrap().suit())
+                            }
+                        }
+                        self.card_num += 1;
+                        self[side] = Some(card);
+                        Ok(self.card_num)
                     }
                     true => Err(TrickError::DuplicateCard(card))
                 }

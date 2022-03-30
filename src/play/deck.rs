@@ -10,7 +10,7 @@ use rand::seq::SliceRandom;
 
 pub const DECK_SIZE: usize = 52;
 pub const QUARTER_SIZE: usize = 13usize;
-pub const LAST_INDEX_IN_DEAL: usize = QUARTER_SIZE -1;
+pub const MAX_INDEX_IN_DEAL: usize = QUARTER_SIZE -1;
 
 #[derive(Debug, Eq, PartialEq,  Clone, Serialize, Deserialize)]
 pub struct Deck{
