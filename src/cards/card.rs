@@ -1,8 +1,9 @@
 use std::hash::{Hash};
 use std::str::FromStr;
-use crate::cards::figure::Figure;
+use crate::cards::figure::{Figure, NumberFigure};
 use crate::cards::suit::Suit;
 use serde::{Deserialize, Serialize};
+use crate::cards::figure::Figure::Numbered;
 use crate::cards::parser::parse_card;
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone, Hash)]
