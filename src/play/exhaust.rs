@@ -30,7 +30,7 @@ impl UsedCards{
     pub fn check_card(&self, card:Card) -> bool{
         !matches!(self.memory & card.mask(), 0)
     }
-    pub fn mark_used_trick(&mut self, trick: Trick){
+    pub fn mark_used_trick(&mut self, trick: &Trick){
         for s in [Side::North, Side::East, Side::South, Side::West]{
             if let Some(c) = trick[s]{
                 self.mark_used(c);
@@ -72,10 +72,10 @@ impl UsedCards{
 
 
 
-/*
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub struct Exhaust{
-    array: u64
+    array: u16
 }
 
 impl Exhaust{
@@ -87,7 +87,7 @@ impl Exhaust{
         self.get_suit_exhaust(suit)[side.index()]
     }
 
-}*/
+}
 
 
 

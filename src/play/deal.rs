@@ -53,39 +53,20 @@ impl Deal{
         &self.current_trick
     }
 
-    fn insert_trick(&mut self, trick: Trick) -> Result<(), DealError>{
-        match self.completed_tricks_number {
-            n@0..=MAX_INDEX_IN_DEAL => match trick.missing_card(){
-                Some(s) => Err(DealError::TrickError(trick, MissingCard(s))),
-                None => {
-
-                    if let Some(c) = self.used_cards_memory.trick_collision(trick){
-                        return Err(DealError::DuplicateCard(c));
-                    }
-
-
-                    self.tricks[n] = trick;
-                    self.completed_tricks_number = n+1;
-                    self.used_cards_memory.mark_used_trick(trick);
-                    Ok(())
-                }
-
-            }
-            _ => Err(DealError::DealFull),
-        }
-    }
-
     fn complete_current_trick(&mut self) -> Result<(), DealError>{
         match self.completed_tricks_number {
             n@0..=MAX_INDEX_IN_DEAL => match self.current_trick.missing_card(){
                 Some(s) => Err(DealError::TrickError(self.current_trick, MissingCard(s))),
                 None => {
-                    /*for t in &self.tricks{
-                        if let Some(c) = t.collision(&self.current_trick) {return Err(DealError::DuplicateCard(c))}
-                    }*/
+                    if let Some(c) = self.used_cards_memory.trick_collision(self.current_trick){
+                        return Err(DealError::DuplicateCard(c));
+                    }
 
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
+
+                    self.used_cards_memory.mark_used_trick(&self.current_trick);
                     self.tricks[n] = self.current_trick;
+
                     self.current_trick = Trick::new(next_player);
                     self.completed_tricks_number = n+1;
                     Ok(())
@@ -133,7 +114,11 @@ impl Deal{
     /// assert_eq!(r.unwrap(), Side::South);
     /// let r = deal.insert_card(Side::South, card::JACK_HEARTS);
     /// assert_eq!(r, Err(DealError::TrickError(deal.current_trick().to_owned(), TrickError::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
+    /// deal.insert_card(Side::South, card::TWO_CLUBS).unwrap();
+    /// deal.insert_card(Side::West, card::SIX_HEARTS).unwrap();
+    /// let r = deal.insert_card(Side::North, card::THREE_HEARTS);
     ///
+    /// assert_eq!(r, Err(DealError::DuplicateCard(card::TWO_CLUBS)));
     ///
     /// ```
     pub fn insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError>{
@@ -158,8 +143,6 @@ impl Deal{
             Err(e) => Err(DealError::TrickError(self.current_trick, e))
 
         }
-
-
     }
 
     pub fn trump(&self) -> Trump{
@@ -360,73 +343,50 @@ mod tests{
     use crate::play::deal::{Deal, DealError};
     use crate::play::deal::DealError::DealFull;
     use crate::play::deck::{Deck, QUARTER_SIZE};
-    use crate::play::trick::{Trick, TrickError};
     use crate::player::side::Side;
     use crate::player::side::Side::{East, North, South, West};
 
 
     #[test]
     fn deal_duplicate_card(){
-        let mut deal = Deal::new(Contract::new(East, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
-        //let mut deal = Deal::new(South, Trump::NoTrump);
-        let mut trick1 = Trick::new(North);
+        let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
         let deck = Deck::new_sorted_by_suits();
 
-        trick1.add_card(Side::North, deck[0]).unwrap();
-        trick1.add_card(Side::East, deck[2]).unwrap();
-        trick1.add_card(Side::South, deck[1]).unwrap();
-        trick1.add_card(Side::West, deck[3]).unwrap();
-        deal.insert_trick(trick1).unwrap();
-        let mut trick2 = Trick::new(North);
-        trick2.add_card(Side::North, deck[0]).unwrap();
-        trick2.add_card(Side::East, deck[6]).unwrap();
-        trick2.add_card(Side::South, deck[5]).unwrap();
 
-        trick2.add_card(Side::West, deck[7]).unwrap();
 
-        let r  =deal.insert_trick(trick2);
+        deal.insert_card(Side::North, deck[0]).unwrap();
+        deal.insert_card(Side::East, deck[2]).unwrap();
+        deal.insert_card(Side::South, deck[1]).unwrap();
+        deal.insert_card(Side::West, deck[3]).unwrap();
+
+        deal.insert_card(Side::North, deck[0]).unwrap();
+        deal.insert_card(Side::East, deck[6]).unwrap();
+        deal.insert_card(Side::South, deck[5]).unwrap();
+
+        let r = deal.insert_card(Side::West, deck[7]);
+
+
         assert_eq!(r, Err(DealError::DuplicateCard(deck[0])));
 
     }
 
-    #[test]
-    fn deal_incomplete_trick(){
-        //let mut deal = Deal::new(South, Trump::NoTrump);
-        let mut deal = Deal::new(Contract::new(East, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
-        let mut trick1 = Trick::new(North);
-        let deck = Deck::new_sorted_by_suits();
-        trick1.add_card(Side::North, deck[0]).unwrap();
-        trick1.add_card(Side::East, deck[2]).unwrap();
-        trick1.add_card(Side::South, deck[1]).unwrap();
-        trick1.add_card(Side::West, deck[3]).unwrap();
-        deal.insert_trick(trick1).unwrap();
-        let mut trick2 = Trick::new(North);
-        trick2.add_card(Side::North, deck[0]).unwrap();
-
-        let r  =deal.insert_trick(trick2);
-        assert_eq!(r, Err(DealError::TrickError(trick2, TrickError::MissingCard(East))));
-    }
 
     #[test]
     fn deal_overflow_tricks(){
         let num_of_sides = 4usize;
         let deck = Deck::new_sorted_by_suits();
         //let mut deal = Deal::new(South, Trump::NoTrump);
-        let mut deal = Deal::new(Contract::new(East, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
+        let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
         for i in 0..QUARTER_SIZE{
-            let mut trick = Trick::new(North);
-            trick.add_card(Side::North, deck[num_of_sides*i]).unwrap();
-            trick.add_card(Side::East, deck[num_of_sides*i + 1]).unwrap();
-            trick.add_card(Side::South, deck[num_of_sides*i + 2]).unwrap();
-            trick.add_card(Side::West, deck[num_of_sides*i + 3]).unwrap();
-            deal.insert_trick(trick).unwrap();
+
+            deal.insert_card(Side::North,deck[num_of_sides*i]).unwrap();
+            deal.insert_card(Side::East,deck[num_of_sides*i + 1]).unwrap();
+            deal.insert_card(Side::South,deck[num_of_sides*i + 2]).unwrap();
+            deal.insert_card(Side::West,deck[num_of_sides*i +3]).unwrap();
+
         }
-        let mut trick = Trick::new(North);
-        trick.add_card(Side::North, deck[0]).unwrap();
-        trick.add_card(Side::East, deck[1]).unwrap();
-        trick.add_card(Side::South, deck[3]).unwrap();
-        trick.add_card(Side::West, deck[4]).unwrap();
-        let r = deal.insert_trick(trick);
+
+        let r = deal.insert_card(Side::North, deck[0]);
         assert_eq!(r, Err(DealFull));
 
 
