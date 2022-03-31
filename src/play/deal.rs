@@ -115,22 +115,22 @@ impl Deal{
     /// use bridge_core::play::trick::TrickError;
     /// let mut deal = Deal::new(
     ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(Suit::Hearts), 1).unwrap()));
-    /// deal.trick_insert_card(Side::North, Card::from_str("king h").unwrap()).unwrap();
-    /// deal.trick_insert_card(Side::East, Card::from_str("ace h").unwrap()).unwrap();
-    /// deal.trick_insert_card(Side::South, Card::from_str("2 clubs").unwrap()).unwrap();
+    /// deal.insert_card(Side::North, Card::from_str("king h").unwrap()).unwrap();
+    /// deal.insert_card(Side::East, Card::from_str("ace h").unwrap()).unwrap();
+    /// deal.insert_card(Side::South, Card::from_str("2 clubs").unwrap()).unwrap();
     /// assert_eq!(deal.completed_tricks(), 0);
-    /// let r = deal.trick_insert_card(Side::West, Card::from_str("7 hearts").unwrap());
+    /// let r = deal.insert_card(Side::West, Card::from_str("7 hearts").unwrap());
     /// assert_eq!(r.unwrap(), Side::East);
     /// assert_eq!(deal.completed_tricks(), 1);
     /// assert_eq!(deal.side_winning_trick(0).unwrap(), Side::East);
-    /// let r = deal.trick_insert_card(Side::East, Card::from_str("10 h").unwrap());
+    /// let r = deal.insert_card(Side::East, Card::from_str("10 h").unwrap());
     /// assert_eq!(r.unwrap(), Side::South);
-    /// let r = deal.trick_insert_card(Side::South, Card::from_str("J hearts").unwrap());
+    /// let r = deal.insert_card(Side::South, Card::from_str("J hearts").unwrap());
     /// assert_eq!(r, Err(DealError::TrickError(deal.current_trick().to_owned(), TrickError::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
     ///
     ///
     /// ```
-    pub fn trick_insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError>{
+    pub fn insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError>{
         if self.completed_tricks_number >= QUARTER_SIZE{
             return Err(DealError::DealFull);
         }
@@ -197,28 +197,33 @@ impl Deal{
     /// use bridge_core::player::side::SIDES;
     /// use bridge_core::play::deal::Deal;
     /// use bridge_core::cards::Card;
+    /// use bridge_core::cards;
     /// use bridge_core::cards::figure::{Figure, NumberFigure};
     /// use std::str::FromStr;
     /// use bridge_core::play::auction::Doubling;
     /// use bridge_core::play::contract::{Contract, Bid};
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = Deal::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
-    /// deal_1.trick_insert_card(East, Card::from_str("k s").unwrap()).unwrap();
-    /// deal_1.trick_insert_card(South, Card::from_str("qs").unwrap()).unwrap();
-    /// deal_1.trick_insert_card(West, Card::from_str("js").unwrap()).unwrap();
-    /// deal_1.trick_insert_card(North, Card::from_str("a s").unwrap()).unwrap();
+    /// /*deal_1.insert_card(East, Card::from_str("k s").unwrap()).unwrap();
+    /// deal_1.insert_card(South, Card::from_str("qs").unwrap()).unwrap();
+    /// deal_1.insert_card(West, Card::from_str("js").unwrap()).unwrap();
+    /// deal_1.insert_card(North, Card::from_str("a s").unwrap()).unwrap();*/
+    /// deal_1.insert_card(East, cards::KING_SPADES).unwrap();
+    /// deal_1.insert_card(South, cards::QUEEN_SPADES).unwrap();
+    /// deal_1.insert_card(West, cards::JACK_SPADES).unwrap();
+    /// deal_1.insert_card(North, cards::ACE_SPADES).unwrap();
     /// assert_eq!(deal_1.side_winning_trick(0), Ok(North));
     ///
     /// let mut deal_2 = Deal::new(Contract::new_d(West, Bid::create_bid(Trump::NoTrump, 1).unwrap(), Doubling::None));
-    /// deal_2.trick_insert_card(North, Card::from_str("2 d").unwrap()).unwrap();
-    /// deal_2.trick_insert_card(East, Card::from_str("ace clubs").unwrap()).unwrap();
-    /// deal_2.trick_insert_card(South, Card::from_str("queen clubs").unwrap()).unwrap();
-    /// deal_2.trick_insert_card(West, Card::from_str("3 d").unwrap()).unwrap();
+    /// deal_2.insert_card(North, Card::from_str("2 d").unwrap()).unwrap();
+    /// deal_2.insert_card(East, Card::from_str("ace clubs").unwrap()).unwrap();
+    /// deal_2.insert_card(South, Card::from_str("queen clubs").unwrap()).unwrap();
+    /// deal_2.insert_card(West, Card::from_str("3 d").unwrap()).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(0), Ok(West));
-    /// deal_2.trick_insert_card(West, Card::from_str("4 d").unwrap()).unwrap();
-    /// deal_2.trick_insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap();
-    /// deal_2.trick_insert_card(East, Card::from_str("king clubs").unwrap()).unwrap();
-    /// deal_2.trick_insert_card(South, Card::from_str("9s").unwrap()).unwrap();
+    /// deal_2.insert_card(West, Card::from_str("4 d").unwrap()).unwrap();
+    /// deal_2.insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap();
+    /// deal_2.insert_card(East, Card::from_str("king clubs").unwrap()).unwrap();
+    /// deal_2.insert_card(South, Card::from_str("9s").unwrap()).unwrap();
     /// //deal_2.insert_trick(trick_2_2).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(1), Ok(North));
     /// ```
@@ -249,10 +254,10 @@ impl Deal{
     /// trick_1.add_card(South, Card::from_str("4c").unwrap()).unwrap();
     /// trick_1.add_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
     /// deal.insert_trick(trick_1).unwrap();*/
-    /// deal.trick_insert_card(North, Card::from_str("Jack s").unwrap()).unwrap();
-    /// deal.trick_insert_card(East, Card::from_str("10s").unwrap()).unwrap();
-    /// deal.trick_insert_card(South, Card::from_str("4s").unwrap()).unwrap();
-    /// deal.trick_insert_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
+    /// deal.insert_card(North, Card::from_str("Jack s").unwrap()).unwrap();
+    /// deal.insert_card(East, Card::from_str("10s").unwrap()).unwrap();
+    /// deal.insert_card(South, Card::from_str("4s").unwrap()).unwrap();
+    /// deal.insert_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
     /// /*
     /// let mut trick_2 = trick_1.prepare_new(Trump::Colored(Diamonds)).unwrap();
     /// let mut trick_2 = deal.init_new_trick().unwrap();
@@ -262,10 +267,10 @@ impl Deal{
     /// trick_2.add_card(South, Card::from_str("9s").unwrap()).unwrap();
     /// deal.insert_trick(trick_2).unwrap();
     /// */
-    /// deal.trick_insert_card(West, Card::from_str("8h").unwrap()).unwrap();
-    /// deal.trick_insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
-    /// deal.trick_insert_card(East, Card::from_str("king hearts").unwrap()).unwrap();
-    /// deal.trick_insert_card(South, Card::from_str("9hearts").unwrap()).unwrap();
+    /// deal.insert_card(West, Card::from_str("8h").unwrap()).unwrap();
+    /// deal.insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
+    /// deal.insert_card(East, Card::from_str("king hearts").unwrap()).unwrap();
+    /// deal.insert_card(South, Card::from_str("9hearts").unwrap()).unwrap();
     /// /*
     /// //let mut trick_3 = deal.init_new_trick().unwrap();
     /// let mut trick_3 = trick_2.prepare_new(Trump::Colored(Diamonds)).unwrap();
@@ -275,10 +280,10 @@ impl Deal{
     /// trick_3.add_card(West, Card::from_str("4s").unwrap()).unwrap();
     /// deal.insert_trick(trick_3).unwrap();
     /// */
-    /// deal.trick_insert_card(North, Card::from_str("ac").unwrap()).unwrap(); //winner
-    /// deal.trick_insert_card(East, Card::from_str("qs").unwrap()).unwrap();
-    /// deal.trick_insert_card(South, Card::from_str("7h").unwrap()).unwrap();
-    /// deal.trick_insert_card(West, Card::from_str("4c").unwrap()).unwrap();
+    /// deal.insert_card(North, Card::from_str("ac").unwrap()).unwrap(); //winner
+    /// deal.insert_card(East, Card::from_str("qs").unwrap()).unwrap();
+    /// deal.insert_card(South, Card::from_str("7h").unwrap()).unwrap();
+    /// deal.insert_card(West, Card::from_str("4c").unwrap()).unwrap();
     /// assert_eq!(deal.tricks_taken(North), 2);
     /// assert_eq!(deal.tricks_taken(West), 1);
     /// assert_eq!(deal.tricks_taken(South), 0);
@@ -322,18 +327,18 @@ impl Deal{
     /// trick_3.add_card(West, Card::from_str("4s").unwrap()).unwrap();
     /// deal.insert_trick(trick_3).unwrap();
     /// */
-    /// deal.trick_insert_card(North, Card::from_str("Jack s").unwrap()).unwrap();
-    /// deal.trick_insert_card(East, Card::from_str("10s").unwrap()).unwrap();
-    /// deal.trick_insert_card(South, Card::from_str("4s").unwrap()).unwrap();
-    /// deal.trick_insert_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
-    /// deal.trick_insert_card(West, Card::from_str("8h").unwrap()).unwrap();
-    /// deal.trick_insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
-    /// deal.trick_insert_card(East, Card::from_str("king hearts").unwrap()).unwrap();
-    /// deal.trick_insert_card(South, Card::from_str("9hearts").unwrap()).unwrap();
-    /// deal.trick_insert_card(North, Card::from_str("ac").unwrap()).unwrap(); //winner
-    /// deal.trick_insert_card(East, Card::from_str("qs").unwrap()).unwrap();
-    /// deal.trick_insert_card(South, Card::from_str("7h").unwrap()).unwrap();
-    /// deal.trick_insert_card(West, Card::from_str("4c").unwrap()).unwrap();
+    /// deal.insert_card(North, Card::from_str("Jack s").unwrap()).unwrap();
+    /// deal.insert_card(East, Card::from_str("10s").unwrap()).unwrap();
+    /// deal.insert_card(South, Card::from_str("4s").unwrap()).unwrap();
+    /// deal.insert_card(West, Card::from_str("5d").unwrap()).unwrap(); //winner
+    /// deal.insert_card(West, Card::from_str("8h").unwrap()).unwrap();
+    /// deal.insert_card(North, Card::from_str("Jack diamonds").unwrap()).unwrap(); //winner
+    /// deal.insert_card(East, Card::from_str("king hearts").unwrap()).unwrap();
+    /// deal.insert_card(South, Card::from_str("9hearts").unwrap()).unwrap();
+    /// deal.insert_card(North, Card::from_str("ac").unwrap()).unwrap(); //winner
+    /// deal.insert_card(East, Card::from_str("qs").unwrap()).unwrap();
+    /// deal.insert_card(South, Card::from_str("7h").unwrap()).unwrap();
+    /// deal.insert_card(West, Card::from_str("4c").unwrap()).unwrap();
     /// assert_eq!(deal.tricks_taken_axis(Axis::NorthSouth), 2);
     /// assert_eq!(deal.tricks_taken_axis(Axis::EastWest), 1);
     /// ```
@@ -351,7 +356,7 @@ impl Deal{
     }
 
     pub fn score(&self) -> Score{
-        let mut score = Score::default();
+        let  score = Score::default();
 
 
         score
@@ -477,79 +482,79 @@ mod tests{
         let mut deal = Deal::new(Contract::new(
             East,
             Bid::create_bid(Trump::Colored(Diamonds), 3).unwrap()));
-        deal.trick_insert_card(South, Card::from_str("A s").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("3 s").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("4 s").unwrap()).unwrap();
-        deal.trick_insert_card(East, Card::from_str("6 s").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("A s").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("3 s").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("4 s").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("6 s").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 1);
 
-        deal.trick_insert_card(South, Card::from_str("2 s").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("3 d").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("8 s").unwrap()).unwrap();
-        deal.trick_insert_card(East, Card::from_str("10 s").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("2 s").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("3 d").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("8 s").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("10 s").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 2);
 
-        deal.trick_insert_card(West, Card::from_str("4 d").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("j d").unwrap()).unwrap();
-        deal.trick_insert_card(East, Card::from_str("q d").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("10 d").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("4 d").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("j d").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("q d").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("10 d").unwrap()).unwrap();
 
-        deal.trick_insert_card(East, Card::from_str("k d").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("5 s").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("5 d").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("9 d").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("k d").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("5 s").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("5 d").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("9 d").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 4);
 
-        deal.trick_insert_card(East, Card::from_str("4 h").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("5 h").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("k h").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("a h").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("4 h").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("5 h").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("k h").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("a h").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 5);
 
-        deal.trick_insert_card(North, Card::from_str("5 c").unwrap()).unwrap();
-        deal.trick_insert_card(East, Card::from_str("a c").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("4 c").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("2 c").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("5 c").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("a c").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("4 c").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("2 c").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 6);
 
-        deal.trick_insert_card(East, Card::from_str("q h").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("8 h").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("3 h").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("2 h").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("q h").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("8 h").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("3 h").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("2 h").unwrap()).unwrap();
 
-        deal.trick_insert_card(East, Card::from_str("q s").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("7 s").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("6 d").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("9 s").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("q s").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("7 s").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("6 d").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("9 s").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 8);
 
-        deal.trick_insert_card(West, Card::from_str("k c").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("9 c").unwrap()).unwrap();
-        deal.trick_insert_card(East, Card::from_str("10 h").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("6 c").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("k c").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("9 c").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("10 h").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("6 c").unwrap()).unwrap();
 
-        deal.trick_insert_card(West, Card::from_str("3 c").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("q c").unwrap()).unwrap();
-        deal.trick_insert_card(East, Card::from_str("2 d").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("7 c").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("3 c").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("q c").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("2 d").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("7 c").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 10);
 
-        deal.trick_insert_card(East, Card::from_str("7 d").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("8 c").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("6 h").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("7 h").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("7 d").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("8 c").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("6 h").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("7 h").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 11);
 
-        deal.trick_insert_card(East, Card::from_str("8 d").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("j c").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("9h").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("j s").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("8 d").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("j c").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("9h").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("j s").unwrap()).unwrap();
         assert_eq!(deal.completed_tricks(), 12);
 
-        deal.trick_insert_card(East, Card::from_str("a d").unwrap()).unwrap();
-        deal.trick_insert_card(South, Card::from_str("j h").unwrap()).unwrap();
-        deal.trick_insert_card(West, Card::from_str("10 c").unwrap()).unwrap();
-        deal.trick_insert_card(North, Card::from_str("k s").unwrap()).unwrap();
+        deal.insert_card(East, Card::from_str("a d").unwrap()).unwrap();
+        deal.insert_card(South, Card::from_str("j h").unwrap()).unwrap();
+        deal.insert_card(West, Card::from_str("10 c").unwrap()).unwrap();
+        deal.insert_card(North, Card::from_str("k s").unwrap()).unwrap();
 
 
         //assert_eq!(deal.completed_tricks(), 13);

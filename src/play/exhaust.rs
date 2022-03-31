@@ -1,6 +1,5 @@
 use serde::{Deserialize, Serialize};
 use crate::cards::suit::{Suit, SUITS};
-use crate::play::trick::{Trick, TrickError};
 use crate::player::side::{Side, SIDES};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]

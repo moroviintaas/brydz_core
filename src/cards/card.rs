@@ -1,9 +1,10 @@
 use std::hash::{Hash};
 use std::str::FromStr;
-use crate::cards::figure::{Figure, NumberFigure};
+use crate::cards::figure::{Figure};
 use crate::cards::suit::Suit;
 use serde::{Deserialize, Serialize};
-use crate::cards::figure::Figure::Numbered;
+use crate::cards::figure;
+use crate::cards::figure::Figure::{Ace, Jack, King, Numbered, Queen};
 use crate::cards::parser::parse_card;
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone, Hash)]
@@ -42,32 +43,59 @@ impl FromStr for Card{
         parse_card(s).map(|(_, card)| card).map_err(|e| format!("{}", e))
     }
 }
-/*
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
-pub struct ReleasedCard{
-    cards: Card,
-    id: u64
-}
 
+pub const TWO_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F2)};
+pub const THREE_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F3)};
+pub const FOUR_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F4)};
+pub const FIVE_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F5)};
+pub const SIX_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F6)};
+pub const SEVEN_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F7)};
+pub const EIGHT_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F8)};
+pub const NINE_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F9)};
+pub const TEN_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Numbered(figure::F10)};
+pub const JACK_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Jack};
+pub const QUEEN_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Queen};
+pub const KING_CLUBS: Card = Card{ suit: Suit::Clubs, figure: King};
+pub const ACE_CLUBS: Card = Card{ suit: Suit::Clubs, figure: Ace};
 
-impl ReleasedCard{
-    pub fn new(cards: Card, id: u64) -> Self{
-        ReleasedCard{cards, id}
-    }
-    pub fn suit(&self) -> Suit{
-        self.cards.suit()
-    }
-    pub fn figure(&self) -> Figure{
-        self.cards.figure()
-    }
-    pub fn cards(&self) -> Card{
-        self.cards
-    }
+pub const TWO_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F2)};
+pub const THREE_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F3)};
+pub const FOUR_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F4)};
+pub const FIVE_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F5)};
+pub const SIX_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F6)};
+pub const SEVEN_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F7)};
+pub const EIGHT_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F8)};
+pub const NINE_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F9)};
+pub const TEN_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Numbered(figure::F10)};
+pub const JACK_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Jack};
+pub const QUEEN_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Queen};
+pub const KING_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: King};
+pub const ACE_DIAMONDS: Card = Card{ suit: Suit::Diamonds, figure: Ace};
 
-}
-impl Hash for ReleasedCard{
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        self.id.hash(state);
-    }
-}
-*/
+pub const TWO_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F2)};
+pub const THREE_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F3)};
+pub const FOUR_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F4)};
+pub const FIVE_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F5)};
+pub const SIX_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F6)};
+pub const SEVEN_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F7)};
+pub const EIGHT_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F8)};
+pub const NINE_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F9)};
+pub const TEN_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Numbered(figure::F10)};
+pub const JACK_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Jack};
+pub const QUEEN_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Queen};
+pub const KING_HEARTS: Card = Card{ suit: Suit::Hearts, figure: King};
+pub const ACE_HEARTS: Card = Card{ suit: Suit::Hearts, figure: Ace};
+
+pub const TWO_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F2)};
+pub const THREE_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F3)};
+pub const FOUR_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F4)};
+pub const FIVE_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F5)};
+pub const SIX_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F6)};
+pub const SEVEN_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F7)};
+pub const EIGHT_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F8)};
+pub const NINE_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F9)};
+pub const TEN_SPADES: Card = Card{ suit: Suit::Spades, figure: Numbered(figure::F10)};
+pub const JACK_SPADES: Card = Card{ suit: Suit::Spades, figure: Jack};
+pub const QUEEN_SPADES: Card = Card{ suit: Suit::Spades, figure: Queen};
+pub const KING_SPADES: Card = Card{ suit: Suit::Spades, figure: King};
+pub const ACE_SPADES: Card = Card{ suit: Suit::Spades, figure: Ace};

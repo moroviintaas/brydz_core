@@ -21,6 +21,16 @@ impl NumberFigure{
     }
 }
 
+pub const F2:NumberFigure = NumberFigure{power: 2};
+pub const F3:NumberFigure = NumberFigure{power: 3};
+pub const F4:NumberFigure = NumberFigure{power: 4};
+pub const F5:NumberFigure = NumberFigure{power: 5};
+pub const F6:NumberFigure = NumberFigure{power: 6};
+pub const F7:NumberFigure = NumberFigure{power: 7};
+pub const F8:NumberFigure = NumberFigure{power: 8};
+pub const F9:NumberFigure = NumberFigure{power: 9};
+pub const F10:NumberFigure = NumberFigure{power: 10};
+
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone, Hash)]
 pub enum Figure{
     Ace,
