@@ -2,8 +2,8 @@ use std::cmp::Ordering;
 use crate::card::trump::Trump;
 use crate::error::AuctionError;
 use crate::error::AuctionError::{DoubleAfterDouble, DoubleAfterReDouble, IllegalBidNumber, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
-use crate::play::auction;
-use crate::play::auction::Doubling;
+use crate::auction::call;
+use crate::auction::call::Doubling;
 use crate::player::side::Side;
 use serde::{Deserialize, Serialize};
 
@@ -43,7 +43,7 @@ impl PartialOrd for Bid {
 /// use bridge_core::card::trump::Trump::{Colored, NoTrump};
 /// use bridge_core::card::suit::*;
 /// use bridge_core::card::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
-/// use bridge_core::play::contract::Bid;
+/// use bridge_core::auction::contract::Bid;
 /// let bid1 = Bid::create_bid(NoTrump, 2).unwrap();
 /// let bid2 = Bid::create_bid(Colored(Spades), 3).unwrap();
 /// let bid3 = Bid::create_bid(Colored(Clubs), 3).unwrap();
@@ -69,15 +69,15 @@ impl Ord for Bid {
 pub struct Contract {
     owner: Side,
     bid: Bid,
-    doubling: auction::Doubling
+    doubling: call::Doubling
 }
 
 impl Contract {
-    pub fn new_d(owner: Side, bid: Bid, doubling: auction::Doubling) -> Self{
+    pub fn new_d(owner: Side, bid: Bid, doubling: call::Doubling) -> Self{
         Self{bid, doubling, owner}
     }
     pub fn new(player: Side, bid: Bid) -> Self{
-        Self{owner: player, bid, doubling: auction::Doubling::None}
+        Self{owner: player, bid, doubling: call::Doubling::None}
     }
     pub fn bid(&self) -> Bid{
         self.bid

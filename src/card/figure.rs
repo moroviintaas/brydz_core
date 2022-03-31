@@ -19,6 +19,24 @@ impl NumberFigure{
     pub fn power(&self) -> u8{
         self.power
     }
+    /// Returns a mask of a figure in manner:
+    ///
+    /// ```
+    /// use bridge_core::card::figure;
+    /// assert_eq!(figure::F2.mask(), 0x04);
+    /// assert_eq!(figure::F3.mask(), 0x08);
+    /// assert_eq!(figure::F4.mask(), 0x10);
+    /// assert_eq!(figure::F5.mask(), 0x20);
+    /// assert_eq!(figure::F6.mask(), 0x40);
+    /// assert_eq!(figure::F7.mask(), 0x80);
+    /// assert_eq!(figure::F8.mask(), 0x100);
+    /// assert_eq!(figure::F9.mask(), 0x200);
+    /// assert_eq!(figure::F10.mask(), 0x400);
+    ///
+    /// ```
+    pub fn mask(&self) -> u64{
+        1u64<<self.power
+    }
 }
 
 pub const F2:NumberFigure = NumberFigure{power: 2};
@@ -48,7 +66,27 @@ impl Figure{
             Jack=> 11,
             Numbered(fig) => fig.power()
         }
+    }
+    /// Returns a mask for figure for efficient storing bool tables
+    /// ```
+    /// use bridge_core::card::figure;
+    /// use bridge_core::card::figure::Figure;
+    /// assert_eq!(Figure::Ace.mask(),      0b0100000000000000);
+    /// assert_eq!(Figure::King.mask(),     0b0010000000000000);
+    /// assert_eq!(Figure::Queen.mask(),    0b0001000000000000);
+    /// assert_eq!(Figure::Jack.mask(),     0b0000100000000000);
+    /// assert_eq!(figure::F10.mask(),      0b0000010000000000);
+    /// assert_eq!(figure::F2.mask(),       0b0000000000000100);
+    /// ```
+    pub fn mask(&self) -> u64{
+        match self{
+            Figure::Ace => 0x4000,
+            Figure::King => 0x2000,
+            Figure::Queen => 0x1000,
+            Figure::Jack => 0x800,
+            Numbered(n) => n.mask()
 
+        }
     }
 
 }

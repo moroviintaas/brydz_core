@@ -1,5 +1,5 @@
-use crate::play::axis::Axis;
-use crate::play::axis::Axis::{EastWest, NorthSouth};
+use crate::player::axis::Axis;
+use crate::player::axis::Axis::{EastWest, NorthSouth};
 use serde::{Deserialize, Serialize};
 use crate::player::side::Side::{East, North, South, West};
 

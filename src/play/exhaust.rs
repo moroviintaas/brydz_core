@@ -2,6 +2,23 @@ use serde::{Deserialize, Serialize};
 use crate::card::suit::{Suit, SUITS};
 use crate::player::side::{Side, SIDES};
 
+
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+pub struct Exhaust{
+    array: u64
+}
+/*
+impl Exhaust{
+    pub fn new() -> Self{
+        Self{array:0}
+    }
+
+    pub fn get_exhaust(&self, side: Side, suit: Suit) -> bool{
+        self.get_suit_exhaust(suit)[side.index()]
+    }
+
+}*/
+
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ExhaustTable {
     spades: [bool; SIDES.len()],
@@ -59,15 +76,6 @@ impl ExhaustTable {
         };
     }
 
-    /*pub fn check_trick(&self, trick: &Trick) -> Result<bool, TrickError>{
-        match trick.called_suit(){
-            None => Err(TrickError::MissingCard(trick.first_player_side())),
-            Some(cs) => {
-                let suit_exhaust  = self.get_suit_exhaust(cs);
-                for
-            }
-        }
-    }*/
 
 }
 

@@ -5,12 +5,12 @@ use crate::player::side::Side;
 use serde::{Deserialize, Serialize};
 use crate::card::Card;
 use crate::card::trump::Trump;
-use crate::play::axis::Axis;
-use crate::play::contract::Contract;
+use crate::player::axis::Axis;
+use crate::auction::contract::Contract;
 use crate::play::deal::DealError::IndexedOverCurrentTrick;
 use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
 use crate::play::exhaust::ExhaustTable;
-use crate::play::score::Score;
+use crate::score::score::Score;
 use crate::play::trick::TrickError::MissingCard;
 
 
@@ -106,13 +106,13 @@ impl Deal{
     /// use bridge_core::card::Card;
     /// use bridge_core::card::suit::Suit;
     /// use bridge_core::card::trump::Trump;
-    /// use bridge_core::play::auction::Doubling;
-    /// use bridge_core::play::contract::{Bid, Contract};
+    /// use bridge_core::auction::call::Doubling;
+    /// use bridge_core::auction::contract::{Bid, Contract};
     /// use bridge_core::play::deal::{Deal, DealError};
     /// use bridge_core::player::side::Side;
     /// use bridge_core::card;
     /// use std::str::FromStr;
-    /// use bridge_core::play::axis::Axis;
+    /// use bridge_core::player::axis::Axis;
     /// use bridge_core::play::trick::TrickError;
     /// let mut deal = Deal::new(
     ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(Suit::Hearts), 1).unwrap()));
@@ -201,8 +201,8 @@ impl Deal{
     /// use bridge_core::card;
     /// use bridge_core::card::figure::{Figure, NumberFigure};
     /// use std::str::FromStr;
-    /// use bridge_core::play::auction::Doubling;
-    /// use bridge_core::play::contract::{Contract, Bid};
+    /// use bridge_core::auction::call::Doubling;
+    /// use bridge_core::auction::contract::{Contract, Bid};
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = Deal::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
     ///
@@ -245,8 +245,8 @@ impl Deal{
     /// use bridge_core::card;
     /// use bridge_core::card::figure::{Figure, NumberFigure};
     /// use std::str::FromStr;
-    /// use bridge_core::play::contract::{Contract, Bid};
-    /// use bridge_core::play::auction::Doubling;
+    /// use bridge_core::auction::contract::{Contract, Bid};
+    /// use bridge_core::auction::call::Doubling;
     /// let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap() ));
     ///
     /// deal.insert_card(North, card::JACK_SPADES).unwrap();
@@ -283,9 +283,9 @@ impl Deal{
     /// use bridge_core::card;
     /// use bridge_core::card::figure::{Figure, NumberFigure};
     /// use std::str::FromStr;
-    /// use bridge_core::play::axis::Axis;
-    /// use bridge_core::play::auction::Doubling;
-    /// use bridge_core::play::contract::{Contract, Bid};
+    /// use bridge_core::player::axis::Axis;
+    /// use bridge_core::auction::call::Doubling;
+    /// use bridge_core::auction::contract::{Contract, Bid};
     /// let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     /// deal.insert_card(North, card::JACK_SPADES).unwrap();
     /// deal.insert_card(East, card::TEN_SPADES).unwrap();
@@ -358,7 +358,7 @@ mod tests{
     use crate::card;
     use crate::card::suit::Suit::{Diamonds};
     use crate::card::trump::Trump;
-    use crate::play::contract::{Bid, Contract};
+    use crate::auction::contract::{Bid, Contract};
     use crate::play::deal::{Deal, DealError};
     use crate::play::deal::DealError::DealFull;
     use crate::play::deck::{Deck, QUARTER_SIZE};

@@ -12,12 +12,12 @@ pub enum Suit{
 }
 
 impl Suit{
-    fn ord_num(&self) -> u8{
+    pub fn age(&self) -> u8{
         match self{
-            Spades => 4,
-            Hearts => 3,
-            Diamonds => 2,
-            Clubs => 1
+            Spades => 3,
+            Hearts => 2,
+            Diamonds => 1,
+            Clubs => 0
         }
     }
 
@@ -29,13 +29,13 @@ pub const SUITS: [Suit; 4] = [Spades, Hearts, Diamonds, Clubs];
 
 impl PartialOrd<Self> for Suit {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.ord_num().cmp(&other.ord_num()))
+        Some(self.age().cmp(&other.age()))
     }
 }
 
 impl Ord for Suit{
     fn cmp(&self, other: &Self) -> Ordering {
-        self.ord_num().cmp(&other.ord_num())
+        self.age().cmp(&other.age())
     }
 }
 

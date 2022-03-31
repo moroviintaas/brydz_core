@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::play::axis::Axis;
+use crate::player::axis::Axis;
 
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Copy)]

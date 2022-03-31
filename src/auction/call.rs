@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::play::{contract};
+use crate::auction::contract;
 use crate::player::side::Side;
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]

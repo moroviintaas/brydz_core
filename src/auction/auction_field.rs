@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
+use crate::auction::call;
 use crate::error::{AuctionError, Mismatch};
 use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
-use crate::play::{auction};
-use crate::play::auction::{Call, CallEntry, Doubling};
-use crate::play::contract::{Bid, Contract};
+use crate::auction::call::{Call, CallEntry, Doubling};
+use crate::auction::contract::{Bid, Contract};
 use crate::player::side::Side;
 
 
@@ -51,7 +51,7 @@ impl AuctionStack{
         self.current_contract.as_ref().map(|c| c.bid())
     }
 
-    pub fn add_contract_bid(&mut self, player_side: Side, call: auction::Call) -> Result<AuctionStatus, AuctionError>{
+    pub fn add_contract_bid(&mut self, player_side: Side, call: call::Call) -> Result<AuctionStatus, AuctionError>{
         match self.current_contract{
             None => {
                 // First bid, must not be double or redouble
@@ -148,10 +148,10 @@ mod tests{
     use crate::card::trump::Trump::Colored;
     use crate::error::{AuctionError, Mismatch};
     use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
-    use crate::play::auction_field::{AuctionStack, Contract};
+    use crate::auction::auction_field::{AuctionStack, Contract};
     use crate::player::side::Side::{East, North, South, West};
-    use crate::play::auction::{Call, Doubling};
-    use crate::play::contract::Bid;
+    use crate::auction::call::{Call, Doubling};
+    use crate::auction::contract::Bid;
 
     #[test]
     fn add_bids_legal(){
