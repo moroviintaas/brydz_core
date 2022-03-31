@@ -5,7 +5,7 @@ use crate::card::{Card};
 use serde::{Deserialize, Serialize};
 use crate::card::suit::Suit;
 use crate::card::trump::Trump;
-use crate::play::exhaust::ExhaustTable;
+use crate::play::exhaust::{SuitExhaust};
 
 use crate::play::trick::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
 
@@ -96,13 +96,13 @@ impl Trick{
     /// # Examples
     /// ```
     /// use bridge_core::card::Card;
-    /// use bridge_core::play::exhaust::ExhaustTable;
+    /// use bridge_core::play::exhaust::SuitExhaust;
     /// use bridge_core::player::side::Side;
     /// use bridge_core::play::trick::{Trick, TrickError};
     /// use std::str::FromStr;
     /// use bridge_core::card::suit::Suit;
     /// use bridge_core::card;
-    /// let mut exhaust_table = ExhaustTable::new();
+    /// let mut exhaust_table = SuitExhaust::new();
     /// let mut trick1 = Trick::new(Side::West);
     /// trick1.add_card_check_exhaust(Side::West, card::JACK_CLUBS, &mut exhaust_table).unwrap();
     /// let r1 = trick1.add_card_check_exhaust(Side::North, card::TEN_CLUBS, &mut exhaust_table);
@@ -115,7 +115,7 @@ impl Trick{
     /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
     ///
     /// ```
-    pub fn add_card_check_exhaust(&mut self, side: Side, card: Card, exhaust_table: &mut ExhaustTable) -> Result<u8, TrickError>{
+    pub fn add_card_check_exhaust(&mut self, side: Side, card: Card, exhaust_table: &mut SuitExhaust) -> Result<u8, TrickError>{
         if exhaust_table.get_exhaust(side, card.suit()){
             // This suit was already exhausted for player, therefore possible cheating
             return Err(TrickError::UsedPreviouslyExhaustedSuit(card.suit()))
@@ -172,9 +172,9 @@ impl Trick{
     /// Checks if two tricks collide in some card
     pub fn collides(&self, other: &Trick) -> bool{
         self.collision(other).is_some()
-
-
     }
+
+
 
     /// Checks if two tricks collide with some card
     /// # Returns:
@@ -212,6 +212,8 @@ impl Trick{
         }
         None
     }
+
+
 
     /// Checks if trick is complete
     ///

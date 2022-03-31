@@ -9,7 +9,7 @@ use crate::player::axis::Axis;
 use crate::auction::contract::Contract;
 use crate::play::deal::DealError::IndexedOverCurrentTrick;
 use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
-use crate::play::exhaust::ExhaustTable;
+use crate::play::exhaust::{SuitExhaust, UsedCards};
 use crate::score::score::Score;
 use crate::play::trick::TrickError::MissingCard;
 
@@ -37,15 +37,16 @@ pub struct Deal {
     contract: Contract,
     tricks: [Trick; QUARTER_SIZE],
     completed_tricks_number: usize,
-    exhaust_table: ExhaustTable,
-    current_trick: Trick
+    exhaust_table: SuitExhaust,
+    current_trick: Trick,
+    used_cards_memory: UsedCards
 
 }
 impl Deal{
     pub fn new(contract: Contract) -> Self{
         let first_player = contract.owner().next();
         Self{contract, tricks: [Trick::new(first_player);QUARTER_SIZE], completed_tricks_number: 0,
-            exhaust_table: ExhaustTable::default(), current_trick: Trick::new(first_player)}
+            exhaust_table: SuitExhaust::default(), current_trick: Trick::new(first_player), used_cards_memory: UsedCards::default()}
     }
 
     pub fn current_trick(&self) -> &Trick{
@@ -57,16 +58,19 @@ impl Deal{
             n@0..=MAX_INDEX_IN_DEAL => match trick.missing_card(){
                 Some(s) => Err(DealError::TrickError(trick, MissingCard(s))),
                 None => {
-                    for t in &self.tricks{
-                        if let Some(c) = t.collision(&trick) {return Err(DealError::DuplicateCard(c))}
+
+                    if let Some(c) = self.used_cards_memory.trick_collision(trick){
+                        return Err(DealError::DuplicateCard(c));
                     }
+
+
                     self.tricks[n] = trick;
                     self.completed_tricks_number = n+1;
+                    self.used_cards_memory.mark_used_trick(trick);
                     Ok(())
                 }
 
             }
-            //full if full >= QUARTER_SIZE => Err(DealError::DealFull),
             _ => Err(DealError::DealFull),
         }
     }
@@ -76,9 +80,10 @@ impl Deal{
             n@0..=MAX_INDEX_IN_DEAL => match self.current_trick.missing_card(){
                 Some(s) => Err(DealError::TrickError(self.current_trick, MissingCard(s))),
                 None => {
-                    for t in &self.tricks{
+                    /*for t in &self.tricks{
                         if let Some(c) = t.collision(&self.current_trick) {return Err(DealError::DuplicateCard(c))}
-                    }
+                    }*/
+
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
                     self.tricks[n] = self.current_trick;
                     self.current_trick = Trick::new(next_player);
@@ -139,13 +144,6 @@ impl Deal{
             Ok(4) => {
                 match self.current_trick.taker(self.trump()){
                     Ok(winner) => {
-                        /*match self.insert_trick(self.current_trick){
-                            Ok(()) => {
-                                self.current_trick = Trick::new(winner);
-                                Ok(winner)},
-                            Err(e) => Err(e)
-
-                        }*/
                         match self.complete_current_trick(){
                             Ok(()) => Ok(winner),
                             Err(e) => Err(e)
