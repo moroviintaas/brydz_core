@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use crate::cards::suit::{Suit, SUITS};
+use crate::card::suit::{Suit, SUITS};
 use crate::player::side::{Side, SIDES};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
@@ -42,7 +42,7 @@ impl ExhaustTable {
     /// # Examples:
     /// ```
     /// use bridge_core::play::exhaust::ExhaustTable;
-    /// use bridge_core::cards::suit::Suit;
+    /// use bridge_core::card::suit::Suit;
     /// use bridge_core::player::side::Side;
     /// let mut exhaust = ExhaustTable::new();
     /// assert_eq!(exhaust.get_exhaust(Side::North, Suit::Spades), false);

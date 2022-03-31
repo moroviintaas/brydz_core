@@ -1,9 +1,9 @@
 use serde::{Deserialize, Serialize};
-use crate::cards::{Card};
+use crate::card::{Card};
 use arrayvec::ArrayVec;
 use rand::{thread_rng};
-use crate::cards::figure::FIGURES;
-use crate::cards::suit::SUITS;
+use crate::card::figure::FIGURES;
+use crate::card::suit::SUITS;
 use itertools::Itertools;
 use std::ops::Index;
 use rand::seq::SliceRandom;
@@ -67,13 +67,13 @@ impl Index<usize> for Deck{
 }
 /*
 pub struct ReleasedDeck {
-    cards: ArrayVec<ReleasedCard, DECK_SIZE>
+    card: ArrayVec<ReleasedCard, DECK_SIZE>
 }
 impl ReleasedDeck{
-    ///  Creates new Deck containing all unique 52 standard cards
+    ///  Creates new Deck containing all unique 52 standard card
     /// ```
-    /// use bridge_core::cards::{figure::Figure, Card};
-    /// use bridge_core::cards::suit::Suit;
+    /// use bridge_core::card::{figure::Figure, Card};
+    /// use bridge_core::card::suit::Suit;
     /// use bridge_core::play::deck::Deck;
     /// let deck = Deck::new_sorted();
     /// assert_eq!(deck.at(0), &Card::new(Figure::Ace, Suit::Spades));
@@ -95,7 +95,7 @@ impl ReleasedDeck{
 
 
 
-        Self{cards: v}
+        Self{card: v}
     }
 }
 

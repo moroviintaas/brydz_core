@@ -1,7 +1,7 @@
 pub mod suit;
 pub mod figure;
 pub mod trump;
-mod card;
+mod cards;
 pub mod parser;
 
-pub use card::*;
+pub use cards::*;

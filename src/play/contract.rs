@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use crate::cards::trump::Trump;
+use crate::card::trump::Trump;
 use crate::error::AuctionError;
 use crate::error::AuctionError::{DoubleAfterDouble, DoubleAfterReDouble, IllegalBidNumber, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::play::auction;
@@ -40,9 +40,9 @@ impl PartialOrd for Bid {
 /// Delivers `Ord` for `Bid`
 /// ```
 /// use std::cmp::Ordering;
-/// use bridge_core::cards::trump::Trump::{Colored, NoTrump};
-/// use bridge_core::cards::suit::*;
-/// use bridge_core::cards::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
+/// use bridge_core::card::trump::Trump::{Colored, NoTrump};
+/// use bridge_core::card::suit::*;
+/// use bridge_core::card::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
 /// use bridge_core::play::contract::Bid;
 /// let bid1 = Bid::create_bid(NoTrump, 2).unwrap();
 /// let bid2 = Bid::create_bid(Colored(Spades), 3).unwrap();

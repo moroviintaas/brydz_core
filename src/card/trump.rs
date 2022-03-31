@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
-use crate::cards::{Card, suit};
+use crate::card::{Card, suit};
 use serde::{Deserialize, Serialize};
-use crate::cards::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
-use crate::cards::trump::Trump::{Colored, NoTrump};
+use crate::card::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
+use crate::card::trump::Trump::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
 pub enum Trump{
@@ -31,7 +31,7 @@ impl Trump{
         }
     }
     /*pub fn order_rel_cards(&self, card_one: &ReleasedCard, card_two: &ReleasedCard) -> Ordering{
-        self.order_cards(&card_one.cards(), &card_two.cards())
+        self.order_cards(&card_one.card(), &card_two.card())
     }*/
 
     fn ord_value(&self) -> u8{
@@ -48,29 +48,29 @@ impl Trump{
 
     /*
     !!! Nie działa
-    /// Picks the highest cards in slice according to `Trump`
+    /// Picks the highest card in slice according to `Trump`
     /// ```
     /// use arrayvec::ArrayVec;
-    /// use bridge_core::cards::suit::Suit;
-    /// use bridge_core::cards::suit::Suit::Hearts;
-    /// use bridge_core::cards::figure::Figure::Ace;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::cards::Card;
+    /// use bridge_core::card::suit::Suit;
+    /// use bridge_core::card::suit::Suit::Hearts;
+    /// use bridge_core::card::figure::Figure::Ace;
+    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::card::Card;
     /// use bridge_core::deck::Deck;
     /// use bridge_core::deck::DECK_SIZE;
     /// use std::boxed::Box;
     /// let trump1 = Trump::Colored(Hearts);
     ///
-    /// let deck:Vec<Card>= Deck::new_id_rand().cards().as_slice().iter().map(|rc| rc.cards()).collect();
+    /// let deck:Vec<Card>= Deck::new_id_rand().card().as_slice().iter().map(|rc| rc.card()).collect();
     ///
     /// assert_eq!(trump1.highest_in(Box::new(deck)).unwrap(), Card::new(Ace, Hearts));
     ///
     /// ```
 
-    pub fn highest_in(&self, mut cards: Box<dyn  IntoIterator<Item = Card, IntoIter = dyn Iterator<Item = Card>>>) -> Option<Card>{
+    pub fn highest_in(&self, mut card: Box<dyn  IntoIterator<Item = Card, IntoIter = dyn Iterator<Item = Card>>>) -> Option<Card>{
 
-        let mut highest_so_far = cards.nth(0)?;
-        for c in cards {
+        let mut highest_so_far = card.nth(0)?;
+        for c in card {
             if self.order_cards(&c, &highest_so_far) == Ordering::Greater{
                 highest_so_far = c;
             }
@@ -101,11 +101,11 @@ pub const TRUMPS: [Trump; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamon
 #[cfg(test)]
 mod tests{
     use std::cmp::Ordering;
-    use crate::cards::Card;
-    use crate::cards::figure::Figure::{Ace, Numbered, Queen};
-    use crate::cards::figure::NumberFigure;
-    use crate::cards::suit::Suit::{Diamonds, Hearts, Spades};
-    use crate::cards::trump::Trump;
+    use crate::card::Card;
+    use crate::card::figure::Figure::{Ace, Numbered, Queen};
+    use crate::card::figure::NumberFigure;
+    use crate::card::suit::Suit::{Diamonds, Hearts, Spades};
+    use crate::card::trump::Trump;
 
     #[test]
     fn trump_diamonds(){

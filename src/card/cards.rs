@@ -1,11 +1,11 @@
 use std::hash::{Hash};
 use std::str::FromStr;
-use crate::cards::figure::{Figure};
-use crate::cards::suit::Suit;
+use crate::card::figure::{Figure};
+use crate::card::suit::Suit;
 use serde::{Deserialize, Serialize};
-use crate::cards::figure;
-use crate::cards::figure::Figure::{Ace, Jack, King, Numbered, Queen};
-use crate::cards::parser::parse_card;
+use crate::card::figure;
+use crate::card::figure::Figure::{Ace, Jack, King, Numbered, Queen};
+use crate::card::parser::parse_card;
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone, Hash)]
 pub struct Card{
@@ -29,9 +29,9 @@ impl Card{
 /// Parses Card from str
 /// ```
 /// use std::str::FromStr;
-/// use bridge_core::cards::Card;
-/// use bridge_core::cards::figure::{Figure, NumberFigure};
-/// use bridge_core::cards::suit::Suit;
+/// use bridge_core::card::Card;
+/// use bridge_core::card::figure::{Figure, NumberFigure};
+/// use bridge_core::card::suit::Suit;
 /// assert_eq!(Card::from_str("A s"), Ok(Card::new(Figure::Ace, Suit::Spades)));
 /// assert_eq!(Card::from_str("4caa"), Ok(Card::new(Figure::Numbered(NumberFigure::new(4)), Suit::Clubs)));
 /// assert!(Card::from_str("jq").is_err());

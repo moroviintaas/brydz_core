@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 
 use std::cmp::Ordering;
-use crate::cards::figure::Figure::{Ace, King, Queen, Jack, Numbered};
+use crate::card::figure::Figure::{Ace, King, Queen, Jack, Numbered};
 pub const MAX_NUMBER_FIGURE: u8 = 10;
 pub const MIN_NUMBER_FIGURE: u8 = 2;
 
@@ -74,7 +74,7 @@ impl Ord for Figure{
 
 #[cfg(test)]
 mod tests{
-    use crate::cards::figure::{NumberFigure, Figure};
+    use crate::card::figure::{NumberFigure, Figure};
     #[test]
     fn test_ordering(){
         let king = Figure::King;

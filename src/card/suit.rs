@@ -1,8 +1,8 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
-use crate::cards::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
+use crate::card::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
 
-///Enum representing suits of cards
+///Enum representing suits of card
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone, Hash)]
 pub enum Suit{
     Spades,
@@ -41,7 +41,7 @@ impl Ord for Suit{
 
 #[cfg(test)]
 mod tests{
-    use crate::cards::suit::Suit;
+    use crate::card::suit::Suit;
 
     #[test]
     fn test_order(){

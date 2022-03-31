@@ -144,8 +144,8 @@ impl Default for AuctionStack {
 
 #[cfg(test)]
 mod tests{
-    use crate::cards::suit::Suit::{Clubs, Diamonds};
-    use crate::cards::trump::Trump::Colored;
+    use crate::card::suit::Suit::{Clubs, Diamonds};
+    use crate::card::trump::Trump::Colored;
     use crate::error::{AuctionError, Mismatch};
     use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
     use crate::play::auction_field::{AuctionStack, Contract};

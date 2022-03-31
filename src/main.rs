@@ -1,7 +1,7 @@
-use bridge_core::cards::Card;
-use bridge_core::cards::figure::Figure::{Ace, Numbered, Queen};
-use bridge_core::cards::figure::NumberFigure;
-use bridge_core::cards::suit::Suit::{Clubs, Hearts, Spades};
+use bridge_core::card::Card;
+use bridge_core::card::figure::Figure::{Ace, Numbered, Queen};
+use bridge_core::card::figure::NumberFigure;
+use bridge_core::card::suit::Suit::{Clubs, Hearts, Spades};
 use bridge_core::play::deck::Deck;
 use bridge_core::play::trick::Trick;
 use bridge_core::player::side::Side::{East, North, South, West};
