@@ -19,9 +19,9 @@ impl Display for BridgeError{
     }
 }*/
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct Mismatch<T>{
-    pub e: T,
+#[derive(Debug, Clone, PartialEq, Copy, Eq)]
+pub struct Mismatch<T: Copy>{
+    pub expected: T,
     pub found: T
 }
 

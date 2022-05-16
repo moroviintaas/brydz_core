@@ -93,7 +93,7 @@ impl AuctionStack{
                                     self.calls_entries.push(CallEntry::new(player_side, call));
                                     Ok(AuctionStatus::Running(player_side.next()))
                                 }
-                                _ => Err(BidTooLow(Mismatch{ e: self.current_bid().unwrap(), found:bid}))
+                                _ => Err(BidTooLow(Mismatch{ expected: self.current_bid().unwrap(), found:bid}))
 
                             },
                             Call::Double => match &self.current_contract.as_ref().unwrap().doubling(){
@@ -129,7 +129,7 @@ impl AuctionStack{
                             }
                         }
                     },
-                    found => Err(ViolatedOrder(Mismatch{ e: self.calls_entries.last().unwrap().player_side().next(), found} ))
+                    found => Err(ViolatedOrder(Mismatch{ expected: self.calls_entries.last().unwrap().player_side().next(), found} ))
                 }
 
             }
@@ -208,7 +208,7 @@ mod tests{
             Doubling::None)));
         let r = auction_stack.add_contract_bid(South, Call::Bid(
             Bid::create_bid(Colored(Clubs), 1).unwrap()));
-        assert_eq!(r, Err(AuctionError::ViolatedOrder(Mismatch{ e: North, found: South})));
+        assert_eq!(r, Err(AuctionError::ViolatedOrder(Mismatch{ expected: North, found: South})));
 
     }
 
@@ -280,7 +280,7 @@ mod tests{
         let r = auction_stack.add_contract_bid(North, Call::Bid(
             Bid::create_bid(Colored(Diamonds), 1).unwrap()));
         assert_eq!(r, Err(BidTooLow(Mismatch{
-            e: Bid::create_bid(Colored(Clubs),2).unwrap(),
+            expected: Bid::create_bid(Colored(Clubs), 2).unwrap(),
             found: Bid::create_bid(Colored(Diamonds),1).unwrap() })));
     }
 

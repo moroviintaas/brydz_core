@@ -5,6 +5,7 @@ use crate::card::{Card};
 use serde::{Deserialize, Serialize};
 use crate::card::suit::Suit;
 use crate::card::trump::Trump;
+use crate::error::Mismatch;
 use crate::play::exhaust::{SuitExhaust};
 
 use crate::play::trick::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
@@ -12,12 +13,12 @@ use crate::play::trick::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedO
 use crate::player::side::Side::{North, South, East, West};
 use crate::player::side::{Side, SIDES};
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum TrickError{
     MissingCard(Side),
     CardSlotAlreadyUsed(Side),
     DuplicateCard(Card),
-    ViolatedOrder(Side),
+    ViolatedOrder(Mismatch<Side>),
     UsedPreviouslyExhaustedSuit(Suit),
 }
 impl Display for TrickError{
@@ -88,7 +89,7 @@ impl Trick{
 
                 Some(_) => Err(CardSlotAlreadyUsed(side))
             },
-            false => Err(ViolatedOrder(side_in_order))
+            false => Err(ViolatedOrder(Mismatch{ expected:side_in_order, found: side}))
         }
     }
 
@@ -140,7 +141,7 @@ impl Trick{
 
                 Some(_) => Err(CardSlotAlreadyUsed(side))
             },
-            false => Err(ViolatedOrder(side_in_order))
+            false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
         }
     }
 
