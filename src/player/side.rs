@@ -58,7 +58,7 @@ impl Side{
         }
 
     }
-    pub fn index(&self) -> usize{
+    pub fn index(&self) -> u8{
         match self{
             North => 0,
             East => 1,

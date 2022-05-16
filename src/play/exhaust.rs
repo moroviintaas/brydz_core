@@ -84,7 +84,38 @@ impl Exhaust{
     }
 
     pub fn get_exhaust(&self, side: Side, suit: Suit) -> bool{
-        self.get_suit_exhaust(suit)[side.index()]
+        !matches!(self.array & (1u16 << ((side.index()*4) + suit.age())), 0)
+    }
+
+    /// ```
+    /// use bridge_core::play::exhaust::Exhaust;
+    /// use bridge_core::player::side::Side;
+    /// use bridge_core::card::suit::Suit;
+    /// let mut ex_reg = Exhaust::new();
+    /// ex_reg.mark_exhausted(Side::East, Suit::Diamonds);
+    /// assert_eq!(ex_reg.as_u16(), 0x0020);
+    /// ex_reg.mark_exhausted(Side::North, Suit::Clubs);
+    /// assert_eq!(ex_reg.as_u16(), 0x0021);
+    /// ex_reg.mark_exhausted(Side::South, Suit::Spades);
+    /// assert_eq!(ex_reg.as_u16(), 0x0821);
+    /// ex_reg.mark_exhausted(Side::West, Suit::Hearts);
+    /// assert_eq!(ex_reg.as_u16(), 0x4821);
+    /// ```
+    pub fn as_u16(&self) -> u16{
+        self.array
+    }
+    ///
+    /// ```
+    /// use bridge_core::play::exhaust::Exhaust;
+    /// use bridge_core::player::side::Side;
+    /// use bridge_core::card::suit::Suit;
+    /// let mut ex_reg = Exhaust::new();
+    /// assert!(!ex_reg.get_exhaust(Side::East, Suit::Diamonds));
+    /// ex_reg.mark_exhausted(Side::East, Suit::Diamonds);
+    /// assert!(ex_reg.get_exhaust(Side::East, Suit::Diamonds));
+    /// ```
+    pub fn mark_exhausted(&mut self, side: Side, suit: Suit){
+        self.array = self.array | (1u16 << ((side.index()*4) + suit.age()));
     }
 
 }
@@ -120,11 +151,11 @@ impl SuitExhaust {
             Side::West => [self.spades[3], self.hearts[3], self.diamonds[3], self.clubs[3]],
 
         }*/
-        [self.spades[side.index()], self.hearts[side.index()], self.diamonds[side.index()], self.clubs[side.index()]]
+        [self.spades[usize::from(side.index())], self.hearts[usize::from(side.index())], self.diamonds[usize::from(side.index())], self.clubs[usize::from(side.index())]]
 
     }
     pub fn get_exhaust(&self, side: Side, suit: Suit) -> bool{
-        self.get_suit_exhaust(suit)[side.index()]
+        self.get_suit_exhaust(suit)[usize::from(side.index())]
     }
     /// Marks suit as exhausted for a side
     ///
@@ -141,10 +172,10 @@ impl SuitExhaust {
     ///
     pub fn exhaust(&mut self, side: &Side, suit: &Suit){
         match suit{
-            Suit::Spades => self.spades[side.index()] = true,
-            Suit::Hearts => self.hearts[side.index()] = true,
-            Suit::Diamonds => self.diamonds[side.index()] = true,
-            Suit::Clubs => self.clubs[side.index()] = true
+            Suit::Spades => self.spades[usize::from(side.index())] = true,
+            Suit::Hearts => self.hearts[usize::from(side.index())] = true,
+            Suit::Diamonds => self.diamonds[usize::from(side.index())] = true,
+            Suit::Clubs => self.clubs[usize::from(side.index())] = true
         };
     }
 
