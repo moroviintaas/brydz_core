@@ -1,10 +1,9 @@
-use nom::bytes::complete::{tag, tag_no_case};
+use nom::bytes::complete::{tag_no_case};
 use nom::{IResult};
 use nom::branch::alt;
-use nom::character::complete::digit1;
+use nom::character::complete::{digit1, space0};
 use nom::error::ErrorKind;
-use nom::multi::{many0};
-use nom::sequence::{separated_pair};
+use nom::sequence::{delimited, separated_pair};
 use crate::card::Card;
 use crate::card::figure::{MAX_NUMBER_FIGURE, Figure, NumberFigure, MIN_NUMBER_FIGURE};
 use crate::card::suit::Suit;
@@ -43,14 +42,15 @@ pub fn parse_jack(s: &str) -> IResult<&str, Figure>{
 /// use bridge_core::card::parser::parse_numbered_figure;
 /// use nom::error::ErrorKind;
 /// assert_eq!(parse_numbered_figure("10fg"), Ok(("fg", Figure::Numbered(NumberFigure::new(10)))));
-/// assert_eq!(parse_numbered_figure("11fg"), Err(nom::Err::Error(nom::error::Error::new("11fg", ErrorKind::TooLarge))));
+/// assert_eq!(parse_numbered_figure("11fg"), Err(nom::Err::Error(nom::error::Error::new("11fg", ErrorKind::Digit))));
 /// assert_eq!(parse_numbered_figure("512fg"), Err(nom::Err::Error(nom::error::Error::new("512fg", ErrorKind::Fail))));
 /// ```
 pub fn parse_numbered_figure(s: &str) -> IResult<&str, Figure>{
     match digit1(s){
         Ok((i, ns)) => match ns.parse::<u8>(){
             Ok(n @MIN_NUMBER_FIGURE..=MAX_NUMBER_FIGURE )=> Ok((i, Figure::Numbered(NumberFigure::new(n)))),
-            Ok(_) => Err(nom::Err::Error(nom::error::Error::new(s, ErrorKind::TooLarge))),
+            Ok(_) => Err(nom::Err::Error(nom::error::Error::new(s, ErrorKind::Digit))),
+
             Err(_) => Err(nom::Err::Error(nom::error::Error::new(s, ErrorKind::Fail)))
         }
         Err(e) => Err(e)
@@ -73,7 +73,7 @@ pub fn parse_numbered_figure(s: &str) -> IResult<&str, Figure>{
 /// assert_eq!(parse_figure("deadfish"), Err(nom::Err::Error(nom::error::Error::new("deadfish", ErrorKind::Tag))));
 /// ```
 pub fn parse_figure(s: &str) -> IResult<&str, Figure>{
-    alt(( parse_numbered_figure, parse_ace, parse_king, parse_queen, parse_jack))(s)
+    alt((parse_numbered_figure, parse_ace, parse_king, parse_queen, parse_jack))(s)
 }
 
 pub fn parse_spades(s: &str) -> IResult<&str, Suit>{
@@ -108,7 +108,7 @@ pub fn parse_suit(s: &str) -> IResult<&str, Suit>{
 
 
 
-/// Parses card from &str
+/// Parses card from &str (strict way)
 /// ```
 /// use bridge_core::card::Card;
 /// use bridge_core::card::figure::{Figure, NumberFigure};
@@ -120,21 +120,42 @@ pub fn parse_suit(s: &str) -> IResult<&str, Suit>{
 /// assert_eq!(parse_card_fs("A10  sdiax"), Err(nom::Err::Error(nom::error::Error::new("10  sdiax", ErrorKind::Tag))));
 /// ```
 pub fn parse_card_fs(s: &str) -> IResult<&str, Card>{
-    match separated_pair(parse_figure, many0(tag(" ")), parse_suit)(s){
+    match separated_pair(parse_figure, space0, parse_suit)(s){
         Ok((i, (fig, suit))) => Ok((i, Card::new(fig, suit))),
         Err(e) => Err(e)
     }
 
 }
 
+/// Parses card from &str
+/// ```
+/// use bridge_core::card::Card;
+/// use bridge_core::card::figure::{Figure, NumberFigure};
+/// use bridge_core::card::parser::parse_card_fs_delimited;
+/// use bridge_core::card::suit::Suit;
+/// use nom::error::ErrorKind;
+/// assert_eq!(parse_card_fs_delimited("  10 d\txg"), Ok(("xg", Card::new(Figure::Numbered(NumberFigure::new(10)), Suit::Diamonds))));
+/// assert_eq!(parse_card_fs_delimited(" A  s\tdiax  "), Ok(("diax  ", Card::new(Figure::Ace, Suit::Spades))));
+/// assert_eq!(parse_card_fs_delimited("\tA10  sdiax  "), Err(nom::Err::Error(nom::error::Error::new("10  sdiax  ", ErrorKind::Tag))));
+/// ```
+pub fn parse_card_fs_delimited(s: &str) -> IResult<&str, Card> {
+    delimited(space0, parse_card_fs, space0)(s)
+}
+
+
+
 pub fn parse_card_sf(s: &str) -> IResult<&str, Card> {
-    match separated_pair(parse_suit, many0(tag(" ")), parse_figure)(s) {
+    match separated_pair(parse_suit, space0, parse_figure)(s) {
         Ok((i, (suit, figure))) => Ok((i, Card::new(figure, suit))),
         Err(e) => Err(e)
     }
 }
 
-/// Parses card from &str
+pub fn parse_card_sf_delimited(s: &str) -> IResult<&str, Card> {
+    delimited(space0, parse_card_sf, space0)(s)
+}
+
+/// Parses card from &str (non delimeted way)
 /// ```
 /// use bridge_core::card::Card;
 /// use bridge_core::card::figure::{Figure, NumberFigure};
@@ -148,4 +169,20 @@ pub fn parse_card_sf(s: &str) -> IResult<&str, Card> {
 /// ```
 pub fn parse_card(s: &str) -> IResult<&str, Card> {
     alt((parse_card_fs, parse_card_sf))(s)
+}
+
+/// Parses card from &str (delimited way)
+/// ```
+/// use bridge_core::card::Card;
+/// use bridge_core::card::figure::{Figure, NumberFigure};
+/// use bridge_core::card::parser::parse_card_delimited;
+/// use bridge_core::card::suit::Suit;
+/// use nom::error::ErrorKind;
+/// assert_eq!(parse_card_delimited("10 d  xg"), Ok(("xg", Card::new(Figure::Numbered(NumberFigure::new(10)), Suit::Diamonds))));
+/// assert_eq!(parse_card_delimited("A  s\tdiax"), Ok(("diax", Card::new(Figure::Ace, Suit::Spades))));
+/// assert_eq!(parse_card_delimited("   h  jv"), Ok(("v", Card::new(Figure::Jack, Suit::Hearts))));
+/// assert_eq!(parse_card_delimited(" A10  sdiax"), Err(nom::Err::Error(nom::error::Error::new("A10  sdiax", ErrorKind::Tag))));
+/// ```
+pub fn parse_card_delimited(s: &str) -> IResult<&str, Card>{
+    delimited(space0, parse_card, space0)(s)
 }

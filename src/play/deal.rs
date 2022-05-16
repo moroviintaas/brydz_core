@@ -2,7 +2,6 @@ use std::fmt::{Display, Formatter};
 use std::ops::Index;
 use crate::play::trick::{Trick, TrickError};
 use crate::player::side::Side;
-use serde::{Deserialize, Serialize};
 use crate::card::Card;
 use crate::card::trump::Trump;
 use crate::player::axis::Axis;
@@ -32,7 +31,7 @@ impl Display for DealError{
 
 
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq,  Clone)]
 pub struct Deal {
     contract: Contract,
     tricks: [Trick; QUARTER_SIZE],
@@ -44,7 +43,7 @@ pub struct Deal {
 }
 impl Deal{
     pub fn new(contract: Contract) -> Self{
-        let first_player = contract.owner().next();
+        let first_player = contract.declarer().next();
         Self{contract, tricks: [Trick::new(first_player);QUARTER_SIZE], completed_tricks_number: 0,
             exhaust_table: SuitExhaust::default(), current_trick: Trick::new(first_player), used_cards_memory: UsedCards::default()}
     }
@@ -93,7 +92,8 @@ impl Deal{
     /// use bridge_core::card::suit::Suit;
     /// use bridge_core::card::trump::Trump;
     /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::auction::contract::{Bid, Contract};
+    /// use bridge_core::auction::contract::{Contract};
+    /// use bridge_core::auction::bid::Bid;
     /// use bridge_core::play::deal::{Deal, DealError};
     /// use bridge_core::player::side::Side;
     /// use bridge_core::card;
@@ -160,7 +160,7 @@ impl Deal{
     pub fn init_new_trick(&self) -> Option<Trick>{
         //println!("{:?}", self.trump());
         match self.last_completed_trick(){
-            None => Some(Trick::new(self.contract.owner().prev())),
+            None => Some(Trick::new(self.contract.declarer().prev())),
 
             Some(t) => t.prepare_new(self.trump())
         }
@@ -183,7 +183,8 @@ impl Deal{
     /// use bridge_core::card::figure::{Figure, NumberFigure};
     /// use std::str::FromStr;
     /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::auction::contract::{Contract, Bid};
+    /// use bridge_core::auction::contract::{Contract};
+    /// use bridge_core::auction::bid::Bid;
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = Deal::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
     ///
@@ -226,7 +227,8 @@ impl Deal{
     /// use bridge_core::card;
     /// use bridge_core::card::figure::{Figure, NumberFigure};
     /// use std::str::FromStr;
-    /// use bridge_core::auction::contract::{Contract, Bid};
+    /// use bridge_core::auction::contract::{Contract};
+    /// use bridge_core::auction::bid::Bid;
     /// use bridge_core::auction::call::Doubling;
     /// let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap() ));
     ///
@@ -266,7 +268,8 @@ impl Deal{
     /// use std::str::FromStr;
     /// use bridge_core::player::axis::Axis;
     /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::auction::contract::{Contract, Bid};
+    /// use bridge_core::auction::contract::{Contract};
+    /// use bridge_core::auction::bid::Bid;
     /// let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     /// deal.insert_card(North, card::JACK_SPADES).unwrap();
     /// deal.insert_card(East, card::TEN_SPADES).unwrap();
@@ -315,7 +318,7 @@ impl Display for Deal{
 }
 
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ClosedDealRubber {
     contract: Deal,
     score: Score
@@ -339,7 +342,8 @@ mod tests{
     use crate::card;
     use crate::card::suit::Suit::{Diamonds};
     use crate::card::trump::Trump;
-    use crate::auction::contract::{Bid, Contract};
+    use crate::auction::contract::{Contract};
+    use crate::auction::bid::Bid;
     use crate::play::deal::{Deal, DealError};
     use crate::play::deal::DealError::DealFull;
     use crate::play::deck::{Deck, QUARTER_SIZE};

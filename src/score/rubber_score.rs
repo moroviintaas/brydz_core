@@ -1,6 +1,4 @@
 
-
-use serde::{Deserialize, Serialize};
 use crate::play::deal::Deal;
 
 
@@ -10,7 +8,7 @@ pub const RUBBER_WINNING_GAMES: i32 = 2;
 
 
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq,  Clone)]
 pub struct Game{
     winning_points: i64,
     contracts: Vec<Deal>,

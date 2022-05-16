@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use crate::auction::contract::Bid;
+use crate::auction::bid::Bid;
 use crate::player::side::Side;
 /*
 #[derive(Debug, Clone)]

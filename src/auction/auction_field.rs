@@ -4,7 +4,8 @@ use crate::auction::call;
 use crate::error::{AuctionError, Mismatch};
 use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::auction::call::{Call, CallEntry, Doubling};
-use crate::auction::contract::{Bid, Contract};
+use crate::auction::contract::{Contract};
+use crate::auction::bid::{Bid};
 use crate::player::side::Side;
 
 
@@ -17,7 +18,7 @@ pub enum AuctionStatus{
 }
 
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone)]
+#[derive(Debug, Eq, PartialEq,  Clone)]
 pub struct AuctionStack{
     calls_entries: Vec<CallEntry>,
     current_contract: Option<Contract>,
@@ -97,7 +98,7 @@ impl AuctionStack{
 
                             },
                             Call::Double => match &self.current_contract.as_ref().unwrap().doubling(){
-                                Doubling::None => match  self.current_contract.as_ref().unwrap().owner().axis(){
+                                Doubling::None => match  self.current_contract.as_ref().unwrap().declarer().axis(){
                                     same if same ==player_side.axis() => Err(DoubleOnSameAxis),
                                     _different => {
                                         //self.current_contract.as_mut().unwrap().doubling() = Doubling::Double;
@@ -114,7 +115,7 @@ impl AuctionStack{
                             }
                             Call::ReDouble => match &self.current_contract.as_ref().unwrap().doubling(){
                                 Doubling::None => Err(ReDoubleWithoutDouble),
-                                Doubling::Double => match self.current_contract.as_ref().unwrap().owner().axis() {
+                                Doubling::Double => match self.current_contract.as_ref().unwrap().declarer().axis() {
                                     same if same == player_side.axis() => {
                                         //self.current_contract.as_mut().unwrap().doubling = Doubling::ReDouble;
                                         self.current_contract.as_mut().unwrap().redouble()?;
@@ -151,7 +152,7 @@ mod tests{
     use crate::auction::auction_field::{AuctionStack, Contract};
     use crate::player::side::Side::{East, North, South, West};
     use crate::auction::call::{Call, Doubling};
-    use crate::auction::contract::Bid;
+    use crate::auction::bid::Bid;
 
     #[test]
     fn add_bids_legal(){
@@ -283,6 +284,12 @@ mod tests{
             expected: Bid::create_bid(Colored(Clubs), 2).unwrap(),
             found: Bid::create_bid(Colored(Diamonds),1).unwrap() })));
     }
+
+    /*#[test]
+    fn declarer_1(){
+        let mut auction_stack = AuctionStack::new();
+        auction_stack.add_contract_bid(West, )
+    }*/
 
 
 

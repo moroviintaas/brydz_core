@@ -1,22 +1,25 @@
-use serde::{Deserialize, Serialize};
-use crate::auction::contract;
+
+use crate::auction::bid::Bid;
+
 use crate::player::side::Side;
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
+
+
+#[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 pub enum Doubling{
     None,
     Double,
     ReDouble
 }
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 pub enum Call {
-    Bid(contract::Bid),
+    Bid(Bid),
     Double,
     ReDouble,
     Pass
 }
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 pub struct CallEntry{
     player_side: Side,
     call: Call
