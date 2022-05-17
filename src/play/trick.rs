@@ -132,11 +132,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
             true => match self[side]{
                 None => match self.contains(&card){
                     false => {
-                        if side != self.first_player{
-                            if card.suit() != self[self.first_player].as_ref().unwrap().suit() {
-                                // mark suit of first card in trick as exhausted for the player
-                                exhaust_register.mark_exhausted(&side, self[self.first_player].as_ref().unwrap().suit())
-                            }
+                        if side != self.first_player && card.suit() != self[self.first_player].as_ref().unwrap().suit() {
+                            // mark suit of first card in trick as exhausted for the player
+                            exhaust_register.mark_exhausted(&side, self[self.first_player].as_ref().unwrap().suit())
                         }
                         self.card_num += 1;
                         self[side] = Some(card);
@@ -269,7 +267,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     fn winner_of_2(&self, winner_so_far: Side, check_side: Side, trump: &Trump<S>) -> Result<Side, TrickError<F,S>>{
         match self[check_side] {
             None => Err(MissingCard(check_side)),
-            Some(_) => match trump.order_cards(&self[check_side].as_ref().unwrap(), &self[winner_so_far].as_ref().unwrap()) {
+            Some(_) => match trump.order_cards(self[check_side].as_ref().unwrap(), self[winner_so_far].as_ref().unwrap()) {
                 Ordering::Greater => Ok(check_side),
                 _ => Ok(winner_so_far)
             }
@@ -322,9 +320,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
         match trump{
             Trump::Colored(_) => {
-                winner_so_far = self.winner_of_2(winner_so_far, South, &trump)?;
-                winner_so_far = self.winner_of_2(winner_so_far, West, &trump)?;
-                winner_so_far = self.winner_of_2(winner_so_far, East, &trump)?;
+                winner_so_far = self.winner_of_2(winner_so_far, South, trump)?;
+                winner_so_far = self.winner_of_2(winner_so_far, West, trump)?;
+                winner_so_far = self.winner_of_2(winner_so_far, East, trump)?;
                 Ok(winner_so_far)
             },
             Trump::NoTrump => {
@@ -360,10 +358,3 @@ impl<F: Figure, S: Suit> Default for Trick<F, S>{
         Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
     }
 }
-/*
-impl Default for Trick{
-    fn default() -> Self {
-        Self::new(South)
-    }
-}
-*/

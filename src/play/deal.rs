@@ -13,7 +13,7 @@ use crate::card::suit::Suit;
 use crate::play::deal::DealError::IndexedOverCurrentTrick;
 use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
 use crate::play::card_trackers::{SuitExhaustRegister, TrickCollision};
-use crate::score::score::Score;
+use crate::score::score_table::ScoreTable;
 use crate::play::trick::TrickError::MissingCard;
 
 
@@ -155,7 +155,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     }
 
     pub fn trump(&self) -> &Trump<S>{
-        &self.contract.bid().trump()
+        self.contract.bid().trump()
     }
     pub fn last_completed_trick(&self) -> Option<&Trick<F, S>>{
         match self.completed_tricks_number {
@@ -319,11 +319,9 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
         }
     }
 
-    pub fn score(&self) -> Score{
-        let  score = Score::default();
+    pub fn score(&self) -> ScoreTable {
+         ScoreTable::default()
 
-
-        score
         
     }
 
@@ -339,7 +337,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>Displ
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ClosedDealRubber<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> {
     contract: Deal<F, S, Um, Se>,
-    score: Score
+    score: ScoreTable
 
 }
 /*

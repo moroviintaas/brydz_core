@@ -3,14 +3,14 @@ use crate::player::axis::Axis;
 
 
 #[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Clone, Copy)]
-pub struct Score{
+pub struct ScoreTable {
     score_ns_above_line: i64,
     score_ns_below_line: i64,
     score_ew_above_line: i64,
     score_ew_below_line: i64
 }
 
-impl Score{
+impl ScoreTable {
     pub fn new(ns_above: i64, ns_below:i64, ew_above: i64, ew_below: i64) -> Self{
         Self{score_ns_below_line: ns_below, score_ns_above_line: ns_above,
         score_ew_above_line: ew_above, score_ew_below_line: ew_below}
@@ -45,9 +45,9 @@ impl Score{
     }
 }
 
-impl Default for Score{
+impl Default for ScoreTable {
     fn default() -> Self {
-        Score::new(0,0,0,0)
+        ScoreTable::new(0, 0, 0, 0)
     }
 }
 

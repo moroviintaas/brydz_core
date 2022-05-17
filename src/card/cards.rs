@@ -14,12 +14,7 @@ pub struct Card<F: Figure, S: Suit> {
 }
 
 impl<F: Figure + Copy, S: Suit + Copy> Copy for Card<F, S>{}
-/*
-impl<F: Hash> Hash for Card<F>{
-    fn hash<H: Hasher>(&self, state: &mut H) {
-        todo!()
-    }
-}*/
+
 
 impl<F:Figure, S: Suit > Card<F, S> {
     pub fn new(figure: F, suit: S) -> Self{
@@ -33,47 +28,13 @@ impl<F:Figure, S: Suit > Card<F, S> {
         &self.figure
     }
 
-    /*
-    /// Returns a mask of a card (for purpose of efficient storing bool tables).
-    /// Divide u64 into 4 pieces of 16 bits. The oldest is for `Spades`, then goes `Hearts`, `Diamonds` and finally `Clubs`.
-    /// In each 16bit piece figures are marked as follow:
-    /// If it is `Numbered(n)`, then it is `1` shifted left `n` bits (or `2` to power of `n`). Honour figures are mapped on following older bits:
-    /// `Jack` is 0x800 (2^11)
-    /// `Queen` is 0x1000 (2^12)
-    /// `King` is 0x2000 (2^13)
-    /// `Ace` is 0x4000 (2^14)
-    ///
-    /// Bits 0, 1 and 15 are not used.
-    ///
-    /// ```
-    /// use bridge_core::card;
-    /// assert_eq!(card::ACE_SPADES.mask(),     0x4000000000000000);
-    /// assert_eq!(card::JACK_HEARTS.mask(),    0x0000080000000000);
-    /// assert_eq!(card::EIGHT_DIAMONDS.mask(),    0x0000000001000000);
-    /// assert_eq!(card::TWO_CLUBS.mask(),    0x0000000000000004);
-    /// ```
 
-    pub fn mask(&self) -> u64{
-        /*match self.suit{
-            Suit::Spades => self.figure.mask() << (3 * 16),
-            Suit::Hearts => self.figure.mask() << (2 * 16),
-            Suit::Diamonds => self.figure.mask() << (1 * 16),
-            Suit::Clubs => self.figure.mask(),
-        }*/
-        self.figure.mask() << (self.suit.age() * 16)
-    }
-    */
 
 }
 
 impl Card<FigureStd, SuitStd>{
     pub fn mask(&self) -> u64{
-        /*match self.suit{
-            Suit::Spades => self.figure.mask() << (3 * 16),
-            Suit::Hearts => self.figure.mask() << (2 * 16),
-            Suit::Diamonds => self.figure.mask() << (1 * 16),
-            Suit::Clubs => self.figure.mask(),
-        }*/
+
         self.figure.mask() << (self.suit.age() * 16)
     }
 }

@@ -88,7 +88,7 @@ impl<S: Suit> AuctionStack<S>{
                                 }
 
                             },
-                            Call::Bid(ref bid) => match bid.cmp( &self.current_bid().unwrap()){
+                            Call::Bid(ref bid) => match bid.cmp( self.current_bid().unwrap()){
                                 Ordering::Greater => {
                                     self.current_contract = Some(Contract::new(player_side, bid.to_owned()));
                                     self.calls_entries.push(CallEntry::new(player_side, call));
@@ -285,11 +285,6 @@ mod tests{
             found: Bid::create_bid(Colored(Diamonds),1).unwrap() })));
     }
 
-    /*#[test]
-    fn declarer_1(){
-        let mut auction_stack = AuctionStack::new();
-        auction_stack.add_contract_bid(West, )
-    }*/
 
 
 
