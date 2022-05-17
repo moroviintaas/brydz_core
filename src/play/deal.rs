@@ -1,4 +1,5 @@
 use std::fmt::{Display, Formatter};
+use std::mem;
 use std::ops::Index;
 use crate::play::trick::{Trick, TrickError};
 use crate::player::side::Side;
@@ -6,9 +7,12 @@ use crate::card::Card;
 use crate::card::trump::Trump;
 use crate::player::axis::Axis;
 use crate::auction::contract::Contract;
+use crate::card::figure::Figure;
+use crate::card::register::CardRegister;
+use crate::card::suit::Suit;
 use crate::play::deal::DealError::IndexedOverCurrentTrick;
 use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
-use crate::play::exhaust::{SuitExhaust, UsedCards};
+use crate::play::card_trackers::{SuitExhaustRegister, TrickCollision};
 use crate::score::score::Score;
 use crate::play::trick::TrickError::MissingCard;
 
@@ -16,14 +20,14 @@ use crate::play::trick::TrickError::MissingCard;
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub enum DealError{
+pub enum DealError<F: Figure, S: Suit>{
     DealFull,
-    DuplicateCard(Card),
-    TrickError(Trick, TrickError),
+    DuplicateCard(Card<F, S>),
+    TrickError(TrickError<F, S>),
     IndexedOverCurrentTrick(usize)
 
 }
-impl Display for DealError{
+impl<F: Figure, S: Suit>Display for DealError<F, S>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
@@ -32,41 +36,43 @@ impl Display for DealError{
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Deal {
-    contract: Contract,
-    tricks: [Trick; QUARTER_SIZE],
+pub struct Deal<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>{
+    contract: Contract<S>,
+    tricks: [Trick<F, S>; QUARTER_SIZE],
     completed_tricks_number: usize,
-    exhaust_table: SuitExhaust,
-    current_trick: Trick,
-    used_cards_memory: UsedCards
+    exhaust_table: Se,
+    current_trick: Trick<F, S>,
+    used_cards_memory: Um
 
 }
-impl Deal{
-    pub fn new(contract: Contract) -> Self{
+impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal<F, S, Um, Se>{
+    pub fn new(contract: Contract<S>) -> Self{
         let first_player = contract.declarer().next();
-        Self{contract, tricks: [Trick::new(first_player);QUARTER_SIZE], completed_tricks_number: 0,
-            exhaust_table: SuitExhaust::default(), current_trick: Trick::new(first_player), used_cards_memory: UsedCards::default()}
+        let mut tricks = <[Trick::<F,S>; QUARTER_SIZE]>::default();
+        tricks[0] = Trick::new(first_player);
+        Self{contract, tricks, completed_tricks_number: 0,
+            exhaust_table: Se::default(), current_trick: Trick::new(first_player), used_cards_memory: Um::default()}
     }
 
-    pub fn current_trick(&self) -> &Trick{
+    pub fn current_trick(&self) -> &Trick<F, S>{
         &self.current_trick
     }
 
-    fn complete_current_trick(&mut self) -> Result<(), DealError>{
+    fn complete_current_trick(&mut self) -> Result<(), DealError<F, S>>{
         match self.completed_tricks_number {
             n@0..=MAX_INDEX_IN_DEAL => match self.current_trick.missing_card(){
-                Some(s) => Err(DealError::TrickError(self.current_trick, MissingCard(s))),
+                Some(s) => Err(DealError::TrickError( MissingCard(s))),
                 None => {
-                    if let Some(c) = self.used_cards_memory.trick_collision(self.current_trick){
+                    if let Some(c) = self.used_cards_memory.trick_collision(&self.current_trick){
                         return Err(DealError::DuplicateCard(c));
                     }
 
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
 
-                    self.used_cards_memory.mark_used_trick(&self.current_trick);
-                    self.tricks[n] = self.current_trick;
+                    self.used_cards_memory.mark_cards_of_trick(&self.current_trick);
+                    self.tricks[n] = mem::replace( &mut self.current_trick, Trick::new(next_player));
 
-                    self.current_trick = Trick::new(next_player);
+                    //self.current_trick = Trick::new(next_player);
                     self.completed_tricks_number = n+1;
                     Ok(())
                 }
@@ -89,7 +95,7 @@ impl Deal{
     /// # Examples:
     /// ```
     /// use bridge_core::card::Card;
-    /// use bridge_core::card::suit::Suit;
+    /// use bridge_core::card::suit::SuitStd;
     /// use bridge_core::card::trump::Trump;
     /// use bridge_core::auction::call::Doubling;
     /// use bridge_core::auction::contract::{Contract};
@@ -100,8 +106,11 @@ impl Deal{
     /// use std::str::FromStr;
     /// use bridge_core::player::axis::Axis;
     /// use bridge_core::play::trick::TrickError;
-    /// let mut deal = Deal::new(
-    ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(Suit::Hearts), 1).unwrap()));
+    /// use bridge_core::card::figure::FigureStd;
+    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::card::standard_register::CardUsageRegStd;
+    /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(
+    ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
     /// deal.insert_card(Side::North, card::KING_HEARTS).unwrap();
     /// deal.insert_card(Side::East, card::ACE_HEARTS).unwrap();
     /// deal.insert_card(Side::South, card::TWO_CLUBS).unwrap();
@@ -113,7 +122,7 @@ impl Deal{
     /// let r = deal.insert_card(Side::East, card::TEN_HEARTS);
     /// assert_eq!(r.unwrap(), Side::South);
     /// let r = deal.insert_card(Side::South, card::JACK_HEARTS);
-    /// assert_eq!(r, Err(DealError::TrickError(deal.current_trick().to_owned(), TrickError::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
+    /// assert_eq!(r, Err(DealError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Hearts))));
     /// deal.insert_card(Side::South, card::TWO_CLUBS).unwrap();
     /// deal.insert_card(Side::West, card::SIX_HEARTS).unwrap();
     /// let r = deal.insert_card(Side::North, card::THREE_HEARTS);
@@ -121,11 +130,11 @@ impl Deal{
     /// assert_eq!(r, Err(DealError::DuplicateCard(card::TWO_CLUBS)));
     ///
     /// ```
-    pub fn insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError>{
+    pub fn insert_card(&mut self, side: Side, card: Card<F, S>) -> Result<Side, DealError<F, S>>{
         if self.completed_tricks_number >= QUARTER_SIZE{
             return Err(DealError::DealFull);
         }
-        match self.current_trick.add_card_check_exhaust(side, card, &mut self.exhaust_table){
+        match self.current_trick.add_card(side, card, &mut self.exhaust_table){
             Ok(4) => {
                 match self.current_trick.taker(self.trump()){
                     Ok(winner) => {
@@ -136,19 +145,19 @@ impl Deal{
                         }
 
                     }
-                    Err(e) => Err(DealError::TrickError(self.current_trick, e))
+                    Err(e) => Err(DealError::TrickError( e))
                 }
             },
             Ok(_) => Ok(side.next()),
-            Err(e) => Err(DealError::TrickError(self.current_trick, e))
+            Err(e) => Err(DealError::TrickError( e))
 
         }
     }
 
-    pub fn trump(&self) -> Trump{
-        self.contract.bid().trump()
+    pub fn trump(&self) -> &Trump<S>{
+        &self.contract.bid().trump()
     }
-    pub fn last_completed_trick(&self) -> Option<&Trick>{
+    pub fn last_completed_trick(&self) -> Option<&Trick<F, S>>{
         match self.completed_tricks_number {
             0 => None,
             i @1..=QUARTER_SIZE => Some(&self[i-1]),
@@ -157,12 +166,12 @@ impl Deal{
         }
     }
 
-    pub fn init_new_trick(&self) -> Option<Trick>{
+    pub fn init_new_trick(&self) -> Option<Trick<F, S>>{
         //println!("{:?}", self.trump());
         match self.last_completed_trick(){
             None => Some(Trick::new(self.contract.declarer().prev())),
 
-            Some(t) => t.prepare_new(self.trump())
+            Some(t) => t.prepare_new(self.trump().to_owned())
         }
 
     }
@@ -171,7 +180,7 @@ impl Deal{
     /// Based on index of trick returns the side who won the trick.
     /// # Examples: 
     /// ```
-    /// use bridge_core::card::suit::Suit::{Clubs, Diamonds, Spades};
+    /// use bridge_core::card::suit::SuitStd::{Clubs, Diamonds, Spades};
     /// use bridge_core::player::side::Side::*;
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::card::trump::Trump;
@@ -180,13 +189,16 @@ impl Deal{
     /// use bridge_core::play::deal::Deal;
     /// use bridge_core::card::Card;
     /// use bridge_core::card;
-    /// use bridge_core::card::figure::{Figure, NumberFigure};
+    /// use bridge_core::card::figure::{FigureStd, NumberFigureStd};
     /// use std::str::FromStr;
     /// use bridge_core::auction::call::Doubling;
     /// use bridge_core::auction::contract::{Contract};
     /// use bridge_core::auction::bid::Bid;
+    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::card::standard_register::CardUsageRegStd;
+    /// use bridge_core::card::suit::SuitStd;
     /// let deck = Deck::new_sorted_by_figures();
-    /// let mut deal_1 = Deal::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
+    /// let mut deal_1 = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
     ///
     /// deal_1.insert_card(East, card::KING_SPADES).unwrap();
     /// deal_1.insert_card(South, card::QUEEN_SPADES).unwrap();
@@ -194,7 +206,7 @@ impl Deal{
     /// deal_1.insert_card(North, card::ACE_SPADES).unwrap();
     /// assert_eq!(deal_1.side_winning_trick(0), Ok(North));
     ///
-    /// let mut deal_2 = Deal::new(Contract::new_d(West, Bid::create_bid(Trump::NoTrump, 1).unwrap(), Doubling::None));
+    /// let mut deal_2 = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new_d(West, Bid::create_bid(Trump::NoTrump, 1).unwrap(), Doubling::None));
     ///
     /// deal_2.insert_card(North, card::TWO_DIAMONDS).unwrap();
     /// deal_2.insert_card(East, card::ACE_CLUBS).unwrap();
@@ -208,29 +220,32 @@ impl Deal{
     /// //deal_2.insert_trick(trick_2_2).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(1), Ok(North));
     /// ```
-    pub fn side_winning_trick(&self, index: usize) -> Result<Side, DealError>{
+    pub fn side_winning_trick(&self, index: usize) -> Result<Side, DealError<F, S>>{
         match index < self.completed_tricks_number {
             true => self[index].taker(self.contract.bid().trump())
-                .map_err(|trick_err| DealError::TrickError(self[index], trick_err)),
+                .map_err(|trick_err| DealError::TrickError(trick_err)),
             false => Err(IndexedOverCurrentTrick(self.completed_tricks_number))
         }
     }
     /// Counts tricks taken by `Side` (one player)
     /// # Examples:
     /// ```
-    /// use bridge_core::card::suit::Suit::{*};
+    /// use bridge_core::card::suit::SuitStd::{*};
     /// use bridge_core::player::side::Side::*;
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::card::trump::Trump;
     /// use bridge_core::play::deal::Deal;
     /// use bridge_core::card::Card;
     /// use bridge_core::card;
-    /// use bridge_core::card::figure::{Figure, NumberFigure};
+    /// use bridge_core::card::figure::{FigureStd, NumberFigureStd};
     /// use std::str::FromStr;
     /// use bridge_core::auction::contract::{Contract};
     /// use bridge_core::auction::bid::Bid;
     /// use bridge_core::auction::call::Doubling;
-    /// let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap() ));
+    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::card::standard_register::CardUsageRegStd;
+    /// use bridge_core::card::suit::SuitStd;
+    /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap() ));
     ///
     /// deal.insert_card(North, card::JACK_SPADES).unwrap();
     /// deal.insert_card(East, card::TEN_SPADES).unwrap();
@@ -257,20 +272,23 @@ impl Deal{
     /// Counts tricks taken by `Side` (one player)
     /// # Examples:
     /// ```
-    /// use bridge_core::card::suit::Suit::{*};
+    /// use bridge_core::card::suit::SuitStd::{*};
     /// use bridge_core::player::side::Side::*;
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::card::trump::Trump;
     /// use bridge_core::play::deal::Deal;
     /// use bridge_core::card::{Card};
     /// use bridge_core::card;
-    /// use bridge_core::card::figure::{Figure, NumberFigure};
+    /// use bridge_core::card::figure::{FigureStd, NumberFigureStd};
     /// use std::str::FromStr;
     /// use bridge_core::player::axis::Axis;
     /// use bridge_core::auction::call::Doubling;
     /// use bridge_core::auction::contract::{Contract};
     /// use bridge_core::auction::bid::Bid;
-    /// let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
+    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::card::standard_register::CardUsageRegStd;
+    /// use bridge_core::card::suit::SuitStd;
+    /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     /// deal.insert_card(North, card::JACK_SPADES).unwrap();
     /// deal.insert_card(East, card::TEN_SPADES).unwrap();
     /// deal.insert_card(South, card::FOUR_SPADES).unwrap();
@@ -311,7 +329,7 @@ impl Deal{
 
 }
 
-impl Display for Deal{
+impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>Display for Deal<F, S, Um, Se>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", &self)
     }
@@ -319,8 +337,8 @@ impl Display for Deal{
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct ClosedDealRubber {
-    contract: Deal,
+pub struct ClosedDealRubber<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> {
+    contract: Deal<F, S, Um, Se>,
     score: Score
 
 }
@@ -329,8 +347,8 @@ impl ClosedDealRubber{
 
 }*/
 
-impl Index<usize> for Deal{
-    type Output = Trick;
+impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Index<usize> for Deal<F, S, Um, Se>{
+    type Output = Trick<F, S>;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.tricks[index]
@@ -340,10 +358,15 @@ impl Index<usize> for Deal{
 #[cfg(test)]
 mod tests{
     use crate::card;
-    use crate::card::suit::Suit::{Diamonds};
+    use crate::card::suit::SuitStd::{Diamonds};
     use crate::card::trump::Trump;
     use crate::auction::contract::{Contract};
     use crate::auction::bid::Bid;
+    use crate::card::{ACE_SPADES, JACK_CLUBS, JACK_SPADES, KING_CLUBS, KING_SPADES, QUEEN_SPADES, TEN_HEARTS};
+    use crate::card::figure::FigureStd;
+    use crate::card::standard_register::CardUsageRegStd;
+    use crate::card::suit::SuitStd;
+    use crate::play::card_trackers::SuitExhaustStd;
     use crate::play::deal::{Deal, DealError};
     use crate::play::deal::DealError::DealFull;
     use crate::play::deck::{Deck, QUARTER_SIZE};
@@ -353,24 +376,24 @@ mod tests{
 
     #[test]
     fn deal_duplicate_card(){
-        let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
-        let deck = Deck::new_sorted_by_suits();
+        let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
+        //let deck = Deck::new_sorted_by_suits();
 
 
 
-        deal.insert_card(Side::North, deck[0]).unwrap();
-        deal.insert_card(Side::East, deck[2]).unwrap();
-        deal.insert_card(Side::South, deck[1]).unwrap();
-        deal.insert_card(Side::West, deck[3]).unwrap();
+        deal.insert_card(Side::North, ACE_SPADES).unwrap();
+        deal.insert_card(Side::East, QUEEN_SPADES).unwrap();
+        deal.insert_card(Side::South, KING_SPADES).unwrap();
+        deal.insert_card(Side::West, JACK_SPADES).unwrap();
 
-        deal.insert_card(Side::North, deck[0]).unwrap();
-        deal.insert_card(Side::East, deck[6]).unwrap();
-        deal.insert_card(Side::South, deck[5]).unwrap();
+        deal.insert_card(Side::North, ACE_SPADES).unwrap();
+        deal.insert_card(Side::East, KING_CLUBS).unwrap();
+        deal.insert_card(Side::South, JACK_CLUBS.clone()).unwrap();
 
-        let r = deal.insert_card(Side::West, deck[7]);
+        let r = deal.insert_card(Side::West, TEN_HEARTS.clone());
 
 
-        assert_eq!(r, Err(DealError::DuplicateCard(deck[0])));
+        assert_eq!(r, Err(DealError::DuplicateCard(ACE_SPADES)));
 
     }
 
@@ -380,13 +403,13 @@ mod tests{
         let num_of_sides = 4usize;
         let deck = Deck::new_sorted_by_suits();
         //let mut deal = Deal::new(South, Trump::NoTrump);
-        let mut deal = Deal::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
+        let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
         for i in 0..QUARTER_SIZE{
 
-            deal.insert_card(Side::North,deck[num_of_sides*i]).unwrap();
-            deal.insert_card(Side::East,deck[num_of_sides*i + 1]).unwrap();
-            deal.insert_card(Side::South,deck[num_of_sides*i + 2]).unwrap();
-            deal.insert_card(Side::West,deck[num_of_sides*i +3]).unwrap();
+            deal.insert_card(Side::North,deck[num_of_sides*i].clone()).unwrap();
+            deal.insert_card(Side::East,deck[num_of_sides*i + 1].clone()).unwrap();
+            deal.insert_card(Side::South,deck[num_of_sides*i + 2].clone()).unwrap();
+            deal.insert_card(Side::West,deck[num_of_sides*i +3].clone()).unwrap();
 
         }
 
@@ -399,7 +422,7 @@ mod tests{
 
     #[test]
     fn calculate_score_1(){
-        let mut deal = Deal::new(Contract::new(
+        let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(
             East,
             Bid::create_bid(Trump::Colored(Diamonds), 3).unwrap()));
         deal.insert_card(South, card::ACE_SPADES).unwrap();

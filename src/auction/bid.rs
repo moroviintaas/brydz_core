@@ -1,29 +1,31 @@
 use std::cmp::Ordering;
+use crate::card::suit::Suit;
 use crate::card::trump::Trump;
 use crate::error::AuctionError;
 use crate::error::AuctionError::IllegalBidNumber;
 pub const MIN_BID_NUMBER: u8 = 1;
 pub const MAX_BID_NUMBER: u8 = 7;
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
-pub struct Bid {
-    trump: Trump,
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct Bid<S: Suit> {
+    trump: Trump<S>,
     number: u8
 }
+impl <S: Suit + Copy> Copy for Bid<S>{}
 
-impl Bid {
-    pub fn create_bid(trump: Trump, number: u8) -> Result<Self, AuctionError>{
+impl<S: Suit>  Bid<S> {
+    pub fn create_bid(trump: Trump<S>, number: u8) -> Result<Self, AuctionError<S>>{
         match number{
             legit @MIN_BID_NUMBER..=MAX_BID_NUMBER => Ok(Self{trump, number: legit}),
             no_legit => Err(IllegalBidNumber(no_legit))
 
         }
     }
-    pub fn trump(&self) -> Trump{
-        self.trump
+    pub fn trump(&self) -> &Trump<S>{
+        &self.trump
     }
 }
-impl PartialOrd for Bid {
+impl<S: Suit> PartialOrd for Bid<S> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.number.cmp(&other.number).then_with(|| {
             self.trump.cmp(&other.trump)
@@ -37,7 +39,7 @@ impl PartialOrd for Bid {
 /// use std::cmp::Ordering;
 /// use bridge_core::card::trump::Trump::{Colored, NoTrump};
 /// use bridge_core::card::suit::*;
-/// use bridge_core::card::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
+/// use bridge_core::card::suit::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 /// use bridge_core::auction::bid::Bid;
 /// let bid1 = Bid::create_bid(NoTrump, 2).unwrap();
 /// let bid2 = Bid::create_bid(Colored(Spades), 3).unwrap();
@@ -49,7 +51,7 @@ impl PartialOrd for Bid {
 /// assert!(bid2 < bid4);
 /// assert!(bid1 > bid5);
 /// ```
-impl Ord for Bid {
+impl<S: Suit> Ord for Bid<S> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.number.cmp(&other.number).then_with(||{
             self.trump.cmp(&other.trump)

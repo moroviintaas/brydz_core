@@ -1,16 +1,17 @@
 use std::cmp::Ordering;
-use crate::card::{Card, suit};
-use serde::{Deserialize, Serialize};
-use crate::card::suit::Suit::{Clubs, Diamonds, Hearts, Spades};
+use crate::card::{Card};
+use crate::card::figure::{Figure};
+use crate::card::suit::{Suit, SuitStd};
+use crate::card::suit::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 use crate::card::trump::Trump::{Colored, NoTrump};
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy, Clone)]
-pub enum Trump{
-    Colored(suit::Suit),
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+pub enum Trump<S: Suit>{
+    Colored(S),
     NoTrump
 }
-impl Trump{
-    pub fn order_cards(&self, card_one: &Card, card_two: &Card) -> Ordering{
+impl<S: Suit> Trump<S>{
+    pub fn order_cards<F: Figure> (&self, card_one: &Card<F, S>, card_two: &Card<F, S>) -> Ordering{
         match self{
             Trump::NoTrump => {
                 card_one.figure().cmp(&card_two.figure())
@@ -20,9 +21,9 @@ impl Trump{
                 match card_one.suit(){
                     equal if equal == card_two.suit() =>
                         card_one.figure().cmp(&card_two.figure()),
-                    trumped if &trumped == trump_suit => Ordering::Greater,
+                    trumped if &trumped == &trump_suit => Ordering::Greater,
                     suit_one => match card_two.suit(){
-                        trumped if &trumped == trump_suit => Ordering::Less,
+                        trumped if &trumped == &trump_suit => Ordering::Less,
                         suit_two => card_one.figure().cmp(&card_two.figure())
                             .then_with(|| suit_one.cmp(&suit_two))
                     }
@@ -34,7 +35,7 @@ impl Trump{
         self.order_cards(&card_one.card(), &card_two.card())
     }*/
 
-    fn ord_value(&self) -> u8{
+    /*fn ord_value(&self) -> u8{
         match self{
             NoTrump  => 5,
             Colored(Spades) => 4,
@@ -42,7 +43,7 @@ impl Trump{
             Colored(Diamonds) => 2,
             Colored(Clubs) => 1
         }
-    }
+    }*/
 
 
 
@@ -84,35 +85,44 @@ impl Trump{
 
 }
 
-impl PartialOrd for Trump{
+impl<S:Suit> PartialOrd for Trump<S>{
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        Some(self.ord_value().cmp(&other.ord_value()))
+        Some(self.cmp(other))
     }
 }
 
-impl Ord for Trump{
+impl<S: Suit> Ord for Trump<S>{
     fn cmp(&self, other: &Self) -> Ordering {
-        self.ord_value().cmp(&other.ord_value())
+        match self{
+            NoTrump => match other{
+                NoTrump => Ordering::Equal,
+                _ => Ordering::Greater
+            },
+            Colored(left) => match other {
+                NoTrump => Ordering::Less,
+                Colored(right) => left.cmp(right)
+            }
+        }
     }
 }
 
-pub const TRUMPS: [Trump; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamonds), Colored(Clubs), NoTrump];
+pub const TRUMPS: [Trump<SuitStd>; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamonds), Colored(Clubs), NoTrump];
 
 #[cfg(test)]
 mod tests{
     use std::cmp::Ordering;
     use crate::card::Card;
-    use crate::card::figure::Figure::{Ace, Numbered, Queen};
-    use crate::card::figure::NumberFigure;
-    use crate::card::suit::Suit::{Diamonds, Hearts, Spades};
+    use crate::card::figure::FigureStd::{Ace, Numbered, Queen};
+    use crate::card::figure::NumberFigureStd;
+    use crate::card::suit::SuitStd::{Diamonds, Hearts, Spades};
     use crate::card::trump::Trump;
 
     #[test]
     fn trump_diamonds(){
         let c1 = Card::new(Ace, Spades);
-        let c2 = Card::new(Numbered(NumberFigure::new(10)), Diamonds);
+        let c2 = Card::new(Numbered(NumberFigureStd::new(10)), Diamonds);
         let c3 = Card::new(Queen, Diamonds);
-        let c4 = Card::new(Numbered(NumberFigure::new(4)), Spades);
+        let c4 = Card::new(Numbered(NumberFigureStd::new(4)), Spades);
         let c5 = Card::new(Ace, Hearts);
         let trump = Trump::Colored(Diamonds);
 
@@ -126,9 +136,9 @@ mod tests{
     #[test]
     fn no_trump(){
         let c1 = Card::new(Ace, Spades);
-        let c2 = Card::new(Numbered(NumberFigure::new(10)), Diamonds);
+        let c2 = Card::new(Numbered(NumberFigureStd::new(10)), Diamonds);
         let c3 = Card::new(Queen, Diamonds);
-        let c4 = Card::new(Numbered(NumberFigure::new(4)), Spades);
+        let c4 = Card::new(Numbered(NumberFigureStd::new(4)), Spades);
         let c5 = Card::new(Ace, Hearts);
         let trump = Trump::NoTrump;
 

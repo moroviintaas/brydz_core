@@ -1,9 +1,9 @@
-use serde::{Deserialize, Serialize};
+
 use crate::card::{Card};
 use arrayvec::ArrayVec;
 use rand::{thread_rng};
-use crate::card::figure::FIGURES;
-use crate::card::suit::SUITS;
+use crate::card::figure::{ FIGURES, FigureStd};
+use crate::card::suit::{SUITS, SuitStd};
 use itertools::Itertools;
 use std::ops::Index;
 use rand::seq::SliceRandom;
@@ -12,30 +12,38 @@ pub const DECK_SIZE: usize = 52;
 pub const QUARTER_SIZE: usize = 13usize;
 pub const MAX_INDEX_IN_DEAL: usize = QUARTER_SIZE -1;
 
-#[derive(Debug, Eq, PartialEq,  Clone, Serialize, Deserialize)]
+/*pub trait DeckTrait<const S: usize>{
+
+}*/
+
+
+#[derive(Debug, Eq, PartialEq,  Clone)]
 pub struct Deck{
-    cards: ArrayVec<Card, DECK_SIZE>
+    cards: ArrayVec<Card<FigureStd, SuitStd>, DECK_SIZE>
+    //cards: ArrayVec<ArrayVec<Card<F,S>, {F::NUMBER_OF_FIGURES}>, S::NUMBER_OF_SUITS>
 }
+
 impl Deck{
 
 
+
     pub fn new_sorted_by_suits() -> Self{
-        let v: ArrayVec<Card, DECK_SIZE> = ArrayVec::from_iter(SUITS.into_iter()
+        let v: ArrayVec<Card<FigureStd, SuitStd>, DECK_SIZE> = ArrayVec::from_iter(SUITS.into_iter()
             .cartesian_product(FIGURES.into_iter())
-            .map(|(s,f)| Card::new(f,s)));
+            .map(|(s,f)| Card::new(f, s)));
 
         Self{cards: v}
     }
     pub fn new_sorted_by_figures() -> Self{
-        let v: ArrayVec<Card, DECK_SIZE> = ArrayVec::from_iter(FIGURES.into_iter()
+        let v: ArrayVec<Card<FigureStd, SuitStd>, DECK_SIZE> = ArrayVec::from_iter(FIGURES.into_iter()
             .cartesian_product(SUITS.into_iter())
-            .map(|(s,f)| Card::new(s,f)));
+            .map(|(s,f)| Card::new(s, f)));
 
         Self{cards: v}
     }
 
 
-    pub fn at(&self, index: usize) -> &Card{
+    pub fn at(&self, index: usize) -> &Card<FigureStd, SuitStd> {
         &self.cards[index]
     }
 
@@ -43,14 +51,14 @@ impl Deck{
         let mut rng = thread_rng();
         self.cards.shuffle(&mut rng);
     }
-    pub fn cards(&self) -> &ArrayVec<Card, DECK_SIZE>{
+    pub fn cards(&self) -> &ArrayVec<Card<FigureStd, SuitStd>, DECK_SIZE>{
         &self.cards
     }
 
 }
 
 impl IntoIterator for Deck{
-    type Item = Card;
+    type Item = Card<FigureStd, SuitStd>;
     type IntoIter = arrayvec::IntoIter<Self::Item, DECK_SIZE>;
 
     fn into_iter(self) -> Self::IntoIter {
@@ -59,46 +67,10 @@ impl IntoIterator for Deck{
 }
 
 impl Index<usize> for Deck{
-    type Output = Card;
+    type Output = Card<FigureStd, SuitStd>;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.cards[index]
     }
 }
-/*
-pub struct ReleasedDeck {
-    card: ArrayVec<ReleasedCard, DECK_SIZE>
-}
-impl ReleasedDeck{
-    ///  Creates new Deck containing all unique 52 standard card
-    /// ```
-    /// use bridge_core::card::{figure::Figure, Card};
-    /// use bridge_core::card::suit::Suit;
-    /// use bridge_core::play::deck::Deck;
-    /// let deck = Deck::new_sorted();
-    /// assert_eq!(deck.at(0), &Card::new(Figure::Ace, Suit::Spades));
-    /// assert_ne!(deck.at(5), &Card::new(Figure::King, Suit::Spades));
-    ///
-    /// ```
-    ///
-
-    pub fn new_id_rand() -> Self{
-        let mut rng = rand::thread_rng();
-        let mut ids = HashSet::with_capacity(DECK_SIZE);
-        while ids.len() < DECK_SIZE{
-            ids.insert(rng.next_u64());
-        }
-
-        let v: ArrayVec<ReleasedCard, DECK_SIZE> = ArrayVec::from_iter(SUITS.into_iter()
-            .cartesian_product(FIGURES.into_iter()).zip(ids.into_iter())
-            .map(|((s,f),id)| ReleasedCard::new(Card::new(f,s), id)));
-
-
-
-        Self{card: v}
-    }
-}
-
-
- */
 

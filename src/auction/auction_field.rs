@@ -1,11 +1,11 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
-use crate::auction::call;
 use crate::error::{AuctionError, Mismatch};
 use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::auction::call::{Call, CallEntry, Doubling};
 use crate::auction::contract::{Contract};
 use crate::auction::bid::{Bid};
+use crate::card::suit::Suit;
 use crate::player::side::Side;
 
 
@@ -19,18 +19,18 @@ pub enum AuctionStatus{
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct AuctionStack{
-    calls_entries: Vec<CallEntry>,
-    current_contract: Option<Contract>,
+pub struct AuctionStack<S: Suit>{
+    calls_entries: Vec<CallEntry<S>>,
+    current_contract: Option<Contract<S>>,
 
 }
 
-impl AuctionStack{
+impl<S: Suit> AuctionStack<S>{
     pub fn new() -> Self{
         Self{ calls_entries: Vec::new(), current_contract: None}
     }
 
-    pub fn current_contract(&self) -> &Option<Contract>{
+    pub fn current_contract(&self) -> &Option<Contract<S>>{
         &self.current_contract
 
     }
@@ -48,11 +48,11 @@ impl AuctionStack{
         counter
     }
 
-    pub fn current_bid(&self) -> Option<Bid>{
+    pub fn current_bid(&self) -> Option<&Bid<S>>{
         self.current_contract.as_ref().map(|c| c.bid())
     }
 
-    pub fn add_contract_bid(&mut self, player_side: Side, call: call::Call) -> Result<AuctionStatus, AuctionError>{
+    pub fn add_contract_bid(&mut self, player_side: Side, call: Call<S>) -> Result<AuctionStatus, AuctionError<S>>{
         match self.current_contract{
             None => {
                 // First bid, must not be double or redouble
@@ -61,9 +61,9 @@ impl AuctionStack{
                         self.calls_entries.push(CallEntry::new(player_side, call));
                         Ok(AuctionStatus::Running(player_side.next()))
                     },
-                    Call::Bid(bid) => {
-                        self.calls_entries.push(CallEntry::new(player_side, call));
-                        self.current_contract = Some(Contract::new(player_side, bid ));
+                    Call::Bid(ref bid) => {
+                        self.calls_entries.push(CallEntry::new(player_side, call.to_owned()));
+                        self.current_contract = Some(Contract::new(player_side, bid.to_owned() ));
                         Ok(AuctionStatus::Running(player_side.next()))
                     }
                     Call::Double => Err(DoubleOnVoidCall),
@@ -88,13 +88,13 @@ impl AuctionStack{
                                 }
 
                             },
-                            Call::Bid(bid) => match bid.cmp( &self.current_bid().unwrap()){
+                            Call::Bid(ref bid) => match bid.cmp( &self.current_bid().unwrap()){
                                 Ordering::Greater => {
-                                    self.current_contract = Some(Contract::new(player_side, bid));
+                                    self.current_contract = Some(Contract::new(player_side, bid.to_owned()));
                                     self.calls_entries.push(CallEntry::new(player_side, call));
                                     Ok(AuctionStatus::Running(player_side.next()))
                                 }
-                                _ => Err(BidTooLow(Mismatch{ expected: self.current_bid().unwrap(), found:bid}))
+                                _ => Err(BidTooLow(Mismatch{ expected: self.current_bid().unwrap().to_owned(), found:bid.to_owned()}))
 
                             },
                             Call::Double => match &self.current_contract.as_ref().unwrap().doubling(){
@@ -137,7 +137,7 @@ impl AuctionStack{
         }
     }
 }
-impl Default for AuctionStack {
+impl<S: Suit> Default for AuctionStack<S> {
      fn default() -> Self {
          Self::new()
      }
@@ -145,7 +145,7 @@ impl Default for AuctionStack {
 
 #[cfg(test)]
 mod tests{
-    use crate::card::suit::Suit::{Clubs, Diamonds};
+    use crate::card::suit::SuitStd::{Clubs, Diamonds};
     use crate::card::trump::Trump::Colored;
     use crate::error::{AuctionError, Mismatch};
     use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};

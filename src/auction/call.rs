@@ -1,5 +1,6 @@
 
 use crate::auction::bid::Bid;
+use crate::card::suit::Suit;
 
 use crate::player::side::Side;
 
@@ -13,27 +14,27 @@ pub enum Doubling{
 }
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
-pub enum Call {
-    Bid(Bid),
+pub enum Call<S: Suit> {
+    Bid(Bid<S>),
     Double,
     ReDouble,
     Pass
 }
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
-pub struct CallEntry{
+pub struct CallEntry<S: Suit>{
     player_side: Side,
-    call: Call
+    call: Call<S>
 }
 
-impl CallEntry {
-    pub fn new(player_side: Side, call: Call) -> Self{
+impl<S: Suit> CallEntry<S> {
+    pub fn new(player_side: Side, call: Call<S>) -> Self{
         Self{ player_side, call}
     }
     pub fn player_side(&self)-> Side{
         self.player_side
     }
-    pub fn call(&self) -> Call {
-        self.call
+    pub fn call(&self) -> &Call<S> {
+        &self.call
     }
 }
 
