@@ -1,10 +1,8 @@
-use bridge_core::card::Card;
-use bridge_core::card::figure::FigureStd;
-use bridge_core::card::suit::SuitStd;
-use bridge_core::card::trump::Trump;
-
 use bridge_core::play::trick::Trick;
-
+use bridge_core::play::trump::Trump;
+use carden::cards::Card;
+use carden::figures::FigureStd;
+use carden::suits::SuitStd;
 
 
 fn debug_solve_trick(){

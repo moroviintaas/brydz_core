@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
-use crate::card::suit::Suit;
-use crate::card::trump::Trump;
+use carden::suits::Suit;
+use crate::play::trump::Trump;
 use crate::error::AuctionError;
 use crate::error::AuctionError::IllegalBidNumber;
 pub const MIN_BID_NUMBER: u8 = 1;
@@ -37,7 +37,7 @@ impl<S: Suit> PartialOrd for Bid<S> {
 /// Delivers `Ord` for `Bid`
 /// ```
 /// use std::cmp::Ordering;
-/// use bridge_core::card::trump::Trump::{Colored, NoTrump};
+/// use bridge_core::play::trump::Trump::{Colored, NoTrump};
 /// use bridge_core::card::suit::*;
 /// use bridge_core::card::suit::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 /// use bridge_core::auction::bid::Bid;

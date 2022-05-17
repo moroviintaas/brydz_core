@@ -1,15 +1,15 @@
 use std::fmt::{Display, Formatter};
 use std::mem;
 use std::ops::Index;
+use carden::cards::Card;
+use carden::figures::Figure;
+use carden::memory_usage::register::CardRegister;
+use carden::suits::Suit;
 use crate::play::trick::{Trick, TrickError};
 use crate::player::side::Side;
-use crate::card::Card;
-use crate::card::trump::Trump;
+use crate::play::trump::Trump;
 use crate::player::axis::Axis;
 use crate::auction::contract::Contract;
-use crate::card::figure::Figure;
-use crate::card::register::CardRegister;
-use crate::card::suit::Suit;
 use crate::play::deal::DealError::IndexedOverCurrentTrick;
 use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
 use crate::play::card_trackers::{SuitExhaustRegister, TrickCollision};
@@ -96,7 +96,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// ```
     /// use bridge_core::card::Card;
     /// use bridge_core::card::suit::SuitStd;
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::auction::call::Doubling;
     /// use bridge_core::auction::contract::{Contract};
     /// use bridge_core::auction::bid::Bid;
@@ -183,7 +183,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use bridge_core::card::suit::SuitStd::{Clubs, Diamonds, Spades};
     /// use bridge_core::player::side::Side::*;
     /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::deck::Deck;
     /// use bridge_core::player::side::SIDES;
     /// use bridge_core::play::deal::Deal;
@@ -233,7 +233,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use bridge_core::card::suit::SuitStd::{*};
     /// use bridge_core::player::side::Side::*;
     /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::deal::Deal;
     /// use bridge_core::card::Card;
     /// use bridge_core::card;
@@ -275,7 +275,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use bridge_core::card::suit::SuitStd::{*};
     /// use bridge_core::player::side::Side::*;
     /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::deal::Deal;
     /// use bridge_core::card::{Card};
     /// use bridge_core::card;
@@ -357,7 +357,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Inde
 mod tests{
     use crate::card;
     use crate::card::suit::SuitStd::{Diamonds};
-    use crate::card::trump::Trump;
+    use crate::play::trump::Trump;
     use crate::auction::contract::{Contract};
     use crate::auction::bid::Bid;
     use crate::card::{ACE_SPADES, JACK_CLUBS, JACK_SPADES, KING_CLUBS, KING_SPADES, QUEEN_SPADES, TEN_HEARTS};

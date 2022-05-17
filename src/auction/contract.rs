@@ -1,10 +1,10 @@
+use carden::suits::Suit;
 use crate::error::AuctionError;
 use crate::error::AuctionError::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::auction::{call};
 use crate::auction::call::{Doubling};
 use crate::player::side::Side;
 use crate::auction::bid::Bid;
-use crate::card::suit::Suit;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]

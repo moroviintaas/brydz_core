@@ -1,6 +1,7 @@
-use crate::card::figure::Figure;
-use crate::card::register::CardRegister;
-use crate::card::suit::Suit;
+use carden::figures::Figure;
+use carden::memory_usage::register::CardRegister;
+use carden::suits::Suit;
+
 use crate::play::card_trackers::SuitExhaustRegister;
 use crate::play::deal::Deal;
 

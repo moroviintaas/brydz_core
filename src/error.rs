@@ -1,24 +1,8 @@
 use std::fmt::{Display, Formatter};
+use carden::suits::Suit;
 use crate::auction::bid::Bid;
-use crate::card::suit::Suit;
 use crate::player::side::Side;
-/*
-#[derive(Debug, Clone)]
-pub enum BridgeError{
-    CardSlotAlreadyUsed(Card),
-    CardAlreadyUsed(Card),
-    PlayerAlreadyPlayed,
-    ViolatedPlayOrder,
-    PlayerWithoutPlayRole,
-    MissingCard(Side),
 
-}
-
-impl Display for BridgeError{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}*/
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Mismatch<T>{

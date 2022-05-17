@@ -1,10 +1,10 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
-use crate::card::{Card};
-use crate::card::figure::Figure;
-use crate::card::suit::{Suit};
-use crate::card::trump::Trump;
+use carden::cards::Card;
+use carden::figures::Figure;
+use carden::suits::Suit;
+use crate::play::trump::Trump;
 use crate::error::Mismatch;
 use crate::play::card_trackers::SuitExhaustRegister;
 
@@ -76,25 +76,6 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     }
 
 
-    /*
-    pub fn add_card_legacy(&mut self, side: Side, card: Card<F,S>) -> Result<(), TrickError<F,S>>{
-        let side_in_order = self.first_player.next_i(self.card_num);
-        match side == side_in_order{
-            true => match self[side]{
-                None => match self.contains(&card){
-                    false => {
-                        self.card_num += 1;
-                        self[side] = Some(card);
-                        Ok(())
-                    }
-                    true => Err(TrickError::DuplicateCard(card))
-                }
-
-                Some(_) => Err(CardSlotAlreadyUsed(side))
-            },
-            false => Err(ViolatedOrder(Mismatch{ expected:side_in_order, found: side}))
-        }
-    }*/
 
 
     /// Adds card to trick with support for checking and updating suit exhaust table
@@ -155,7 +136,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
     /// Checks if trick contains a  specific card
     /// ```
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::card::Card;
     /// use bridge_core::card::figure::FigureStd;
@@ -192,7 +173,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// `Some(c: Card)` if there is a collision with card `c`
     /// `None` if there is no collision
     /// ```
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::card::Card;
     /// use bridge_core::card::figure::FigureStd;
@@ -232,7 +213,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Checks if trick is complete
     ///
     /// ```
-    /// use bridge_core::card::trump::Trump;
+    /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::card::Card;
     /// use bridge_core::card::figure::FigureStd;
@@ -279,8 +260,8 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::card::figure::FigureStd::*;
     /// use bridge_core::card::figure::NumberFigureStd;
     /// use bridge_core::card::suit::SuitStd::{*};
-    /// use bridge_core::card::trump::Trump;
-    /// use bridge_core::card::trump::Trump::{Colored, NoTrump};
+    /// use bridge_core::play::trump::Trump;
+    /// use bridge_core::play::trump::Trump::{Colored, NoTrump};
     /// use bridge_core::play::deck::Deck;
     /// use bridge_core::card::Card;
     /// use bridge_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};

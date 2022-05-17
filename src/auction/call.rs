@@ -1,6 +1,5 @@
-
+use carden::suits::Suit;
 use crate::auction::bid::Bid;
-use crate::card::suit::Suit;
 
 use crate::player::side::Side;
 

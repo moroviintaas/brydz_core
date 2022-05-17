@@ -1,9 +1,10 @@
 use std::cmp::Ordering;
-use crate::card::{Card};
-use crate::card::figure::{Figure};
-use crate::card::suit::{Suit, SuitStd};
-use crate::card::suit::SuitStd::{Clubs, Diamonds, Hearts, Spades};
-use crate::card::trump::Trump::{Colored, NoTrump};
+use carden::cards::Card;
+use carden::figures::Figure;
+use carden::suits::{Suit, SuitStd};
+use carden::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
+
+use crate::play::trump::Trump::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 pub enum Trump<S: Suit>{
@@ -62,11 +63,17 @@ pub const TRUMPS: [Trump<SuitStd>; 5] = [Colored(Spades), Colored(Hearts), Color
 #[cfg(test)]
 mod tests{
     use std::cmp::Ordering;
+    use carden::cards::Card;
+    use carden::figures::{Ace, Numbered, NumberFigureStd, Queen};
+    use carden::suits::SuitStd::{Diamonds, Hearts, Spades};
     use crate::card::Card;
+    use crate::card::cards::card::Card;
     use crate::card::figure::FigureStd::{Ace, Numbered, Queen};
     use crate::card::figure::NumberFigureStd;
+    use crate::card::standard::{Ace, Numbered, NumberFigureStd, Queen};
+    use crate::card::standard::SuitStd::{Diamonds, Hearts, Spades};
     use crate::card::suit::SuitStd::{Diamonds, Hearts, Spades};
-    use crate::card::trump::Trump;
+    use crate::play::trump::Trump;
 
     #[test]
     fn trump_diamonds(){

@@ -1,12 +1,13 @@
 
-use crate::card::{Card};
 use arrayvec::ArrayVec;
 use rand::{thread_rng};
-use crate::card::figure::{ FIGURES, FigureStd};
-use crate::card::suit::{SUITS, SuitStd};
 use itertools::Itertools;
 use std::ops::Index;
 use rand::seq::SliceRandom;
+use carden::cards::Card;
+use carden::figures::{FIGURES, FigureStd};
+use carden::suits::{SUITS, SuitStd};
+
 
 pub const DECK_SIZE: usize = 52;
 pub const QUARTER_SIZE: usize = 13usize;

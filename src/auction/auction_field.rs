@@ -1,11 +1,11 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
+use carden::suits::Suit;
 use crate::error::{AuctionError, Mismatch};
 use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::auction::call::{Call, CallEntry, Doubling};
 use crate::auction::contract::{Contract};
 use crate::auction::bid::{Bid};
-use crate::card::suit::Suit;
 use crate::player::side::Side;
 
 
@@ -146,7 +146,7 @@ impl<S: Suit> Default for AuctionStack<S> {
 #[cfg(test)]
 mod tests{
     use crate::card::suit::SuitStd::{Clubs, Diamonds};
-    use crate::card::trump::Trump::Colored;
+    use crate::play::trump::Trump::Colored;
     use crate::error::{AuctionError, Mismatch};
     use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
     use crate::auction::auction_field::{AuctionStack, Contract};

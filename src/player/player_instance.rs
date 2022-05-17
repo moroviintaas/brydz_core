@@ -1,9 +1,9 @@
 use arrayvec::ArrayVec;
+use crate::carden::figures::Figure;
+use crate::carden::suits::Suit;
 use crate::player::side::Side;
 use crate::play::trick::Trick;
 use crate::play::deck::QUARTER_SIZE;
-use crate::card::figure::Figure;
-use crate::card::suit::Suit;
 use crate::player::role::PlayRole;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
