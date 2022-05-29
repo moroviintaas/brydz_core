@@ -36,13 +36,9 @@ where UM: CardRegister<F,S>{
 }
 #[cfg(test)]
 mod tests_card_memory{
-    use carden::cards::{card, QUEEN_HEARTS};
+    use carden::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use carden::memory_usage::register::CardRegister;
     use carden::memory_usage::standard_register::CardUsageRegStd;
-    use crate::card;
-    use crate::card::QUEEN_HEARTS;
-    use crate::card::register::CardRegister;
-    use crate::card::standard_register::CardUsageRegStd;
     use crate::play::card_trackers::{SuitExhaustStd, TrickCollision};
     use crate::play::trick::Trick;
     use crate::player::side::Side;
@@ -54,11 +50,11 @@ mod tests_card_memory{
         let mut exhaust_register = SuitExhaustStd::default();
 
         let mut trick = Trick::new(Side::South);
-        trick.add_card(Side::South, card::QUEEN_HEARTS, &mut exhaust_register).unwrap();
-        trick.add_card(Side::West, card::TEN_CLUBS, &mut exhaust_register).unwrap();
-        trick.add_card(Side::North, card::EIGHT_DIAMONDS, &mut exhaust_register).unwrap();
+        trick.add_card(Side::South, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+        trick.add_card(Side::West, TEN_CLUBS, &mut exhaust_register).unwrap();
+        trick.add_card(Side::North, EIGHT_DIAMONDS, &mut exhaust_register).unwrap();
         assert_eq!(register.trick_collision(&trick), None);
-        register.mark_used(&card::QUEEN_HEARTS);
+        register.mark_used(&QUEEN_HEARTS);
         assert_eq!(register.trick_collision(&trick), Some(QUEEN_HEARTS))
 
     }
@@ -78,11 +74,11 @@ pub struct SuitExhaustStd{
 
 impl SuitExhaustRegister<SuitStd> for SuitExhaustStd{
     fn mark_exhausted(&mut self, side: &Side, suit: &SuitStd) {
-        self.array  |= 1u16 << ((side.index()*4) + suit.age());
+        self.array  |= 1u16 << (usize::from(side.index()*4) + suit.order_number());
     }
 
     fn is_exhausted(&self, side: &Side, suit: &SuitStd) -> bool {
-        !matches!(self.array & (1u16 << ((side.index()*4) + suit.age())), 0)
+        !matches!(self.array & (1u16 << (usize::from(side.index()*4) + suit.order_number())), 0)
     }
 }
 

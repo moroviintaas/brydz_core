@@ -81,25 +81,26 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Adds card to trick with support for checking and updating suit exhaust table
     /// # Examples
     /// ```
-    /// use bridge_core::card::Card;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
     /// use bridge_core::player::side::Side;
     /// use bridge_core::play::trick::{Trick, TrickError};
     /// use std::str::FromStr;
-    /// use bridge_core::card::suit::SuitStd;
-    /// use bridge_core::card;
-    /// use bridge_core::card::figure::FigureStd;
     /// use bridge_core::play::card_trackers::SuitExhaustRegister;
+    /// use carden::figures::FigureStd;
+    /// use carden::suits::{SuitStd, SuitStd::*};
+    /// use carden::memory_usage::standard_register::CardUsageRegStd;
+    /// use carden::cards::card::standard::*;
+    ///
     /// let mut exhaust_table = SuitExhaustStd::default();
     /// let mut trick1 = Trick::<FigureStd, SuitStd>::new(Side::West);
-    /// trick1.add_card(Side::West, card::JACK_CLUBS, &mut exhaust_table).unwrap();
-    /// let r1 = trick1.add_card(Side::North, card::TEN_CLUBS, &mut exhaust_table);
+    /// trick1.add_card(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
+    /// let r1 = trick1.add_card(Side::North, TEN_CLUBS, &mut exhaust_table);
     /// assert_eq!(r1, Ok(2));
-    /// let r2 = trick1.add_card(Side::East, card::NINE_HEARTS, &mut exhaust_table);
+    /// let r2 = trick1.add_card(Side::East, NINE_HEARTS, &mut exhaust_table);
     /// assert_eq!(r2, Ok(3));
     /// assert!(exhaust_table.is_exhausted(&Side::East, &SuitStd::Clubs));
     /// let mut trick2 = Trick::new(Side::East);
-    /// let r3 = trick2.add_card(Side::East, card::NINE_CLUBS, &mut exhaust_table);
+    /// let r3 = trick2.add_card(Side::East, NINE_CLUBS, &mut exhaust_table);
     /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Clubs)));
     ///
     /// ```
@@ -138,18 +139,19 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// ```
     /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::card::Card;
-    /// use bridge_core::card::figure::FigureStd;
-    /// use bridge_core::card::suit::SuitStd;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::card;
     /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use carden::figures::FigureStd;
+    /// use carden::suits::{SuitStd, SuitStd::*};
+    /// use carden::memory_usage::standard_register::CardUsageRegStd;
+    /// use carden::cards::card::standard::*;
+    /// 
     /// let mut exhaust_register = SuitExhaustStd::default();
     ///
     /// let mut trick = Trick::new(Side::North);
-    /// trick.add_card(Side::North, card::JACK_SPADES, &mut exhaust_register);
-    /// assert!(trick.contains(&card::JACK_SPADES));
-    /// assert!(!trick.contains(&card::ACE_SPADES));
+    /// trick.add_card(Side::North, JACK_SPADES, &mut exhaust_register);
+    /// assert!(trick.contains(&JACK_SPADES));
+    /// assert!(!trick.contains(&ACE_SPADES));
     /// ```
     pub fn contains(&self, card: &Card<F, S>) -> bool{
         for side in [North, East, South, West]{
@@ -175,25 +177,25 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// ```
     /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::card::Card;
-    /// use bridge_core::card::figure::FigureStd;
-    /// use bridge_core::card::suit::SuitStd;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::card;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use carden::figures::FigureStd;
+    /// use carden::suits::{SuitStd, SuitStd::*};
+    /// use carden::memory_usage::standard_register::CardUsageRegStd;
+    /// use carden::cards::card::standard::*;
     ///
     /// let mut trick1 = Trick::new(Side::North);
     /// let mut exhaust_register = SuitExhaustStd::default();
-    /// trick1.add_card(Side::North, card::JACK_SPADES,&mut exhaust_register).unwrap();
+    /// trick1.add_card(Side::North, JACK_SPADES,&mut exhaust_register).unwrap();
     ///
-    /// trick1.add_card(Side::East, card::ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card(Side::South, card::ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// trick1.add_card(Side::East, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
     /// let mut trick2 = Trick::new(Side::North, );
-    /// trick2.add_card(Side::North, card::JACK_HEARTS, &mut exhaust_register).unwrap();
-    /// trick2.add_card(Side::East, card::ACE_DIAMONDS, &mut exhaust_register).unwrap();
+    /// trick2.add_card(Side::North, JACK_HEARTS, &mut exhaust_register).unwrap();
+    /// trick2.add_card(Side::East, ACE_DIAMONDS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.collision(&trick2), None);
-    /// trick2.add_card(Side::South, card::ACE_HEARTS, &mut exhaust_register).unwrap();
-    /// assert_eq!(trick1.collision(&trick2), Some(card::ACE_HEARTS));
+    /// trick2.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// assert_eq!(trick1.collision(&trick2), Some(ACE_HEARTS));
     /// ```
     pub fn collision(&self, other: &Trick<F,S>) -> Option<Card<F,S>>{
         for oc in [&other[North], &other[East], &other[South], &other[West]]{
@@ -215,20 +217,20 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// ```
     /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::card::Card;
-    /// use bridge_core::card::figure::FigureStd;
-    /// use bridge_core::card::suit::SuitStd;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::card;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use carden::figures::FigureStd;
+    /// use carden::suits::{SuitStd, SuitStd::*};
+    /// use carden::memory_usage::standard_register::CardUsageRegStd;
+    /// use carden::cards::card::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
     /// let mut trick = Trick::new(Side::North);
-    /// trick.add_card(Side::North, card::JACK_SPADES, &mut exhaust_register);
-    /// trick.add_card(Side::East, card::ACE_SPADES, &mut exhaust_register);
-    /// trick.add_card(Side::South, card::ACE_HEARTS, &mut exhaust_register);
+    /// trick.add_card(Side::North, JACK_SPADES, &mut exhaust_register);
+    /// trick.add_card(Side::East, ACE_SPADES, &mut exhaust_register);
+    /// trick.add_card(Side::South, ACE_HEARTS, &mut exhaust_register);
     /// assert!(!trick.is_complete());
-    /// trick.add_card(Side::West, card::JACK_HEARTS, &mut exhaust_register);
+    /// trick.add_card(Side::West, JACK_HEARTS, &mut exhaust_register);
     /// assert!(trick.is_complete());
     ///
     /// ```
@@ -257,40 +259,39 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
     /// Tries to pick a winner of a trick
     /// ```
-    /// use bridge_core::card::figure::FigureStd::*;
-    /// use bridge_core::card::figure::NumberFigureStd;
-    /// use bridge_core::card::suit::SuitStd::{*};
     /// use bridge_core::play::trump::Trump;
     /// use bridge_core::play::trump::Trump::{Colored, NoTrump};
     /// use bridge_core::play::deck::Deck;
-    /// use bridge_core::card::Card;
     /// use bridge_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::player::side::Side::{North, South, East, West};
-    /// use bridge_core::card;
     /// use std::str::FromStr;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use carden::figures::FigureStd;
+    /// use carden::suits::{SuitStd, SuitStd::*};
+    /// use carden::memory_usage::standard_register::CardUsageRegStd;
+    /// use carden::cards::card::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
     /// let mut trick1 = Trick::new(North);
-    /// trick1.add_card(North, card::QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick1.add_card(East, card::TWO_CLUBS, &mut exhaust_register).unwrap();
-    /// trick1.add_card(South, card::ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card(West, card::TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick1.add_card(East, TWO_CLUBS, &mut exhaust_register).unwrap();
+    /// trick1.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.taker(&Colored(Hearts)).unwrap(), North);
     /// let mut trick2 = Trick::new(North);
     ///
-    /// trick2.add_card(North, card::QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick2.add_card(East, card::TWO_CLUBS, &mut exhaust_register).unwrap();
-    /// trick2.add_card(South, card::ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick2.add_card(West, card::TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick2.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick2.add_card(East, TWO_CLUBS, &mut exhaust_register).unwrap();
+    /// trick2.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick2.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// assert_eq!(trick2.taker(&Colored(Clubs)).unwrap(), East);
     ///
     /// let mut trick3 = Trick::new(East);
-    /// trick3.add_card(East, card::ACE_CLUBS, &mut exhaust_register).unwrap();
-    /// trick3.add_card(South, card::ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick3.add_card(West, card::TEN_SPADES, &mut exhaust_register).unwrap();
-    /// trick3.add_card(North, card::QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick3.add_card(East, ACE_CLUBS, &mut exhaust_register).unwrap();
+    /// trick3.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick3.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick3.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
     /// ```
     pub fn taker(&self, trump: &Trump<S>) -> Result<Side, TrickError<F,S>>{

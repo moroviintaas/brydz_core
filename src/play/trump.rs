@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::hash::{Hash};
 use carden::cards::Card;
 use carden::figures::Figure;
 use carden::suits::{Suit, SuitStd};
@@ -6,7 +7,7 @@ use carden::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 
 use crate::play::trump::Trump::{Colored, NoTrump};
 
-#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+#[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 pub enum Trump<S: Suit>{
     Colored(S),
     NoTrump
@@ -37,6 +38,7 @@ impl<S: Suit> Trump<S>{
 
 }
 
+
 impl<S:Suit> PartialOrd for Trump<S>{
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -66,13 +68,7 @@ mod tests{
     use carden::cards::Card;
     use carden::figures::{Ace, Numbered, NumberFigureStd, Queen};
     use carden::suits::SuitStd::{Diamonds, Hearts, Spades};
-    use crate::card::Card;
-    use crate::card::cards::card::Card;
-    use crate::card::figure::FigureStd::{Ace, Numbered, Queen};
-    use crate::card::figure::NumberFigureStd;
-    use crate::card::standard::{Ace, Numbered, NumberFigureStd, Queen};
-    use crate::card::standard::SuitStd::{Diamonds, Hearts, Spades};
-    use crate::card::suit::SuitStd::{Diamonds, Hearts, Spades};
+
     use crate::play::trump::Trump;
 
     #[test]
