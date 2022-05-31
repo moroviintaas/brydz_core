@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use carden::suits::Suit;
+use karty::suits::Suit;
 use crate::play::trump::Trump;
 use crate::player::axis::Axis;
 use crate::player::side::Side;

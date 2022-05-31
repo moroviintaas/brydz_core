@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
-use carden::cards::Card;
-use carden::figures::Figure;
-use carden::suits::Suit;
+use karty::cards::Card;
+use karty::figures::Figure;
+use karty::suits::Suit;
 use crate::play::trump::Trump;
 use crate::error::Mismatch;
 use crate::play::card_trackers::SuitExhaustRegister;
@@ -86,10 +86,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::trick::{Trick, TrickError};
     /// use std::str::FromStr;
     /// use bridge_core::play::card_trackers::SuitExhaustRegister;
-    /// use carden::figures::FigureStd;
-    /// use carden::suits::{SuitStd, SuitStd::*};
-    /// use carden::memory_usage::standard_register::CardUsageRegStd;
-    /// use carden::cards::card::standard::*;
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::memory_usage::standard_register::CardUsageRegStd;
+    /// use karty::cards::card::standard::*;
     ///
     /// let mut exhaust_table = SuitExhaustStd::default();
     /// let mut trick1 = Trick::<FigureStd, SuitStd>::new(Side::West);
@@ -141,10 +141,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::player::side::Side;
     /// use bridge_core::play::card_trackers::{SuitExhaustStd};
-    /// use carden::figures::FigureStd;
-    /// use carden::suits::{SuitStd, SuitStd::*};
-    /// use carden::memory_usage::standard_register::CardUsageRegStd;
-    /// use carden::cards::card::standard::*;
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::memory_usage::standard_register::CardUsageRegStd;
+    /// use karty::cards::card::standard::*;
     /// 
     /// let mut exhaust_register = SuitExhaustStd::default();
     ///
@@ -179,10 +179,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::player::side::Side;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
-    /// use carden::figures::FigureStd;
-    /// use carden::suits::{SuitStd, SuitStd::*};
-    /// use carden::memory_usage::standard_register::CardUsageRegStd;
-    /// use carden::cards::card::standard::*;
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::memory_usage::standard_register::CardUsageRegStd;
+    /// use karty::cards::card::standard::*;
     ///
     /// let mut trick1 = Trick::new(Side::North);
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -219,10 +219,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::trick::Trick;
     /// use bridge_core::player::side::Side;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
-    /// use carden::figures::FigureStd;
-    /// use carden::suits::{SuitStd, SuitStd::*};
-    /// use carden::memory_usage::standard_register::CardUsageRegStd;
-    /// use carden::cards::card::standard::*;
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::memory_usage::standard_register::CardUsageRegStd;
+    /// use karty::cards::card::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
     /// let mut trick = Trick::new(Side::North);
@@ -267,10 +267,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
-    /// use carden::figures::FigureStd;
-    /// use carden::suits::{SuitStd, SuitStd::*};
-    /// use carden::memory_usage::standard_register::CardUsageRegStd;
-    /// use carden::cards::card::standard::*;
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::memory_usage::standard_register::CardUsageRegStd;
+    /// use karty::cards::card::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
     /// let mut trick1 = Trick::new(North);

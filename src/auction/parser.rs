@@ -6,8 +6,8 @@ use nom::sequence::{delimited, separated_pair};
 use crate::auction::bid::Bid;
 use crate::play::trump::Trump;
 use nom::error::ErrorKind;
-use carden::suits::parse::parse_suit;
-use carden::suits::SuitStd;
+use karty::suits::parse::parse_suit;
+use karty::suits::SuitStd;
 
 
 ///Parses no trump strict
@@ -37,7 +37,7 @@ pub fn parse_nt_delimited(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// Parses colored trump
 /// ```
 /// use bridge_core::auction::parser::parse_trump_colored;
-/// use carden::suits::standard::SuitStd::{Spades, Hearts};
+/// use karty::suits::standard::SuitStd::{Spades, Hearts};
 /// use bridge_core::play::trump::Trump;
 /// assert_eq!(parse_trump_colored("hjik"), Ok(("jik", Trump::Colored(Hearts))));
 /// assert_eq!(parse_trump_colored("spadesorsth"), Ok(("orsth", Trump::Colored(Spades))));
@@ -49,7 +49,7 @@ pub fn parse_trump_colored(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// Parses trump
 /// ```
 /// use bridge_core::auction::parser::{parse_nt, parse_trump_colored};
-/// use carden::suits::standard::SuitStd::{Spades, Hearts};
+/// use karty::suits::standard::SuitStd::{Spades, Hearts};
 /// use bridge_core::play::trump::Trump;
 /// assert_eq!(parse_trump_colored("hjik"), Ok(("jik", Trump::Colored(Hearts))));
 /// assert_eq!(parse_trump_colored("spadesorsth"), Ok(("orsth", Trump::Colored(Spades))));
@@ -62,7 +62,7 @@ pub fn parse_trump(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// ```
 /// use bridge_core::auction::parser::parse_bid;
 /// use bridge_core::auction::bid::Bid;
-/// use carden::suits::SuitStd::Clubs;
+/// use karty::suits::SuitStd::Clubs;
 /// use bridge_core::play::trump::Trump;
 /// use nom::error::ErrorKind;
 /// assert_eq!(parse_bid("3c"), Ok(("", Bid::create_bid(Trump::Colored(Clubs), 3).unwrap())));

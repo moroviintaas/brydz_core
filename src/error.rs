@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use carden::suits::Suit;
+use karty::suits::Suit;
 use crate::auction::bid::Bid;
 use crate::player::side::Side;
 

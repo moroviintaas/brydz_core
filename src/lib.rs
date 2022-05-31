@@ -5,4 +5,4 @@ pub mod score;
 pub mod auction;
 
 pub use ron;
-pub use carden;
+pub use karty;

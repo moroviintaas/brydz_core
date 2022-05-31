@@ -13,4 +13,4 @@ itertools = "0.10.3"
 arrayvec = {version = "0.7.2", features = ["serde"]}
 ron = "0.7.0"
 nom = "7.1.0"
-carden = {path = "../carden", features = ["register", "parse"]}
+karty = {path = "../karty", features = ["register", "parse"]}

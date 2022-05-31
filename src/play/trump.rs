@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use std::hash::{Hash};
-use carden::cards::Card;
-use carden::figures::Figure;
-use carden::suits::{Suit, SuitStd};
-use carden::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
+use karty::cards::Card;
+use karty::figures::Figure;
+use karty::suits::{Suit, SuitStd};
+use karty::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 
 use crate::play::trump::Trump::{Colored, NoTrump};
 
@@ -65,9 +65,9 @@ pub const TRUMPS: [Trump<SuitStd>; 5] = [Colored(Spades), Colored(Hearts), Color
 #[cfg(test)]
 mod tests{
     use std::cmp::Ordering;
-    use carden::cards::Card;
-    use carden::figures::{Ace, Numbered, NumberFigureStd, Queen};
-    use carden::suits::SuitStd::{Diamonds, Hearts, Spades};
+    use karty::cards::Card;
+    use karty::figures::{Ace, Numbered, NumberFigureStd, Queen};
+    use karty::suits::SuitStd::{Diamonds, Hearts, Spades};
 
     use crate::play::trump::Trump;
 

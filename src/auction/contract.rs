@@ -1,4 +1,4 @@
-use carden::suits::Suit;
+use karty::suits::Suit;
 use crate::error::AuctionError;
 use crate::error::AuctionError::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::auction::{call};

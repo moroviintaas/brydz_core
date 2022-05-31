@@ -1,8 +1,8 @@
 use std::fmt::Debug;
-use carden::cards::Card;
-use carden::figures::Figure;
-use carden::memory_usage::register::CardRegister;
-use carden::suits::{Suit, SuitStd};
+use karty::cards::Card;
+use karty::figures::Figure;
+use karty::memory_usage::register::CardRegister;
+use karty::suits::{Suit, SuitStd};
 use crate::play::trick::Trick;
 use crate::player::side::{Side};
 
@@ -36,9 +36,9 @@ where UM: CardRegister<F,S>{
 }
 #[cfg(test)]
 mod tests_card_memory{
-    use carden::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
-    use carden::memory_usage::register::CardRegister;
-    use carden::memory_usage::standard_register::CardUsageRegStd;
+    use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
+    use karty::memory_usage::register::CardRegister;
+    use karty::memory_usage::standard_register::CardUsageRegStd;
     use crate::play::card_trackers::{SuitExhaustStd, TrickCollision};
     use crate::play::trick::Trick;
     use crate::player::side::Side;

@@ -4,9 +4,9 @@ use rand::{thread_rng};
 use itertools::Itertools;
 use std::ops::Index;
 use rand::seq::SliceRandom;
-use carden::cards::Card;
-use carden::figures::{FIGURES, FigureStd};
-use carden::suits::{SUITS, SuitStd};
+use karty::cards::Card;
+use karty::figures::{FIGURES, FigureStd};
+use karty::suits::{SUITS, SuitStd};
 
 
 pub const DECK_SIZE: usize = 52;
