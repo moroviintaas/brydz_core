@@ -36,7 +36,7 @@ where UM: CardRegister<F,S>{
 }
 #[cfg(test)]
 mod tests_card_memory{
-    use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
+    use karty::cards::standard::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use karty::memory_usage::register::CardRegister;
     use karty::memory_usage::standard_register::CardUsageRegStd;
     use crate::play::card_trackers::{SuitExhaustStd, TrickCollision};

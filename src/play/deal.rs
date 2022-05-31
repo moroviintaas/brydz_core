@@ -348,9 +348,8 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Inde
 
 #[cfg(test)]
 mod tests{
-    use karty::cards::{ACE_SPADES, FOUR_SPADES, JACK_CLUBS, JACK_SPADES, KING_CLUBS, KING_SPADES, QUEEN_SPADES, SIX_SPADES, TEN_HEARTS, THREE_SPADES};
+    use karty::cards::standard::{*};
     use karty::figures::FigureStd;
-    use karty::cards::card::standard::*;
     use karty::memory_usage::standard_register::CardUsageRegStd;
     use karty::suits::SuitStd;
     use karty::suits::SuitStd::Diamonds;
