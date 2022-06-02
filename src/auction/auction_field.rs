@@ -36,7 +36,7 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
 
     pub fn current_contract(&self) -> Option<&Contract<S>>{
         match &self.current_contract{
-            Some(x) => Some(&x),
+            Some(x) => Some(x),
             None => None
         }
 

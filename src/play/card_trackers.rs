@@ -74,11 +74,11 @@ pub struct SuitExhaustStd{
 
 impl SuitExhaustRegister<SuitStd> for SuitExhaustStd{
     fn mark_exhausted(&mut self, side: &Side, suit: &SuitStd) {
-        self.array  |= 1u16 << (usize::from(side.index()*4) + suit.order_number());
+        self.array  |= 1u16 << (usize::from(side.index()*4) + suit.position());
     }
 
     fn is_exhausted(&self, side: &Side, suit: &SuitStd) -> bool {
-        !matches!(self.array & (1u16 << (usize::from(side.index()*4) + suit.order_number())), 0)
+        !matches!(self.array & (1u16 << (usize::from(side.index()*4) + suit.position())), 0)
     }
 }
 
