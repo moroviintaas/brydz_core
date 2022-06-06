@@ -2,7 +2,7 @@ use std::fmt::Debug;
 use karty::card_dimension::CardDimension;
 use karty::cards::Card;
 use karty::figures::Figure;
-use karty::memory_usage::register::CardRegister;
+use karty::card_register::register::CardRegister;
 use karty::suits::{Suit, SuitStd};
 use crate::play::trick::Trick;
 use crate::player::side::{Side};
@@ -18,7 +18,7 @@ where UM: CardRegister<F,S>{
     fn trick_collision(&self, trick: &Trick<F, S>) -> Option<Card<F, S>> {
         for s in [Side::North, Side::East, Side::South, Side::West]{
             if let Some(card) = &trick[s]{
-                if self.is_card_used(card){
+                if self.is_registered(card){
                     return Some(card.to_owned())
 
                 }
@@ -30,7 +30,7 @@ where UM: CardRegister<F,S>{
     fn mark_cards_of_trick(&mut self, trick: &Trick<F, S>) {
         for s in [Side::North, Side::East, Side::South, Side::West]{
             if let Some(c) = &trick[s]{
-                self.mark_used(c);
+                self.register(c);
             }
         }
     }
@@ -38,8 +38,8 @@ where UM: CardRegister<F,S>{
 #[cfg(test)]
 mod tests_card_memory{
     use karty::cards::standard::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
-    use karty::memory_usage::register::CardRegister;
-    use karty::memory_usage::standard_register::CardUsageRegStd;
+    use karty::card_register::register::CardRegister;
+    use karty::card_register::standard_register::CardUsageRegStd;
     use crate::play::card_trackers::{SuitExhaustStd, TrickCollision};
     use crate::play::trick::Trick;
     use crate::player::side::Side;
@@ -55,7 +55,7 @@ mod tests_card_memory{
         trick.add_card(Side::West, TEN_CLUBS, &mut exhaust_register).unwrap();
         trick.add_card(Side::North, EIGHT_DIAMONDS, &mut exhaust_register).unwrap();
         assert_eq!(register.trick_collision(&trick), None);
-        register.mark_used(&QUEEN_HEARTS);
+        register.register(&QUEEN_HEARTS);
         assert_eq!(register.trick_collision(&trick), Some(QUEEN_HEARTS))
 
     }

@@ -1,5 +1,5 @@
 use karty::figures::Figure;
-use karty::memory_usage::register::CardRegister;
+use karty::card_register::register::CardRegister;
 use karty::suits::Suit;
 
 use crate::play::card_trackers::SuitExhaustRegister;
