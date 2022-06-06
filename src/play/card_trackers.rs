@@ -1,4 +1,5 @@
 use std::fmt::Debug;
+use karty::card_dimension::CardDimension;
 use karty::cards::Card;
 use karty::figures::Figure;
 use karty::memory_usage::register::CardRegister;

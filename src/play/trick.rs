@@ -89,7 +89,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_table = SuitExhaustStd::default();
     /// let mut trick1 = Trick::<FigureStd, SuitStd>::new(Side::West);
@@ -144,7 +144,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     /// 
     /// let mut exhaust_register = SuitExhaustStd::default();
     ///
@@ -182,7 +182,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     ///
     /// let mut trick1 = Trick::new(Side::North);
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -222,7 +222,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
     /// let mut trick = Trick::new(Side::North);
@@ -270,7 +270,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
     /// let mut trick1 = Trick::new(North);

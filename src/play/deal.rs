@@ -107,7 +107,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use karty::figures::FigureStd;
     /// use karty::suits::SuitStd;
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(
     ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
     /// deal.insert_card(Side::North, KING_HEARTS).unwrap();
@@ -193,7 +193,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
     ///
@@ -236,11 +236,12 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use bridge_core::auction::bid::Bid;
     /// use bridge_core::auction::call::Doubling;
     /// use bridge_core::play::card_trackers::{SuitExhaustStd};
-    /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap() ));
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
+    ///
+    /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     ///
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
@@ -280,7 +281,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::memory_usage::standard_register::CardUsageRegStd;
-    /// use karty::cards::card::standard::*;
+    /// use karty::cards::standard::*;
     /// let mut deal = Deal::<FigureStd, SuitStd, CardUsageRegStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
