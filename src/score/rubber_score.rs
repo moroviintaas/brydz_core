@@ -1,5 +1,6 @@
 use karty::figures::Figure;
-use karty::card_register::register::CardRegister;
+use karty::card_register::register::{Register};
+use karty::cards::Card;
 use karty::suits::Suit;
 
 use crate::play::card_trackers::SuitExhaustRegister;
@@ -13,12 +14,12 @@ pub const RUBBER_WINNING_GAMES: i32 = 2;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Game<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>{
+pub struct Game<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>>{
     winning_points: i64,
     contracts: Vec<Deal<F, S, Um, Se>>,
 
 }
-impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>Game<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>>Game<F, S, Um, Se>{
     pub fn new(winning_points: i64) -> Self{
         Self{winning_points, contracts: Vec::new()}
     }

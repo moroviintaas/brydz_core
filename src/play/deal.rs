@@ -3,7 +3,7 @@ use std::mem;
 use std::ops::Index;
 use karty::cards::Card;
 use karty::figures::Figure;
-use karty::card_register::register::CardRegister;
+use karty::card_register::register::{Register};
 use karty::suits::Suit;
 use crate::play::trick::{Trick, TrickError};
 use crate::player::side::Side;
@@ -36,7 +36,7 @@ impl<F: Figure, S: Suit>Display for DealError<F, S>{
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Deal<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>{
+pub struct Deal<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>>{
     contract: Contract<S>,
     tricks: [Trick<F, S>; QUARTER_SIZE],
     completed_tricks_number: usize,
@@ -45,7 +45,7 @@ pub struct Deal<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegist
     used_cards_memory: Um
 
 }
-impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> Deal<F, S, Um, Se>{
     pub fn new(contract: Contract<S>) -> Self{
         let first_player = contract.declarer().next();
         let mut tricks = <[Trick::<F,S>; QUARTER_SIZE]>::default();
@@ -321,7 +321,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Deal
 
 }
 
-impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>Display for Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>>Display for Deal<F, S, Um, Se>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", &self)
     }
@@ -329,7 +329,7 @@ impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>>Displ
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct ClosedDealRubber<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> {
+pub struct ClosedDealRubber<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> {
     contract: Deal<F, S, Um, Se>,
     score: ScoreTable
 
@@ -339,7 +339,7 @@ impl ClosedDealRubber{
 
 }*/
 
-impl<F: Figure, S: Suit, Um: CardRegister<F,S>, Se: SuitExhaustRegister<S>> Index<usize> for Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> Index<usize> for Deal<F, S, Um, Se>{
     type Output = Trick<F, S>;
 
     fn index(&self, index: usize) -> &Self::Output {
