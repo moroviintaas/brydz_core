@@ -1,4 +1,4 @@
-use std::fmt::{Display, Formatter};
+use std::fmt::{Debug, Display, Formatter};
 use std::mem;
 use std::ops::Index;
 use karty::cards::Card;
@@ -321,7 +321,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
 
 }
 
-impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>>Display for Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>> + Debug, Se: SuitExhaustRegister<S>>Display for Deal<F, S, Um, Se>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", &self)
     }
