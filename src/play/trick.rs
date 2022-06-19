@@ -88,7 +88,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::card_trackers::SuitExhaustRegister;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::card_register::standard_register::CardUsageRegStd;
+    /// use karty::register::RegisterCardStd;
     /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_table = SuitExhaustStd::default();
@@ -143,7 +143,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::card_trackers::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::card_register::standard_register::CardUsageRegStd;
+    /// use karty::register::RegisterCardStd;
     /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -181,7 +181,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::card_register::standard_register::CardUsageRegStd;
+    /// use karty::register::RegisterCardStd;
     /// use karty::cards::standard::*;
     ///
     /// let mut trick1 = Trick::new(Side::North);
@@ -221,7 +221,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::card_register::standard_register::CardUsageRegStd;
+    /// use karty::register::RegisterCardStd;
     /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -269,7 +269,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::play::card_trackers::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::card_register::standard_register::CardUsageRegStd;
+    /// use karty::register::RegisterCardStd;
     /// use karty::cards::standard::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();

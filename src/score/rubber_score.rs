@@ -1,5 +1,5 @@
 use karty::figures::Figure;
-use karty::card_register::register::{Register};
+use karty::register::{Register};
 use karty::cards::Card;
 use karty::suits::Suit;
 
