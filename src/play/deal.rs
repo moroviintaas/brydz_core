@@ -107,7 +107,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// use karty::figures::FigureStd;
     /// use karty::suits::SuitStd;
     /// use karty::register::RegisterCardStd;
-    /// use karty::cards::standard::*;
+    /// use karty::cards::*;
     /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(
     ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
     /// deal.insert_card(Side::North, KING_HEARTS).unwrap();
@@ -193,7 +193,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
-    /// use karty::cards::standard::*;
+    /// use karty::cards::*;
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
     ///
@@ -239,7 +239,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
-    /// use karty::cards::standard::*;
+    /// use karty::cards::*;
     ///
     /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     ///
@@ -281,7 +281,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
-    /// use karty::cards::standard::*;
+    /// use karty::cards::*;
     /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
@@ -349,7 +349,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> In
 
 #[cfg(test)]
 mod tests{
-    use karty::cards::standard::{*};
+    use karty::cards::{*};
     use karty::figures::FigureStd;
     use karty::register::RegisterCardStd;
     use karty::suits::SuitStd;

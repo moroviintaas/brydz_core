@@ -37,7 +37,7 @@ pub fn parse_nt_delimited(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// Parses colored trump
 /// ```
 /// use bridge_core::auction::parser::parse_trump_colored;
-/// use karty::suits::standard::SuitStd::{Spades, Hearts};
+/// use karty::suits::SuitStd::{Spades, Hearts};
 /// use bridge_core::play::trump::Trump;
 /// assert_eq!(parse_trump_colored("hjik"), Ok(("jik", Trump::Colored(Hearts))));
 /// assert_eq!(parse_trump_colored("spadesorsth"), Ok(("orsth", Trump::Colored(Spades))));
@@ -49,7 +49,7 @@ pub fn parse_trump_colored(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// Parses trump
 /// ```
 /// use bridge_core::auction::parser::{parse_nt, parse_trump_colored};
-/// use karty::suits::standard::SuitStd::{Spades, Hearts};
+/// use karty::suits::SuitStd::{Spades, Hearts};
 /// use bridge_core::play::trump::Trump;
 /// assert_eq!(parse_trump_colored("hjik"), Ok(("jik", Trump::Colored(Hearts))));
 /// assert_eq!(parse_trump_colored("spadesorsth"), Ok(("orsth", Trump::Colored(Spades))));

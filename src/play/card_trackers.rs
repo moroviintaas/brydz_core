@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use karty::card_element::CardElement;
+use karty::symbol::CardSymbol;
 use karty::cards::Card;
 use karty::figures::Figure;
 use karty::register::{Register};
@@ -37,7 +37,7 @@ where UM: Register<Card<F,S>>{
 }
 #[cfg(test)]
 mod tests_card_memory{
-    use karty::cards::standard::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
+    use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use karty::register::{Register};
     use karty::register::RegisterCardStd;
     use crate::play::card_trackers::{SuitExhaustStd, TrickCollision};
