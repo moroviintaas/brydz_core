@@ -3,8 +3,8 @@ use crate::karty::figures::Figure;
 use crate::karty::suits::Suit;
 use crate::player::side::Side;
 use crate::contract::trick::Trick;
-use crate::cards::deck::QUARTER_SIZE;
 use crate::player::role::PlayRole;
+use crate::meta::QUARTER_SIZE;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
 pub struct Player<F: Figure, S: Suit>{

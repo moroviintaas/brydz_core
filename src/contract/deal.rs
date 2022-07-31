@@ -10,18 +10,19 @@ use crate::player::side::Side;
 use crate::cards::trump::Trump;
 use crate::player::axis::Axis;
 use crate::bidding::contract::Contract;
+
 use crate::contract::deal::DealError::IndexedOverCurrentTrick;
-use crate::cards::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
+
 use crate::contract::card_trackers::{TrickCollision};
-use crate::score::score_table::ScoreTable;
+//use crate::score::score_table::ScoreTable;
 use crate::contract::trick::TrickError::MissingCard;
-
-
+use crate::meta::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DealError<F: Figure, S: Suit>{
     DealFull,
+    DealIncomplete,
     DuplicateCard(Card<F, S>),
     TrickError(TrickError<F, S>),
     IndexedOverCurrentTrick(usize)
@@ -33,6 +34,23 @@ impl<F: Figure, S: Suit>Display for DealError<F, S>{
     }
 }
 
+pub trait ContractOverseer<F: Figure, S: Suit>{
+    fn current_trick(&self) -> &Trick<F, S>;
+    fn contract(&self) -> &Contract<S>;
+    fn completed_tricks_number(&self) -> usize;
+    fn insert_card(&mut self, side: Side, card: Card<F, S>) -> Result<Side, DealError<F, S>>;
+    fn is_completed(&self) -> bool;
+    fn completed_tricks(&self) -> Vec<Trick<F,S>>;
+    fn tricks_taken(&self, side: Side) -> usize;
+    fn total_tricks_taken_axis(&self, axis: Axis) -> usize;
+}
+pub trait GuardingContractOverseer<
+    F: Figure, S: Suit,
+    Um: Register<Card<F,S>>,
+    Se:Register<(Side, S)>>: ContractOverseer<F,S>{
+
+
+}
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
@@ -45,6 +63,183 @@ pub struct Deal<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se:Register<(Side, 
     used_cards_memory: Um
 
 }
+
+impl<F: Figure, S: Suit,
+    Um: Register<Card<F,S>>,
+    Se:Register<(Side, S)>> ContractOverseer<F, S> for Deal<F, S, Um, Se>{
+
+    fn current_trick(&self) -> &Trick<F, S>{
+        &self.current_trick
+    }
+    fn contract(&self) -> &Contract<S>{
+        &self.contract
+    }
+    fn completed_tricks_number(&self) -> usize{
+        self.completed_tricks_number
+    }
+    /// Inserts card to current trick in deal. If trick is closed (contains a card from each side (4)) it is closed and added to array of completed tricks.
+    /// # Returns:
+    /// `Ok(())` if card has been successfully added
+    /// `Err(DealError)` Hopefully an error describing problem
+    ///
+    /// # Examples:
+    /// ```
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::contract::deal::{Deal, DealError};
+    /// use bridge_core::player::side::Side;
+    /// use std::str::FromStr;
+    /// use bridge_core::contract::deal::ContractOverseer;
+    /// use bridge_core::player::axis::Axis;
+    /// use bridge_core::contract::trick::TrickError;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::SuitStd;
+    /// use karty::register::RegisterCardStd;
+    /// use karty::cards::*;
+    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(
+    ///     Contract::new(Side::West, Bid::init(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
+    /// deal.insert_card(Side::North, KING_HEARTS).unwrap();
+    /// deal.insert_card(Side::East, ACE_HEARTS).unwrap();
+    /// deal.insert_card(Side::South, TWO_CLUBS).unwrap();
+    /// assert_eq!(deal.completed_tricks_number(), 0);
+    /// let r = deal.insert_card(Side::West, SEVEN_HEARTS);
+    /// assert_eq!(r.unwrap(), Side::East);
+    /// assert_eq!(deal.completed_tricks_number(), 1);
+    /// assert_eq!(deal.side_winning_trick(0).unwrap(), Side::East);
+    /// let r = deal.insert_card(Side::East, TEN_HEARTS);
+    /// assert_eq!(r.unwrap(), Side::South);
+    /// let r = deal.insert_card(Side::South, JACK_HEARTS);
+    /// assert_eq!(r, Err(DealError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Hearts))));
+    /// deal.insert_card(Side::South, TWO_CLUBS).unwrap();
+    /// deal.insert_card(Side::West, SIX_HEARTS).unwrap();
+    /// let r = deal.insert_card(Side::North, THREE_HEARTS);
+    ///
+    /// assert_eq!(r, Err(DealError::DuplicateCard(TWO_CLUBS)));
+    ///
+    /// ```
+    fn insert_card(&mut self, side: Side, card: Card<F, S>) -> Result<Side, DealError<F, S>>{
+        if self.completed_tricks_number >= QUARTER_SIZE{
+            return Err(DealError::DealFull);
+        }
+        match self.current_trick.add_card(side, card, &mut self.exhaust_table){
+            Ok(4) => {
+                match self.current_trick.taker(self.trump()){
+                    Ok(winner) => {
+                        match self.complete_current_trick(){
+                            Ok(()) => Ok(winner),
+                            Err(e) => Err(e)
+
+                        }
+
+                    }
+                    Err(e) => Err(DealError::TrickError( e))
+                }
+            },
+            Ok(_) => Ok(side.next()),
+            Err(e) => Err(DealError::TrickError( e))
+
+        }
+    }
+    fn is_completed(&self) -> bool{
+        match self.completed_tricks_number {
+            n if n < QUARTER_SIZE => false,
+            QUARTER_SIZE => true,
+            //Infallible, I guess
+            _ => panic!("Number of tricks in deal should never ever exceed {}.", QUARTER_SIZE)
+        }
+    }
+
+    fn completed_tricks(&self) -> Vec<Trick<F, S>> {
+        let mut r = Vec::new();
+        for i in 0..self.completed_tricks_number{
+            r.push(self.tricks[i].to_owned());
+        }
+        r
+    }
+    /// Counts tricks taken by `Side` (one player)
+    /// # Examples:
+    /// ```
+    /// use bridge_core::player::side::Side::*;
+    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::deal::{ContractOverseer,Deal};
+    /// use std::str::FromStr;
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::register::RegisterCardStd;
+    /// use karty::cards::*;
+    ///
+    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
+    ///
+    /// deal.insert_card(North, JACK_SPADES).unwrap();
+    /// deal.insert_card(East, TEN_SPADES).unwrap();
+    /// deal.insert_card(South, FOUR_SPADES).unwrap();
+    /// deal.insert_card(West, FIVE_DIAMONDS).unwrap(); //winner
+    ///
+    /// deal.insert_card(West, EIGHT_HEARTS).unwrap();
+    /// deal.insert_card(North, JACK_DIAMONDS).unwrap(); //winner
+    /// deal.insert_card(East, KING_HEARTS).unwrap();
+    /// deal.insert_card(South, NINE_HEARTS).unwrap();
+    ///
+    /// deal.insert_card(North, ACE_CLUBS).unwrap(); //winner
+    /// deal.insert_card(East, QUEEN_SPADES).unwrap();
+    /// deal.insert_card(South, SEVEN_HEARTS).unwrap();
+    /// deal.insert_card(West, FOUR_CLUBS).unwrap();
+    /// assert_eq!(deal.tricks_taken(North), 2);
+    /// assert_eq!(deal.tricks_taken(West), 1);
+    /// assert_eq!(deal.tricks_taken(South), 0);
+    /// assert_eq!(deal.tricks_taken(East), 0);
+    /// ```
+    fn tricks_taken(&self, side: Side) -> usize{
+        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap() == side).count()
+    }
+    /// Counts tricks taken by `Side` (one player)
+    /// # Examples:
+    /// ```
+    /// use bridge_core::player::side::Side::*;
+    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::deal::{ContractOverseer, Deal};
+    /// use std::str::FromStr;
+    /// use bridge_core::player::axis::Axis;
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::{SuitStd, SuitStd::*};
+    /// use karty::register::RegisterCardStd;
+    /// use karty::cards::*;
+    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
+    /// deal.insert_card(North, JACK_SPADES).unwrap();
+    /// deal.insert_card(East, TEN_SPADES).unwrap();
+    /// deal.insert_card(South, FOUR_SPADES).unwrap();
+    /// deal.insert_card(West, FIVE_DIAMONDS).unwrap(); //winner
+    ///
+    /// deal.insert_card(West, EIGHT_HEARTS).unwrap();
+    /// deal.insert_card(North, JACK_DIAMONDS).unwrap(); //winner
+    /// deal.insert_card(East, KING_HEARTS).unwrap();
+    /// deal.insert_card(South, NINE_HEARTS).unwrap();
+    ///
+    /// deal.insert_card(North, ACE_CLUBS).unwrap(); //winner
+    /// deal.insert_card(East, QUEEN_SPADES).unwrap();
+    /// deal.insert_card(South, SEVEN_HEARTS).unwrap();
+    /// deal.insert_card(West, FOUR_CLUBS).unwrap();
+    /// assert_eq!(deal.total_tricks_taken_axis(Axis::NorthSouth), 2);
+    /// assert_eq!(deal.total_tricks_taken_axis(Axis::EastWest), 1);
+    /// ```
+    fn total_tricks_taken_axis(&self, axis: Axis) -> usize{
+        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap().axis() == axis).count()
+    }
+}
+
 impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Deal<F, S, Um, Se>{
     pub fn new(contract: Contract<S>) -> Self{
         let first_player = contract.declarer().next();
@@ -54,9 +249,6 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Deal<
             exhaust_table: Se::default(), current_trick: Trick::new(first_player), used_cards_memory: Um::default()}
     }
 
-    pub fn current_trick(&self) -> &Trick<F, S>{
-        &self.current_trick
-    }
 
     fn complete_current_trick(&mut self) -> Result<(), DealError<F, S>>{
         match self.completed_tricks_number {
@@ -83,75 +275,6 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Deal<
         }
     }
 
-    pub fn completed_tricks(&self) -> usize{
-        self.completed_tricks_number
-    }
-
-    /// Inserts card to current trick in deal. If trick is closed (contains a card from each side (4)) it is closed and added to array of completed tricks.
-    /// # Returns:
-    /// `Ok(())` if card has been successfully added
-    /// `Err(DealError)` Hopefully an error describing problem
-    ///
-    /// # Examples:
-    /// ```
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::bidding::call::Doubling;
-    /// use bridge_core::bidding::contract::{Contract};
-    /// use bridge_core::bidding::bid::Bid;
-    /// use bridge_core::contract::deal::{Deal, DealError};
-    /// use bridge_core::player::side::Side;
-    /// use std::str::FromStr;
-    /// use bridge_core::player::axis::Axis;
-    /// use bridge_core::contract::trick::TrickError;
-    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::SuitStd;
-    /// use karty::register::RegisterCardStd;
-    /// use karty::cards::*;
-    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(
-    ///     Contract::new(Side::West, Bid::init(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
-    /// deal.insert_card(Side::North, KING_HEARTS).unwrap();
-    /// deal.insert_card(Side::East, ACE_HEARTS).unwrap();
-    /// deal.insert_card(Side::South, TWO_CLUBS).unwrap();
-    /// assert_eq!(deal.completed_tricks(), 0);
-    /// let r = deal.insert_card(Side::West, SEVEN_HEARTS);
-    /// assert_eq!(r.unwrap(), Side::East);
-    /// assert_eq!(deal.completed_tricks(), 1);
-    /// assert_eq!(deal.side_winning_trick(0).unwrap(), Side::East);
-    /// let r = deal.insert_card(Side::East, TEN_HEARTS);
-    /// assert_eq!(r.unwrap(), Side::South);
-    /// let r = deal.insert_card(Side::South, JACK_HEARTS);
-    /// assert_eq!(r, Err(DealError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Hearts))));
-    /// deal.insert_card(Side::South, TWO_CLUBS).unwrap();
-    /// deal.insert_card(Side::West, SIX_HEARTS).unwrap();
-    /// let r = deal.insert_card(Side::North, THREE_HEARTS);
-    ///
-    /// assert_eq!(r, Err(DealError::DuplicateCard(TWO_CLUBS)));
-    ///
-    /// ```
-    pub fn insert_card(&mut self, side: Side, card: Card<F, S>) -> Result<Side, DealError<F, S>>{
-        if self.completed_tricks_number >= QUARTER_SIZE{
-            return Err(DealError::DealFull);
-        }
-        match self.current_trick.add_card(side, card, &mut self.exhaust_table){
-            Ok(4) => {
-                match self.current_trick.taker(self.trump()){
-                    Ok(winner) => {
-                        match self.complete_current_trick(){
-                            Ok(()) => Ok(winner),
-                            Err(e) => Err(e)
-
-                        }
-
-                    }
-                    Err(e) => Err(DealError::TrickError( e))
-                }
-            },
-            Ok(_) => Ok(side.next()),
-            Err(e) => Err(DealError::TrickError( e))
-
-        }
-    }
 
     pub fn trump(&self) -> &Trump<S>{
         self.contract.bid().trump()
@@ -184,7 +307,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Deal<
     /// use bridge_core::cards::trump::Trump;
     /// use bridge_core::cards::deck::Deck;
     /// use bridge_core::player::side::SIDES;
-    /// use bridge_core::contract::deal::Deal;
+    /// use bridge_core::contract::deal::{ContractOverseer,Deal};
     /// use std::str::FromStr;
     /// use bridge_core::bidding::call::Doubling;
     /// use bridge_core::bidding::contract::{Contract};
@@ -224,100 +347,19 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Deal<
             false => Err(IndexedOverCurrentTrick(self.completed_tricks_number))
         }
     }
-    /// Counts tricks taken by `Side` (one player)
-    /// # Examples:
-    /// ```
-    /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::contract::trick::Trick;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::contract::deal::Deal;
-    /// use std::str::FromStr;
-    /// use bridge_core::bidding::contract::{Contract};
-    /// use bridge_core::bidding::bid::Bid;
-    /// use bridge_core::bidding::call::Doubling;
-    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
-    /// use karty::cards::*;
-    ///
-    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
-    ///
-    /// deal.insert_card(North, JACK_SPADES).unwrap();
-    /// deal.insert_card(East, TEN_SPADES).unwrap();
-    /// deal.insert_card(South, FOUR_SPADES).unwrap();
-    /// deal.insert_card(West, FIVE_DIAMONDS).unwrap(); //winner
-    ///
-    /// deal.insert_card(West, EIGHT_HEARTS).unwrap();
-    /// deal.insert_card(North, JACK_DIAMONDS).unwrap(); //winner
-    /// deal.insert_card(East, KING_HEARTS).unwrap();
-    /// deal.insert_card(South, NINE_HEARTS).unwrap();
-    ///
-    /// deal.insert_card(North, ACE_CLUBS).unwrap(); //winner
-    /// deal.insert_card(East, QUEEN_SPADES).unwrap();
-    /// deal.insert_card(South, SEVEN_HEARTS).unwrap();
-    /// deal.insert_card(West, FOUR_CLUBS).unwrap();
-    /// assert_eq!(deal.tricks_taken(North), 2);
-    /// assert_eq!(deal.tricks_taken(West), 1);
-    /// assert_eq!(deal.tricks_taken(South), 0);
-    /// assert_eq!(deal.tricks_taken(East), 0);
-    /// ```
-    pub fn tricks_taken(&self, side: Side) -> usize{
-        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap() == side).count()
-    }
-    /// Counts tricks taken by `Side` (one player)
-    /// # Examples:
-    /// ```
-    /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::contract::trick::Trick;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::contract::deal::Deal;
-    /// use std::str::FromStr;
-    /// use bridge_core::player::axis::Axis;
-    /// use bridge_core::bidding::call::Doubling;
-    /// use bridge_core::bidding::contract::{Contract};
-    /// use bridge_core::bidding::bid::Bid;
-    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
-    /// use karty::cards::*;
-    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
-    /// deal.insert_card(North, JACK_SPADES).unwrap();
-    /// deal.insert_card(East, TEN_SPADES).unwrap();
-    /// deal.insert_card(South, FOUR_SPADES).unwrap();
-    /// deal.insert_card(West, FIVE_DIAMONDS).unwrap(); //winner
-    ///
-    /// deal.insert_card(West, EIGHT_HEARTS).unwrap();
-    /// deal.insert_card(North, JACK_DIAMONDS).unwrap(); //winner
-    /// deal.insert_card(East, KING_HEARTS).unwrap();
-    /// deal.insert_card(South, NINE_HEARTS).unwrap();
-    ///
-    /// deal.insert_card(North, ACE_CLUBS).unwrap(); //winner
-    /// deal.insert_card(East, QUEEN_SPADES).unwrap();
-    /// deal.insert_card(South, SEVEN_HEARTS).unwrap();
-    /// deal.insert_card(West, FOUR_CLUBS).unwrap();
-    /// assert_eq!(deal.tricks_taken_axis(Axis::NorthSouth), 2);
-    /// assert_eq!(deal.tricks_taken_axis(Axis::EastWest), 1);
-    /// ```
-    pub fn tricks_taken_axis(&self, axis: Axis) -> usize{
-        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap().axis() == axis).count()
-    }
 
-    pub fn is_completed(&self) -> bool{
-        match self.completed_tricks_number {
-            n if n < QUARTER_SIZE => false,
-            QUARTER_SIZE => true,
-            //Infallible, I guess
-            _ => panic!("Number of tricks in deal should never ever exceed {}.", QUARTER_SIZE)
-        }
-    }
 
+
+
+
+/*
     pub fn score(&self) -> ScoreTable {
          ScoreTable::default()
 
         
     }
+    */
+
 
 }
 
@@ -329,13 +371,15 @@ impl<F: Figure, S: Suit,
     }
 }
 
-
+/*
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct ClosedDealRubber<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side,S)>> {
     contract: Deal<F, S, Um, Se>,
     score: ScoreTable
 
 }
+*/
+
 /*
 impl ClosedDealRubber{
 
@@ -360,9 +404,10 @@ mod tests{
     use crate::bidding::contract::{Contract};
     use crate::bidding::bid::Bid;
     use crate::contract::card_trackers::SuitExhaustStd;
-    use crate::contract::deal::{Deal, DealError};
+    use crate::contract::deal::{ContractOverseer, Deal, DealError};
     use crate::contract::deal::DealError::DealFull;
-    use crate::cards::deck::{Deck, QUARTER_SIZE};
+    use crate::cards::deck::{Deck};
+    use crate::meta::QUARTER_SIZE;
     use crate::player::side::Side;
     use crate::player::side::Side::{East, North, South, West};
 
@@ -422,13 +467,13 @@ mod tests{
         deal.insert_card(West, THREE_SPADES).unwrap();
         deal.insert_card(North, FOUR_SPADES).unwrap();
         deal.insert_card(East, SIX_SPADES).unwrap();
-        assert_eq!(deal.completed_tricks(), 1);
+        assert_eq!(deal.completed_tricks_number(), 1);
 
         deal.insert_card(South, TWO_SPADES).unwrap();
         deal.insert_card(West, THREE_DIAMONDS).unwrap();
         deal.insert_card(North, EIGHT_SPADES).unwrap();
         deal.insert_card(East, TEN_SPADES).unwrap();
-        assert_eq!(deal.completed_tricks(), 2);
+        assert_eq!(deal.completed_tricks_number(), 2);
 
         deal.insert_card(West, FOUR_DIAMONDS).unwrap();
         deal.insert_card(North, JACK_DIAMONDS).unwrap();
@@ -439,19 +484,19 @@ mod tests{
         deal.insert_card(South, FIVE_SPADES).unwrap();
         deal.insert_card(West, FIVE_DIAMONDS).unwrap();
         deal.insert_card(North, NINE_DIAMONDS).unwrap();
-        assert_eq!(deal.completed_tricks(), 4);
+        assert_eq!(deal.completed_tricks_number(), 4);
 
         deal.insert_card(East, FOUR_HEARTS).unwrap();
         deal.insert_card(South, FIVE_HEARTS).unwrap();
         deal.insert_card(West, KING_HEARTS).unwrap();
         deal.insert_card(North, ACE_HEARTS).unwrap();
-        assert_eq!(deal.completed_tricks(), 5);
+        assert_eq!(deal.completed_tricks_number(), 5);
 
         deal.insert_card(North, FIVE_CLUBS).unwrap();
         deal.insert_card(East, ACE_CLUBS).unwrap();
         deal.insert_card(South, FOUR_CLUBS).unwrap();
         deal.insert_card(West, TWO_CLUBS).unwrap();
-        assert_eq!(deal.completed_tricks(), 6);
+        assert_eq!(deal.completed_tricks_number(), 6);
 
         deal.insert_card(East, QUEEN_HEARTS).unwrap();
         deal.insert_card(South, EIGHT_HEARTS).unwrap();
@@ -462,7 +507,7 @@ mod tests{
         deal.insert_card(South, SEVEN_SPADES).unwrap();
         deal.insert_card(West, SIX_DIAMONDS).unwrap();
         deal.insert_card(North, NINE_SPADES).unwrap();
-        assert_eq!(deal.completed_tricks(), 8);
+        assert_eq!(deal.completed_tricks_number(), 8);
 
         deal.insert_card(West, KING_CLUBS).unwrap();
         deal.insert_card(North, NINE_CLUBS).unwrap();
@@ -473,19 +518,19 @@ mod tests{
         deal.insert_card(North, QUEEN_CLUBS).unwrap();
         deal.insert_card(East, TWO_DIAMONDS).unwrap();
         deal.insert_card(South, SEVEN_CLUBS).unwrap();
-        assert_eq!(deal.completed_tricks(), 10);
+        assert_eq!(deal.completed_tricks_number(), 10);
 
         deal.insert_card(East, SEVEN_DIAMONDS).unwrap();
         deal.insert_card(South, EIGHT_CLUBS).unwrap();
         deal.insert_card(West, SIX_HEARTS).unwrap();
         deal.insert_card(North, SEVEN_HEARTS).unwrap();
-        assert_eq!(deal.completed_tricks(), 11);
+        assert_eq!(deal.completed_tricks_number(), 11);
 
         deal.insert_card(East, EIGHT_DIAMONDS).unwrap();
         deal.insert_card(South, JACK_CLUBS).unwrap();
         deal.insert_card(West, NINE_HEARTS).unwrap();
         deal.insert_card(North, JACK_SPADES).unwrap();
-        assert_eq!(deal.completed_tricks(), 12);
+        assert_eq!(deal.completed_tricks_number(), 12);
 
         deal.insert_card(East, ACE_DIAMONDS).unwrap();
         deal.insert_card(South, JACK_HEARTS).unwrap();

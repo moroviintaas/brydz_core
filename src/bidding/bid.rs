@@ -4,8 +4,8 @@ use karty::suits::SuitStd::{Spades, Diamonds, Hearts, Clubs};
 use crate::cards::trump::Trump;
 use crate::error::BiddingError;
 use crate::error::BiddingError::IllegalBidNumber;
-pub const MIN_BID_NUMBER: u8 = 1;
-pub const MAX_BID_NUMBER: u8 = 7;
+use crate::meta::{HALF_TRICKS, MAX_BID_NUMBER, MIN_BID_NUMBER};
+
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Bid<S: Suit> {
@@ -24,6 +24,12 @@ impl<S: Suit>  Bid<S> {
     }
     pub fn trump(&self) -> &Trump<S>{
         &self.trump
+    }
+    pub fn number(&self) -> u8{
+        self.number
+    }
+    pub fn number_normalised(&self) -> u8{
+        self.number + HALF_TRICKS
     }
 }
 impl<S: Suit> PartialOrd for Bid<S> {

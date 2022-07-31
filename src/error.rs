@@ -38,5 +38,6 @@ impl<S:Suit> Display for BiddingError<S>{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BridgeError<F: Figure, S: Suit>{
     DealError(DealError<F, S>),
-    BiddingError(BiddingError<S>)
+    BiddingError(BiddingError<S>),
+    Custom(String)
 }

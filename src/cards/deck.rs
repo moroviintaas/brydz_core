@@ -7,11 +7,10 @@ use rand::seq::SliceRandom;
 use karty::cards::Card;
 use karty::figures::{FIGURES, FigureStd};
 use karty::suits::{SUITS, SuitStd};
+use crate::meta::DECK_SIZE;
 
 
-pub const DECK_SIZE: usize = 52;
-pub const QUARTER_SIZE: usize = 13usize;
-pub const MAX_INDEX_IN_DEAL: usize = QUARTER_SIZE -1;
+
 
 /*pub trait DeckTrait<const S: usize>{
 
