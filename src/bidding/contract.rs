@@ -1,10 +1,10 @@
 use karty::suits::Suit;
-use crate::error::AuctionError;
-use crate::error::AuctionError::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
-use crate::auction::{call};
-use crate::auction::call::{Doubling};
+use crate::error::BiddingError;
+use crate::error::BiddingError::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
+use crate::bidding::{call};
+use crate::bidding::call::{Doubling};
 use crate::player::side::Side;
-use crate::auction::bid::Bid;
+use crate::bidding::bid::Bid;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
@@ -31,7 +31,7 @@ impl<S: Suit> Contract<S> {
         self.declarer
     }
 
-    pub fn double(&mut self) -> Result<(), AuctionError<S>>{
+    pub fn double(&mut self) -> Result<(), BiddingError<S>>{
         match self.doubling{
             Doubling::None => {
                 self.doubling = Doubling::Double;
@@ -42,7 +42,7 @@ impl<S: Suit> Contract<S> {
         }
     }
 
-    pub fn redouble(&mut self) -> Result<(), AuctionError<S>>{
+    pub fn redouble(&mut self) -> Result<(), BiddingError<S>>{
         match self.doubling{
             Doubling::Double => {
                 self.doubling = Doubling::ReDouble;

@@ -1,5 +1,5 @@
 use karty::suits::Suit;
-use crate::auction::bid::Bid;
+use crate::bidding::bid::Bid;
 
 use crate::player::side::Side;
 

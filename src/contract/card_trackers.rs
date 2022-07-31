@@ -4,7 +4,7 @@ use karty::cards::Card;
 use karty::figures::Figure;
 use karty::register::{Register};
 use karty::suits::{Suit, SuitStd};
-use crate::play::trick::Trick;
+use crate::contract::trick::Trick;
 use crate::player::side::{Side};
 
 pub trait TrickCollision<F: Figure, S: Suit>{
@@ -40,8 +40,8 @@ mod tests_card_memory{
     use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use karty::register::{Register};
     use karty::register::RegisterCardStd;
-    use crate::play::card_trackers::{SuitExhaustStd, TrickCollision};
-    use crate::play::trick::Trick;
+    use crate::contract::card_trackers::{SuitExhaustStd, TrickCollision};
+    use crate::contract::trick::Trick;
     use crate::player::side::Side;
 
     #[test]
@@ -62,10 +62,7 @@ mod tests_card_memory{
 }
 
 
-pub trait SuitExhaustRegister<S: Suit>: Default + Debug{
-    fn mark_exhausted(&mut self, side: &Side, suit: &S);
-    fn is_exhausted(&self, side: &Side, suit: &S) -> bool;
-}
+
 #[derive(Debug, Default)]
 pub struct SuitExhaustStd{
     array: u16
@@ -73,13 +70,19 @@ pub struct SuitExhaustStd{
 
 
 
-impl SuitExhaustRegister<SuitStd> for SuitExhaustStd{
-    fn mark_exhausted(&mut self, side: &Side, suit: &SuitStd) {
-        self.array  |= 1u16 << (usize::from(side.index()*4) + suit.position());
+
+impl Register<(Side, SuitStd)> for SuitExhaustStd{
+    fn register(&mut self, element: (Side, SuitStd)) {
+        self.array  |= 1u16 << (usize::from(element.0.index()*4) + element.1.position());
     }
 
-    fn is_exhausted(&self, side: &Side, suit: &SuitStd) -> bool {
-        !matches!(self.array & (1u16 << (usize::from(side.index()*4) + suit.position())), 0)
+    fn unregister(&mut self, element: &(Side, SuitStd)) {
+        let mask_neg  = 1u16 << (usize::from(element.0.index()*4) + element.1.position());
+        let mask = mask_neg ^ u16::MAX;
+        self.array &= mask;
+    }
+
+    fn is_registered(&self, element: &(Side, SuitStd)) -> bool {
+        !matches!(self.array & (1u16 << (usize::from(element.0.index()*4) + element.1.position())), 0)
     }
 }
-

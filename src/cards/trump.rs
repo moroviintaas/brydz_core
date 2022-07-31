@@ -5,7 +5,7 @@ use karty::figures::Figure;
 use karty::suits::{Suit, SuitStd};
 use karty::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 
-use crate::play::trump::Trump::{Colored, NoTrump};
+use crate::cards::trump::Trump::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 pub enum Trump<S: Suit>{
@@ -69,7 +69,7 @@ mod tests{
     use karty::figures::{Ace, Numbered, NumberFigureStd, Queen};
     use karty::suits::SuitStd::{Diamonds, Hearts, Spades};
 
-    use crate::play::trump::Trump;
+    use crate::cards::trump::Trump;
 
     #[test]
     fn trump_diamonds(){

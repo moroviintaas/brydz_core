@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use karty::suits::Suit;
 use karty::suits::SuitStd::{Spades, Diamonds, Hearts, Clubs};
-use crate::play::trump::Trump;
-use crate::error::AuctionError;
-use crate::error::AuctionError::IllegalBidNumber;
+use crate::cards::trump::Trump;
+use crate::error::BiddingError;
+use crate::error::BiddingError::IllegalBidNumber;
 pub const MIN_BID_NUMBER: u8 = 1;
 pub const MAX_BID_NUMBER: u8 = 7;
 
@@ -15,7 +15,7 @@ pub struct Bid<S: Suit> {
 impl <S: Suit + Copy> Copy for Bid<S>{}
 
 impl<S: Suit>  Bid<S> {
-    pub fn create_bid(trump: Trump<S>, number: u8) -> Result<Self, AuctionError<S>>{
+    pub fn init(trump: Trump<S>, number: u8) -> Result<Self, BiddingError<S>>{
         match number{
             legit @MIN_BID_NUMBER..=MAX_BID_NUMBER => Ok(Self{trump, number: legit}),
             no_legit => Err(IllegalBidNumber(no_legit))
@@ -38,14 +38,14 @@ impl<S: Suit> PartialOrd for Bid<S> {
 /// Delivers `Ord` for `Bid`
 /// ```
 /// use std::cmp::Ordering;
-/// use bridge_core::play::trump::Trump::{Colored, NoTrump};
+/// use bridge_core::cards::trump::Trump::{Colored, NoTrump};
 /// use karty::suits::SuitStd::*;
-/// use bridge_core::auction::bid::Bid;
-/// let bid1 = Bid::create_bid(NoTrump, 2).unwrap();
-/// let bid2 = Bid::create_bid(Colored(Spades), 3).unwrap();
-/// let bid3 = Bid::create_bid(Colored(Clubs), 3).unwrap();
-/// let bid4 = Bid::create_bid(Colored(Hearts), 4).unwrap();
-/// let bid5 = Bid::create_bid(Colored(Diamonds), 2).unwrap();
+/// use bridge_core::bidding::bid::Bid;
+/// let bid1 = Bid::init(NoTrump, 2).unwrap();
+/// let bid2 = Bid::init(Colored(Spades), 3).unwrap();
+/// let bid3 = Bid::init(Colored(Clubs), 3).unwrap();
+/// let bid4 = Bid::init(Colored(Hearts), 4).unwrap();
+/// let bid5 = Bid::init(Colored(Diamonds), 2).unwrap();
 /// assert!(bid1 < bid2);
 /// assert!(bid2 > bid3);
 /// assert!(bid2 < bid4);

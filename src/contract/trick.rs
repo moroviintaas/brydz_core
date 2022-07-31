@@ -3,12 +3,12 @@ use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 use karty::cards::Card;
 use karty::figures::Figure;
+use karty::register::Register;
 use karty::suits::Suit;
-use crate::play::trump::Trump;
+use crate::cards::trump::Trump;
 use crate::error::Mismatch;
-use crate::play::card_trackers::SuitExhaustRegister;
 
-use crate::play::trick::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
+use crate::contract::trick::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
 
 use crate::player::side::Side::{North, South, East, West};
 use crate::player::side::{Side, SIDES};
@@ -81,14 +81,13 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Adds card to trick with support for checking and updating suit exhaust table
     /// # Examples
     /// ```
-    /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::play::trick::{Trick, TrickError};
+    /// use bridge_core::contract::trick::{Trick, TrickError};
     /// use std::str::FromStr;
-    /// use bridge_core::play::card_trackers::SuitExhaustRegister;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::register::{RegisterCardStd, Register};
     /// use karty::cards::*;
     ///
     /// let mut exhaust_table = SuitExhaustStd::default();
@@ -98,14 +97,15 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// assert_eq!(r1, Ok(2));
     /// let r2 = trick1.add_card(Side::East, NINE_HEARTS, &mut exhaust_table);
     /// assert_eq!(r2, Ok(3));
-    /// assert!(exhaust_table.is_exhausted(&Side::East, &SuitStd::Clubs));
+    /// assert!(exhaust_table.is_registered(&(Side::East, SuitStd::Clubs)));
     /// let mut trick2 = Trick::new(Side::East);
     /// let r3 = trick2.add_card(Side::East, NINE_CLUBS, &mut exhaust_table);
     /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Clubs)));
     ///
     /// ```
-    pub fn add_card<Se: SuitExhaustRegister<S>>(&mut self, side: Side, card: Card<F,S>, exhaust_register: &mut Se) -> Result<u8, TrickError<F, S>>{
-        if exhaust_register.is_exhausted(&side, card.suit()){
+    pub fn add_card<Se: Register<(Side, S)>>(&mut self, side: Side, card: Card<F,S>, exhaust_register: &mut Se) -> Result<u8, TrickError<F, S>>{
+        //if exhaust_register.is_exhausted(&side, card.suit()){
+        if exhaust_register.is_registered(&(side, card.suit().to_owned())){
             // This suit was already exhausted for player, therefore possible cheating
             return Err(TrickError::UsedPreviouslyExhaustedSuit(card.suit().to_owned()))
         }
@@ -116,7 +116,8 @@ impl<F: Figure, S: Suit> Trick<F,S>{
                     false => {
                         if side != self.first_player && card.suit() != self[self.first_player].as_ref().unwrap().suit() {
                             // mark suit of first card in trick as exhausted for the player
-                            exhaust_register.mark_exhausted(&side, self[self.first_player].as_ref().unwrap().suit())
+                            //exhaust_register.mark_exhausted(&side, self[self.first_player].as_ref().unwrap().suit())
+                            exhaust_register.register((side, self[self.first_player].as_ref().unwrap().suit().to_owned()))
                         }
                         self.card_num += 1;
                         self[side] = Some(card);
@@ -137,10 +138,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
     /// Checks if trick contains a  specific card
     /// ```
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::trick::Trick;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -175,10 +176,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// `Some(c: Card)` if there is a collision with card `c`
     /// `None` if there is no collision
     /// ```
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::trick::Trick;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -215,10 +216,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Checks if trick is complete
     ///
     /// ```
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::trick::Trick;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -259,14 +260,14 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
     /// Tries to pick a winner of a trick
     /// ```
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::trump::Trump::{Colored, NoTrump};
-    /// use bridge_core::play::deck::Deck;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::cards::trump::Trump::{Colored, NoTrump};
+    /// use bridge_core::cards::deck::Deck;
     /// use bridge_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
-    /// use bridge_core::play::trick::Trick;
+    /// use bridge_core::contract::trick::Trick;
     /// use bridge_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
-    /// use bridge_core::play::card_trackers::SuitExhaustStd;
+    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;

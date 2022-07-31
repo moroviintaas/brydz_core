@@ -5,16 +5,16 @@ use karty::cards::Card;
 use karty::figures::Figure;
 use karty::register::{Register};
 use karty::suits::Suit;
-use crate::play::trick::{Trick, TrickError};
+use crate::contract::trick::{Trick, TrickError};
 use crate::player::side::Side;
-use crate::play::trump::Trump;
+use crate::cards::trump::Trump;
 use crate::player::axis::Axis;
-use crate::auction::contract::Contract;
-use crate::play::deal::DealError::IndexedOverCurrentTrick;
-use crate::play::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
-use crate::play::card_trackers::{SuitExhaustRegister, TrickCollision};
+use crate::bidding::contract::Contract;
+use crate::contract::deal::DealError::IndexedOverCurrentTrick;
+use crate::cards::deck::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
+use crate::contract::card_trackers::{TrickCollision};
 use crate::score::score_table::ScoreTable;
-use crate::play::trick::TrickError::MissingCard;
+use crate::contract::trick::TrickError::MissingCard;
 
 
 
@@ -36,7 +36,7 @@ impl<F: Figure, S: Suit>Display for DealError<F, S>{
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Deal<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>>{
+pub struct Deal<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se:Register<(Side, S)>>{
     contract: Contract<S>,
     tricks: [Trick<F, S>; QUARTER_SIZE],
     completed_tricks_number: usize,
@@ -45,7 +45,7 @@ pub struct Deal<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegi
     used_cards_memory: Um
 
 }
-impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Deal<F, S, Um, Se>{
     pub fn new(contract: Contract<S>) -> Self{
         let first_player = contract.declarer().next();
         let mut tricks = <[Trick::<F,S>; QUARTER_SIZE]>::default();
@@ -94,22 +94,22 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     ///
     /// # Examples:
     /// ```
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::auction::contract::{Contract};
-    /// use bridge_core::auction::bid::Bid;
-    /// use bridge_core::play::deal::{Deal, DealError};
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::contract::deal::{Deal, DealError};
     /// use bridge_core::player::side::Side;
     /// use std::str::FromStr;
     /// use bridge_core::player::axis::Axis;
-    /// use bridge_core::play::trick::TrickError;
-    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::contract::trick::TrickError;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::SuitStd;
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
     /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(
-    ///     Contract::new(Side::West, Bid::create_bid(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
+    ///     Contract::new(Side::West, Bid::init(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
     /// deal.insert_card(Side::North, KING_HEARTS).unwrap();
     /// deal.insert_card(Side::East, ACE_HEARTS).unwrap();
     /// deal.insert_card(Side::South, TWO_CLUBS).unwrap();
@@ -180,22 +180,22 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// # Examples: 
     /// ```
     /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::deck::Deck;
+    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::cards::deck::Deck;
     /// use bridge_core::player::side::SIDES;
-    /// use bridge_core::play::deal::Deal;
+    /// use bridge_core::contract::deal::Deal;
     /// use std::str::FromStr;
-    /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::auction::contract::{Contract};
-    /// use bridge_core::auction::bid::Bid;
-    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
     /// let deck = Deck::new_sorted_by_figures();
-    /// let mut deal_1 = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new_d(North, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
+    /// let mut deal_1 = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new_d(North, Bid::init(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
     ///
     /// deal_1.insert_card(East, KING_SPADES).unwrap();
     /// deal_1.insert_card(South, QUEEN_SPADES).unwrap();
@@ -203,7 +203,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// deal_1.insert_card(North, ACE_SPADES).unwrap();
     /// assert_eq!(deal_1.side_winning_trick(0), Ok(North));
     ///
-    /// let mut deal_2 = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new_d(West, Bid::create_bid(Trump::NoTrump, 1).unwrap(), Doubling::None));
+    /// let mut deal_2 = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new_d(West, Bid::init(Trump::NoTrump, 1).unwrap(), Doubling::None));
     ///
     /// deal_2.insert_card(North, TWO_DIAMONDS).unwrap();
     /// deal_2.insert_card(East, ACE_CLUBS).unwrap();
@@ -228,20 +228,20 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// # Examples:
     /// ```
     /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::deal::Deal;
+    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::deal::Deal;
     /// use std::str::FromStr;
-    /// use bridge_core::auction::contract::{Contract};
-    /// use bridge_core::auction::bid::Bid;
-    /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
     ///
-    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
+    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
     ///
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
@@ -269,20 +269,20 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
     /// # Examples:
     /// ```
     /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::play::trick::Trick;
-    /// use bridge_core::play::trump::Trump;
-    /// use bridge_core::play::deal::Deal;
+    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::cards::trump::Trump;
+    /// use bridge_core::contract::deal::Deal;
     /// use std::str::FromStr;
     /// use bridge_core::player::axis::Axis;
-    /// use bridge_core::auction::call::Doubling;
-    /// use bridge_core::auction::contract::{Contract};
-    /// use bridge_core::auction::bid::Bid;
-    /// use bridge_core::play::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::bidding::call::Doubling;
+    /// use bridge_core::bidding::contract::{Contract};
+    /// use bridge_core::bidding::bid::Bid;
+    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
-    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::Colored(Diamonds), 1).unwrap()));
+    /// let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
     /// deal.insert_card(South, FOUR_SPADES).unwrap();
@@ -321,7 +321,9 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> De
 
 }
 
-impl<F: Figure, S: Suit, Um: Register<Card<F,S>> + Debug, Se: SuitExhaustRegister<S>>Display for Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit,
+    Um: Register<Card<F,S>> + Debug,
+    Se: Register<(Side,S)> + std::fmt::Debug>  Display for Deal<F, S, Um, Se>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", &self)
     }
@@ -329,7 +331,7 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>> + Debug, Se: SuitExhaustRegiste
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct ClosedDealRubber<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> {
+pub struct ClosedDealRubber<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side,S)>> {
     contract: Deal<F, S, Um, Se>,
     score: ScoreTable
 
@@ -339,7 +341,7 @@ impl ClosedDealRubber{
 
 }*/
 
-impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: SuitExhaustRegister<S>> Index<usize> for Deal<F, S, Um, Se>{
+impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Index<usize> for Deal<F, S, Um, Se>{
     type Output = Trick<F, S>;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -354,20 +356,20 @@ mod tests{
     use karty::register::RegisterCardStd;
     use karty::suits::SuitStd;
     use karty::suits::SuitStd::Diamonds;
-    use crate::play::trump::Trump;
-    use crate::auction::contract::{Contract};
-    use crate::auction::bid::Bid;
-    use crate::play::card_trackers::SuitExhaustStd;
-    use crate::play::deal::{Deal, DealError};
-    use crate::play::deal::DealError::DealFull;
-    use crate::play::deck::{Deck, QUARTER_SIZE};
+    use crate::cards::trump::Trump;
+    use crate::bidding::contract::{Contract};
+    use crate::bidding::bid::Bid;
+    use crate::contract::card_trackers::SuitExhaustStd;
+    use crate::contract::deal::{Deal, DealError};
+    use crate::contract::deal::DealError::DealFull;
+    use crate::cards::deck::{Deck, QUARTER_SIZE};
     use crate::player::side::Side;
     use crate::player::side::Side::{East, North, South, West};
 
 
     #[test]
     fn deal_duplicate_card(){
-        let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
+        let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::NoTrump, 1).unwrap()));
         //let deck = Deck::new_sorted_by_suits();
 
 
@@ -394,7 +396,7 @@ mod tests{
         let num_of_sides = 4usize;
         let deck = Deck::new_sorted_by_suits();
         //let mut deal = Deal::new(South, Trump::NoTrump);
-        let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::create_bid(Trump::NoTrump, 1).unwrap()));
+        let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::NoTrump, 1).unwrap()));
         for i in 0..QUARTER_SIZE{
 
             deal.insert_card(Side::North,deck[num_of_sides*i].clone()).unwrap();
@@ -415,7 +417,7 @@ mod tests{
     fn calculate_score_1(){
         let mut deal = Deal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(
             East,
-            Bid::create_bid(Trump::Colored(Diamonds), 3).unwrap()));
+            Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
         deal.insert_card(South, ACE_SPADES).unwrap();
         deal.insert_card(West, THREE_SPADES).unwrap();
         deal.insert_card(North, FOUR_SPADES).unwrap();

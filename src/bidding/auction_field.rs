@@ -1,12 +1,12 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 use karty::suits::Suit;
-use crate::error::{AuctionError, Mismatch};
-use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
-use crate::auction::call::{Call, CallEntry, Doubling};
-use crate::auction::contract::{Contract};
-use crate::auction::bid::{Bid};
-use crate::auction::declaration_storage::DeclarationStorage;
+use crate::error::{BiddingError, Mismatch};
+use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
+use crate::bidding::call::{Call, CallEntry, Doubling};
+use crate::bidding::contract::{Contract};
+use crate::bidding::bid::{Bid};
+use crate::bidding::declaration_storage::DeclarationStorage;
 use crate::player::side::Side;
 
 
@@ -59,7 +59,7 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
         self.current_contract.as_ref().map(|c| c.bid())
     }
 
-    pub fn add_contract_bid(&mut self, player_side: Side, call: Call<S>) -> Result<AuctionStatus, AuctionError<S>>{
+    pub fn add_contract_bid(&mut self, player_side: Side, call: Call<S>) -> Result<AuctionStatus, BiddingError<S>>{
         match self.current_contract{
             None => {
                 // First bid, must not be double or redouble
@@ -176,14 +176,14 @@ impl<S: Suit, DS: DeclarationStorage<S>> Default for AuctionStack<S, DS> {
 mod tests{
     use karty::suits::SuitStd;
     use karty::suits::SuitStd::{Clubs, Diamonds};
-    use crate::play::trump::Trump::Colored;
-    use crate::error::{AuctionError, Mismatch};
-    use crate::error::AuctionError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
-    use crate::auction::auction_field::{AuctionStack, Contract};
+    use crate::cards::trump::Trump::Colored;
+    use crate::error::{BiddingError, Mismatch};
+    use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
+    use crate::bidding::auction_field::{AuctionStack, Contract};
     use crate::player::side::Side::{East, North, South, West};
-    use crate::auction::call::{Call, Doubling};
-    use crate::auction::bid::{Bid, BID_C1, BID_C2, BID_C3, BID_S2};
-    use crate::auction::declaration_storage::GeneralDeclarationStorage;
+    use crate::bidding::call::{Call, Doubling};
+    use crate::bidding::bid::{Bid, BID_C1, BID_C2, BID_C3, BID_S2};
+    use crate::bidding::declaration_storage::GeneralDeclarationStorage;
 
     #[test]
     fn add_bids_legal(){
@@ -192,10 +192,10 @@ mod tests{
         auction_stack.add_contract_bid(South, Call::Pass).unwrap();
         assert_eq!(auction_stack.current_contract, None);
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             West,
-            Bid::create_bid(Colored(Clubs), 1).unwrap(),
+            Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)
         /*{
             owner: West,
@@ -203,28 +203,28 @@ mod tests{
             doubling: Doubling::None
         }*/));
         auction_stack.add_contract_bid(North, Call::Bid(
-            Bid::create_bid(Colored(Diamonds), 1).unwrap())).unwrap();
+            Bid::init(Colored(Diamonds), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             North,
-            Bid::create_bid(Colored(Diamonds), 1).unwrap(),
+            Bid::init(Colored(Diamonds), 1).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(East, Call::Pass).unwrap();
 
         auction_stack.add_contract_bid(South, Call::Bid(
-            Bid::create_bid(Colored(Diamonds), 2).unwrap())).unwrap();
+            Bid::init(Colored(Diamonds), 2).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             North,
-            Bid::create_bid(Colored(Diamonds), 2).unwrap(),
+            Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(West, Call::Double).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             North,
-            Bid::create_bid(Colored(Diamonds), 2).unwrap(),
+            Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::Double)));
         auction_stack.add_contract_bid(North, Call::ReDouble).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             North,
-            Bid::create_bid(Colored(Diamonds), 2).unwrap(),
+            Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::ReDouble)));
 
     }
@@ -233,14 +233,14 @@ mod tests{
     fn violate_auction_order(){
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             West,
-            Bid::create_bid(Colored(Clubs), 1).unwrap(),
+            Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         let r = auction_stack.add_contract_bid(South, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap()));
-        assert_eq!(r, Err(AuctionError::ViolatedOrder(Mismatch{ expected: North, found: South})));
+            Bid::init(Colored(Clubs), 1).unwrap()));
+        assert_eq!(r, Err(BiddingError::ViolatedOrder(Mismatch{ expected: North, found: South})));
 
     }
 
@@ -248,10 +248,10 @@ mod tests{
     fn double_after_double(){
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             West,
-            Bid::create_bid(Colored(Clubs), 1).unwrap(),
+            Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(North, Call::Double).unwrap();
         auction_stack.add_contract_bid(East, Call::Pass).unwrap();
@@ -263,10 +263,10 @@ mod tests{
     fn redouble_after_redouble(){
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             West,
-            Bid::create_bid(Colored(Clubs), 1).unwrap(),
+            Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(North, Call::Double).unwrap();
         auction_stack.add_contract_bid(East, Call::ReDouble).unwrap();
@@ -279,10 +279,10 @@ mod tests{
     fn double_after_redouble(){
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             West,
-            Bid::create_bid(Colored(Clubs), 1).unwrap(),
+            Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(North, Call::Double).unwrap();
         auction_stack.add_contract_bid(East, Call::ReDouble).unwrap();
@@ -294,10 +294,10 @@ mod tests{
     fn redouble_without_double(){
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 1).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
             West,
-            Bid::create_bid(Colored(Clubs), 1).unwrap(),
+            Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         let r = auction_stack.add_contract_bid(North, Call::ReDouble);
         assert_eq!(r, Err(ReDoubleWithoutDouble));
@@ -307,13 +307,13 @@ mod tests{
     fn bid_too_low(){
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
-            Bid::create_bid(Colored(Clubs), 2).unwrap())).unwrap();
+            Bid::init(Colored(Clubs), 2).unwrap())).unwrap();
 
         let r = auction_stack.add_contract_bid(North, Call::Bid(
-            Bid::create_bid(Colored(Diamonds), 1).unwrap()));
+            Bid::init(Colored(Diamonds), 1).unwrap()));
         assert_eq!(r, Err(BidTooLow(Mismatch{
-            expected: Bid::create_bid(Colored(Clubs), 2).unwrap(),
-            found: Bid::create_bid(Colored(Diamonds),1).unwrap() })));
+            expected: Bid::init(Colored(Clubs), 2).unwrap(),
+            found: Bid::init(Colored(Diamonds), 1).unwrap() })));
     }
 
     #[test]
