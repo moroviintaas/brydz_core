@@ -1,6 +1,7 @@
 use karty::suits::{SuitStd};
 use crate::deal::Contract;
 use crate::meta::QUARTER_SIZE;
+use crate::score::calculation::ScoreIngredient;
 
 pub struct PointsSlam{
     vulnerable_great_slam: i32,
@@ -72,62 +73,8 @@ impl PointsSlam{
         }
     }
 }
-/*
-impl<Co: ContractOverseer<F, S>, F:Figure, S: Suit> ScoreIngredient<Co, F, S> for PointsSlam{
-    ///
-    /// # Examples:
-    /// ```
-    /// use bridge_core::bidding::deal::Contract;
-    /// use bridge_core::player::side::Side::North;
-    /// use bridge_core::bidding::bid::Bid;
-    /// use bridge_core::bidding::call::Doubling::ReDouble;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::cards::trump::Trump::NoTrump;
-    /// use bridge_core::score::tables::POINTS_SLAM;
-    /// use karty::suits::SuitStd::Hearts;
-    /// let deal = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap());
-    /// let points_table = POINTS_SLAM;
-    /// assert_eq!(points_table.points(&deal, 7), 210 );
-    /// let deal = Contract::new_d(North, Bid::init(NoTrump, 1).unwrap(), ReDouble);
-    /// assert_eq!(points_table.points(&deal, 6), 760 );
-    /// assert_eq!(points_table.points(&deal, 7), 880 );
-    /// assert_eq!(points_table.points(&deal, 8), 880 );
-    ///
-    /// ```
-    fn calculate(&self, contract_overseer: Co, vulnerability: bool) -> Result<i32, BridgeError<F, S>> {
-        if !contract_overseer.is_completed(){
-            return Err(BridgeError::DealError(DealError::DealIncomplete));
-        }
-        let declared = contract_overseer.deal().bid().number_normalised() as usize;
-        let scored = contract_overseer.total_tricks_taken_axis(contract_overseer.deal().declarer().axis());
-
-
-        Ok(match declared as usize{
-            n if n == QUARTER_SIZE => {
-                if scored == declared{
-                    match vulnerability{
-                        true => self.vulnerable_great_slam,
-                        false => self.not_vulnerable_great_slam
-                    }
-                }
-                else{
-                    0
-                }
-            },
-            n1 if n1 == (QUARTER_SIZE - 1) => {
-                if scored >= declared{
-                    match vulnerability{
-                        true => self.vulnerable_small_slam,
-                        false => self.not_vulnerable_small_slam
-                    }
-                }
-                else{
-                    0
-                }
-            }
-            _ => {0}
-        })
+impl ScoreIngredient<SuitStd> for PointsSlam{
+    fn calculate(&self, contract: &Contract<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
+        self.points(contract, taken, vulnerability)
     }
-
 }
-*/

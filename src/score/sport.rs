@@ -1,11 +1,13 @@
-/*
-use karty::figures::Figure;
-use karty::suits::Suit;
-use crate::deal::deal::{ContractOverseer, DealError};
-use crate::error::BridgeError;
+use std::cmp::Ordering;
+use karty::figures::{Figure};
+use karty::suits::{SuitStd};
+use crate::deal::{DealMaintainer};
+use crate::error::{BridgeError, DealError};
 use crate::error::BridgeError::Custom;
 use crate::player::axis::Axis;
-use crate::score::Score;
+use crate::score::calculation::ScoreIngredient;
+use crate::score::ScoreTracker;
+use crate::score::tables::{POINTS_CONTRACTED_TRICK, POINTS_OVER_TRICK, POINTS_SLAM};
 
 
 #[derive(Debug, Copy, Clone)]
@@ -25,6 +27,7 @@ impl ScoreTableSport{
     pub fn new(ns_vulnerability: bool, ew_vulnerability: bool) -> Self{
         Self{ns_score: 0, ew_score: 0, ns_vulnerability, ew_vulnerability}
     }
+    /*
     fn points_for_contracted<SuitStd> (deal: &Contract<S>, taken: u8) -> i32{
         let multiiplier = match deal.doubling(){
             Doubling::None => 1,
@@ -42,10 +45,12 @@ impl ScoreTableSport{
             Trump::NoTrump => {}
         };
     }
+
+     */
 }
 
 
-impl<Co: ContractOverseer<F,S>, F: Figure, S:Suit> Score<Co, F, S>
+impl<Co: DealMaintainer<F,SuitStd>, F: Figure> ScoreTracker<Co, F, SuitStd>
 for ScoreTableSport{
 
     fn winner_axis(&self) -> Option<Axis> {
@@ -56,10 +61,18 @@ for ScoreTableSport{
         }
     }
 
-    fn update(&mut self, deal: &Co) -> Result<(), BridgeError<F, S>> {
+    fn update(&mut self, deal: &Co) -> Result<(), BridgeError<F, SuitStd>> {
         if deal.is_completed(){
-            let axis = deal.deal().declarer().axis();
-
+            let axis = deal.contract().declarer().axis();
+            let vulnerability = match axis{
+                Axis::EastWest => self.ew_vulnerability,
+                Axis::NorthSouth => self.ns_vulnerability
+            };
+            let taken = deal.total_tricks_taken_axis(axis) as u8;
+            let contracted_points = POINTS_CONTRACTED_TRICK.calculate(deal.contract(), taken, false);
+            let overtrick_bonus = POINTS_OVER_TRICK.points(deal.contract(), taken, vulnerability);
+            let slam_bonus = POINTS_SLAM.points(deal.contract(), taken, vulnerability);
+            todo!();
 
             Err(Custom("TODO".to_owned()))
         }
@@ -76,4 +89,3 @@ for ScoreTableSport{
     }
 }
 
-*/

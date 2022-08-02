@@ -1,7 +1,8 @@
-use karty::suits::SuitStd;
+use karty::suits::{SuitStd};
 use crate::bidding::Doubling;
 use crate::deal::Contract;
 use crate::cards::trump::Trump;
+use crate::score::calculation::ScoreIngredient;
 
 pub struct PointsOverTrick{
     pub not_doubled_clubs: i32,
@@ -62,6 +63,11 @@ impl PointsOverTrick{
     }
 }
 
+impl ScoreIngredient<SuitStd> for PointsOverTrick{
+    fn calculate(&self, contract: &Contract<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
+        self.points(contract, taken, vulnerability)
+    }
+}
 pub const POINTS_OVER_TRICK: PointsOverTrick = PointsOverTrick{
     not_doubled_clubs: 20,
     not_doubled_diamonds: 20,

@@ -2,6 +2,7 @@ use karty::suits::SuitStd;
 use crate::bidding::Doubling;
 use crate::deal::Contract;
 use crate::cards::trump::Trump;
+use crate::score::calculation::ScoreIngredient;
 
 pub struct PointsContractedTrick{
     pub clubs: i32,
@@ -76,6 +77,12 @@ impl PointsContractedTrick{
 
             }
         }
+    }
+}
+
+impl ScoreIngredient<SuitStd> for PointsContractedTrick{
+    fn calculate(&self, contract: &Contract<SuitStd>, taken: u8, _vulnerability: bool) -> i32 {
+        self.points(contract, taken)
     }
 }
 
