@@ -12,6 +12,7 @@ pub enum TrickError<F: Figure, S: Suit>{
     DuplicateCard(Card<F, S>),
     ViolatedOrder(Mismatch<Side>),
     UsedPreviouslyExhaustedSuit(S),
+    TrickFull,
 }
 impl<F: Figure, S: Suit> Display for TrickError<F, S> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

@@ -62,6 +62,33 @@ impl<F: Figure, S: Suit> Trick<F,S>{
         Self{first_player, north_card: None, south_card: None, west_card: None, east_card: None, card_num: 0}
     }
 
+    /// # Returns:
+    /// Option of whose turn it is now
+    ///
+    /// `Some(Side)` if determined
+    /// `None` if trick is completed
+    /// ```
+    /// use bridge_core::deal::Trick;
+    /// use bridge_core::player::side::Side::{East, North, South, West};
+    /// use karty::cards::{ACE_SPADES, KING_CLUBS, KING_DIAMONDS, KING_HEARTS};
+    /// let mut trick = Trick::new(North);
+    /// assert_eq!(trick.current_side(), Some(North));
+    /// trick.add_card_no_register(North, ACE_SPADES).unwrap();
+    /// assert_eq!(trick.current_side(), Some(East));
+    /// trick.add_card_no_register(East, KING_HEARTS).unwrap();
+    /// assert_eq!(trick.current_side(), Some(South));
+    /// trick.add_card_no_register(South, KING_DIAMONDS).unwrap();
+    /// assert_eq!(trick.current_side(), Some(West));
+    /// trick.add_card_no_register(West, KING_CLUBS).unwrap();
+    /// assert!(trick.current_side().is_none());
+    /// ```
+    pub fn current_side(&self) -> Option<Side>{
+        match self.card_num{
+            x@ 0..=3 => Some(self.first_player.next_i(x)),
+            _ => None
+        }
+    }
+
 
 
 
@@ -97,7 +124,11 @@ impl<F: Figure, S: Suit> Trick<F,S>{
             // This suit was already exhausted for player, therefore possible cheating
             return Err(TrickError::UsedPreviouslyExhaustedSuit(card.suit().to_owned()))
         }
-        let side_in_order = self.first_player.next_i(self.card_num);
+        let side_in_order = match self.current_side(){
+            Some(s) => s,
+            None => { return Err(TrickError::TrickFull)}
+        };
+        //let side_in_order = self.first_player.next_i(self.card_num);
         match side == side_in_order{
             true => match self[side]{
                 None => match self.contains(&card){
@@ -107,6 +138,28 @@ impl<F: Figure, S: Suit> Trick<F,S>{
                             //exhaust_register.mark_exhausted(&side, self[self.first_player].as_ref().unwrap().suit())
                             exhaust_register.register((side, self[self.first_player].as_ref().unwrap().suit().to_owned()))
                         }
+                        self.card_num += 1;
+                        self[side] = Some(card);
+                        Ok(self.card_num)
+                    }
+                    true => Err(TrickError::DuplicateCard(card))
+                }
+
+                Some(_) => Err(CardSlotAlreadyUsed(side))
+            },
+            false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
+        }
+    }
+
+    pub fn add_card_no_register(&mut self, side: Side, card: Card<F,S>) ->  Result<u8, TrickError<F, S>>{
+        let side_in_order = match self.current_side(){
+            Some(s) => s,
+            None => { return Err(TrickError::TrickFull)}
+        };
+        match side == side_in_order{
+            true => match self[side]{
+                None => match self.contains(&card){
+                    false => {
                         self.card_num += 1;
                         self[side] = Some(card);
                         Ok(self.card_num)

@@ -2,11 +2,11 @@ use std::fmt::{Debug, Display, Formatter};
 use std::mem;
 use std::ops::Index;
 use karty::cards::Card;
-use karty::figures::Figure;
-use karty::register::Register;
-use karty::suits::Suit;
+use karty::figures::{Figure, FigureStd};
+use karty::register::{Register, RegisterCardStd};
+use karty::suits::{Suit, SuitStd};
 use crate::cards::trump::Trump;
-use crate::deal::collision::TrickCollision;
+use crate::deal::collision::{SuitExhaustStd, TrickCollision};
 use crate::deal::contract::Contract;
 use crate::deal::maintainer::DealMaintainer;
 use crate::deal::Trick;
@@ -65,7 +65,7 @@ impl<F: Figure, S: Suit,
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
     /// let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(
-    ///     Contract::new(Side::West, Bid::init(Trump::Colored(SuitStd::Hearts), 1).unwrap()));
+    ///     Contract::new(Side::West, Bid::init(Trump::Colored(SuitStd::Hearts), 1).unwrap(),));
     /// deal.insert_card(Side::North, KING_HEARTS).unwrap();
     /// deal.insert_card(Side::East, ACE_HEARTS).unwrap();
     /// deal.insert_card(Side::South, TWO_CLUBS).unwrap();
@@ -141,7 +141,7 @@ impl<F: Figure, S: Suit,
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
     ///
-    /// let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
+    /// let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap(),));
     ///
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
@@ -182,7 +182,7 @@ impl<F: Figure, S: Suit,
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
     /// use karty::cards::*;
-    /// let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap()));
+    /// let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap(),));
     /// deal.insert_card(North, JACK_SPADES).unwrap();
     /// deal.insert_card(East, TEN_SPADES).unwrap();
     /// deal.insert_card(South, FOUR_SPADES).unwrap();
@@ -358,6 +358,8 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Index
     }
 }
 
+pub type RegDealStd = RegDeal<FigureStd, SuitStd, RegisterCardStd,  SuitExhaustStd>;
+
 #[cfg(test)]
 mod tests{
     use karty::cards::{*};
@@ -381,7 +383,7 @@ mod tests{
 
     #[test]
     fn deal_duplicate_card(){
-        let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::NoTrump, 1).unwrap()));
+        let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
         //let deck = Deck::new_sorted_by_suits();
 
 
@@ -408,7 +410,7 @@ mod tests{
         let num_of_sides = 4usize;
         let deck = Deck::new_sorted_by_suits();
         //let mut deal = Deal::new(South, Trump::NoTrump);
-        let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::NoTrump, 1).unwrap()));
+        let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
         for i in 0..QUARTER_SIZE{
 
             deal.insert_card(Side::North,deck[num_of_sides*i].clone()).unwrap();
@@ -429,7 +431,8 @@ mod tests{
     fn calculate_score_1(){
         let mut deal = RegDeal::<FigureStd, SuitStd, RegisterCardStd, SuitExhaustStd>::new(Contract::new(
             East,
-            Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
+            Bid::init(Trump::Colored(Diamonds), 3).unwrap(),
+        ));
         deal.insert_card(South, ACE_SPADES).unwrap();
         deal.insert_card(West, THREE_SPADES).unwrap();
         deal.insert_card(North, FOUR_SPADES).unwrap();

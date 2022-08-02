@@ -30,10 +30,10 @@ impl PointsSlam{
     /// use bridge_core::cards::trump::Trump::NoTrump;
     /// use bridge_core::score::tables::POINTS_SLAM;
     /// use karty::suits::SuitStd::Hearts;
-    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap());
+    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_SLAM;
     /// assert_eq!(points_table.points(&contract, 13, false), 0);
-    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 6).unwrap());
+    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 6).unwrap(),);
     /// assert_eq!(points_table.points(&contract, 12, false), 500);
     /// assert_eq!(points_table.points(&contract, 12, true), 750);
     /// assert_eq!(points_table.points(&contract, 13, true), 750);

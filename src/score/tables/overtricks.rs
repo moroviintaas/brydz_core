@@ -27,7 +27,7 @@ impl PointsOverTrick{
     /// use bridge_core::cards::trump::Trump::NoTrump;
     /// use bridge_core::score::tables::{POINTS_OVER_TRICK};
     /// use karty::suits::SuitStd::Hearts;
-    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap());
+    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_OVER_TRICK;
     /// assert_eq!(points_table.points(&contract, 8 ,false), 0);
     /// assert_eq!(points_table.points(&contract, 10 ,false), 60);

@@ -77,10 +77,10 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                         match self.declaration_storage.get_declarer(player_side.axis(), bid.trump()){
                             None => {
                                 self.declaration_storage.set_declarer(player_side, bid.trump().to_owned());
-                                self.current_contract = Some(Contract::new(player_side, bid.to_owned() ));
+                                self.current_contract = Some(Contract::new(player_side, bid.to_owned(), ));
                             },
                             Some(s) => {
-                                self.current_contract = Some(Contract::new(s.to_owned(), bid.to_owned() ));
+                                self.current_contract = Some(Contract::new(s.to_owned(), bid.to_owned(), ));
                             }
 
                         }
@@ -114,10 +114,10 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                                     match self.declaration_storage.get_declarer(player_side.axis(), bid.trump()){
                                         None => {
                                             self.declaration_storage.set_declarer(player_side, bid.trump().to_owned());
-                                            self.current_contract = Some(Contract::new(player_side, bid.to_owned() ));
+                                            self.current_contract = Some(Contract::new(player_side, bid.to_owned(), ));
                                         },
                                         Some(s) => {
-                                            self.current_contract = Some(Contract::new(s.to_owned(), bid.to_owned() ));
+                                            self.current_contract = Some(Contract::new(s.to_owned(), bid.to_owned(), ));
                                         }
 
                                     }
