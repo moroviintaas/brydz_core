@@ -1,12 +1,14 @@
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 use karty::suits::Suit;
-use crate::error::{BiddingError, Mismatch};
 use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::bidding::call::{Call, CallEntry, Doubling};
-use crate::bidding::contract::{Contract};
+
 use crate::bidding::bid::{Bid};
 use crate::bidding::declaration_storage::DeclarationStorage;
+use crate::deal::Contract;
+use crate::error::{BiddingError, Mismatch};
+
 use crate::player::side::Side;
 
 
@@ -179,11 +181,13 @@ mod tests{
     use crate::cards::trump::Trump::Colored;
     use crate::error::{BiddingError, Mismatch};
     use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
-    use crate::bidding::auction_field::{AuctionStack, Contract};
+    use crate::bidding::auction_field::{AuctionStack};
+    use crate::bidding::Bid;
     use crate::player::side::Side::{East, North, South, West};
     use crate::bidding::call::{Call, Doubling};
-    use crate::bidding::bid::{Bid, BID_C1, BID_C2, BID_C3, BID_S2};
+    use crate::bidding::bid::consts::{ BID_C1, BID_C2, BID_C3, BID_S2};
     use crate::bidding::declaration_storage::GeneralDeclarationStorage;
+    use crate::deal::Contract;
 
     #[test]
     fn add_bids_legal(){

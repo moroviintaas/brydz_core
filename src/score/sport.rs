@@ -1,7 +1,7 @@
 /*
 use karty::figures::Figure;
 use karty::suits::Suit;
-use crate::contract::deal::{ContractOverseer, DealError};
+use crate::deal::deal::{ContractOverseer, DealError};
 use crate::error::BridgeError;
 use crate::error::BridgeError::Custom;
 use crate::player::axis::Axis;
@@ -25,13 +25,13 @@ impl ScoreTableSport{
     pub fn new(ns_vulnerability: bool, ew_vulnerability: bool) -> Self{
         Self{ns_score: 0, ew_score: 0, ns_vulnerability, ew_vulnerability}
     }
-    fn points_for_contracted<SuitStd> (contract: &Contract<S>, taken: u8) -> i32{
-        let multiiplier = match contract.doubling(){
+    fn points_for_contracted<SuitStd> (deal: &Contract<S>, taken: u8) -> i32{
+        let multiiplier = match deal.doubling(){
             Doubling::None => 1,
             Doubling::Double => 2,
             Doubling::ReDouble => 4,
         };
-        let base = match contract.bid().trump(){
+        let base = match deal.bid().trump(){
             Trump::Colored(c) => {
                 match c{
                     Diamonds => rewards::tricks::contracted::DIAMONDS,
@@ -58,7 +58,7 @@ for ScoreTableSport{
 
     fn update(&mut self, deal: &Co) -> Result<(), BridgeError<F, S>> {
         if deal.is_completed(){
-            let axis = deal.contract().declarer().axis();
+            let axis = deal.deal().declarer().axis();
 
 
             Err(Custom("TODO".to_owned()))

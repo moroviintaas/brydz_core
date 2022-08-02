@@ -61,7 +61,7 @@ pub fn parse_trump(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// parses bid
 /// ```
 /// use bridge_core::bidding::parser::parse_bid;
-/// use bridge_core::bidding::bid::Bid;
+/// use bridge_core::bidding::Bid;
 /// use karty::suits::SuitStd::Clubs;
 /// use bridge_core::cards::trump::Trump;
 /// use nom::error::ErrorKind;

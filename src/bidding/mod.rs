@@ -1,9 +1,13 @@
 
 
-pub mod call;
-pub mod auction_field;
-pub mod contract;
+mod call;
+pub use call::*;
+mod auction_field;
+pub use auction_field::*;
 pub mod parser;
-pub mod bid;
-pub mod declaration_storage;
+mod bid;
+pub use bid::*;
+
+mod declaration_storage;
+pub use declaration_storage::*;
 

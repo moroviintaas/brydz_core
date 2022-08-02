@@ -1,4 +1,4 @@
-use bridge_core::contract::trick::Trick;
+use bridge_core::deal::Trick;
 use bridge_core::cards::trump::Trump;
 use karty::cards::Card;
 use karty::figures::FigureStd;

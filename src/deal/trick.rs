@@ -1,31 +1,18 @@
 use std::cmp::Ordering;
-use std::fmt::{Display, Formatter};
 use std::ops::{Index, IndexMut};
 use karty::cards::Card;
 use karty::figures::Figure;
 use karty::register::Register;
 use karty::suits::Suit;
 use crate::cards::trump::Trump;
-use crate::error::Mismatch;
 
-use crate::contract::trick::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
+use crate::error::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
+use crate::error::{Mismatch, TrickError};
 
 use crate::player::side::Side::{North, South, East, West};
 use crate::player::side::{Side, SIDES};
 
-#[derive(Debug, Eq, PartialEq,  Clone)]
-pub enum TrickError<F: Figure, S: Suit>{
-    MissingCard(Side),
-    CardSlotAlreadyUsed(Side),
-    DuplicateCard(Card<F, S>),
-    ViolatedOrder(Mismatch<Side>),
-    UsedPreviouslyExhaustedSuit(S),
-}
-impl<F: Figure, S: Suit> Display for TrickError<F, S> {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
-    }
-}
+
 
 
 
@@ -81,9 +68,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Adds card to trick with support for checking and updating suit exhaust table
     /// # Examples
     /// ```
-    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
+    /// use bridge_core::deal::collision::SuitExhaustStd;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::contract::trick::{Trick, TrickError};
+    /// use bridge_core::error::TrickError;
+    /// use bridge_core::deal::Trick;
     /// use std::str::FromStr;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
@@ -139,9 +127,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Checks if trick contains a  specific card
     /// ```
     /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::deal::Trick;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::contract::card_trackers::{SuitExhaustStd};
+    /// use bridge_core::deal::collision::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -177,9 +165,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// `None` if there is no collision
     /// ```
     /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::deal::Trick;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
+    /// use bridge_core::deal::collision::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -217,9 +205,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     ///
     /// ```
     /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::deal::Trick;
     /// use bridge_core::player::side::Side;
-    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
+    /// use bridge_core::deal::collision::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -264,10 +252,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use bridge_core::cards::trump::Trump::{Colored, NoTrump};
     /// use bridge_core::cards::deck::Deck;
     /// use bridge_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
-    /// use bridge_core::contract::trick::Trick;
+    /// use bridge_core::deal::Trick;
     /// use bridge_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
-    /// use bridge_core::contract::card_trackers::SuitExhaustStd;
+    /// use bridge_core::deal::collision::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;

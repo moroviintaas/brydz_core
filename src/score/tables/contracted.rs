@@ -1,6 +1,6 @@
 use karty::suits::SuitStd;
-use crate::bidding::call::Doubling;
-use crate::bidding::contract::Contract;
+use crate::bidding::Doubling;
+use crate::deal::Contract;
 use crate::cards::trump::Trump;
 
 pub struct PointsContractedTrick{
@@ -18,10 +18,10 @@ impl PointsContractedTrick{
     /// Calculates points for contracted tricks based on number of taken, does not count overtricks
     /// # Examples:
     /// ```
-    /// use bridge_core::bidding::contract::Contract;
+    /// use bridge_core::deal::Contract;
     /// use bridge_core::player::side::Side::North;
-    /// use bridge_core::bidding::bid::Bid;
-    /// use bridge_core::bidding::call::Doubling::ReDouble;
+    /// use bridge_core::bidding::Bid;
+    /// use bridge_core::bidding::Doubling::ReDouble;
     /// use bridge_core::cards::trump::Trump;
     /// use bridge_core::cards::trump::Trump::NoTrump;
     /// use bridge_core::score::tables::POINTS_CONTRACTED_TRICK;

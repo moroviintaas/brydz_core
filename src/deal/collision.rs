@@ -4,7 +4,7 @@ use karty::cards::Card;
 use karty::figures::Figure;
 use karty::register::{Register};
 use karty::suits::{Suit, SuitStd};
-use crate::contract::trick::Trick;
+use crate::deal::trick::Trick;
 use crate::player::side::{Side};
 
 pub trait TrickCollision<F: Figure, S: Suit>{
@@ -40,8 +40,8 @@ mod tests_card_memory{
     use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use karty::register::{Register};
     use karty::register::RegisterCardStd;
-    use crate::contract::card_trackers::{SuitExhaustStd, TrickCollision};
-    use crate::contract::trick::Trick;
+    use crate::deal::collision::{SuitExhaustStd, TrickCollision};
+    use crate::deal::trick::Trick;
     use crate::player::side::Side;
 
     #[test]
