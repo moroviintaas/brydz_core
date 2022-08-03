@@ -317,15 +317,6 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> RegDe
 
 
 
-/*
-    pub fn score(&self) -> ScoreTable {
-         ScoreTable::default()
-
-
-    }
-    */
-
-
 }
 
 impl<F: Figure, S: Suit,
@@ -336,19 +327,7 @@ impl<F: Figure, S: Suit,
     }
 }
 
-/*
-#[derive(Debug, Eq, PartialEq, Clone)]
-pub struct ClosedDealRubber<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side,S)>> {
-    deal: Deal<F, S, Um, Se>,
-    score: ScoreTable
 
-}
-*/
-
-/*
-impl ClosedDealRubber{
-
-}*/
 
 impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> Index<usize> for RegDeal<F, S, Um, Se>{
     type Output = Trick<F, S>;

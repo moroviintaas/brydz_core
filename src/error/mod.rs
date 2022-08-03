@@ -5,4 +5,6 @@ pub use deal::*;
 mod bidding;
 pub use bidding::*;
 mod trick;
+mod score;
+pub use score::*;
 pub use trick::*;

@@ -5,6 +5,7 @@ use karty::suits::Suit;
 use crate::error::bidding::BiddingError;
 
 use crate::error::deal::DealError;
+use crate::error::{ScoreError, TrickError};
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -26,5 +27,8 @@ impl<S:Suit> Display for BiddingError<S>{
 pub enum BridgeError<F: Figure, S: Suit>{
     DealError(DealError<F, S>),
     BiddingError(BiddingError<S>),
-    Custom(String)
+    Score(ScoreError),
+    Trick(TrickError<F, S>),
+    Custom(String),
+
 }
