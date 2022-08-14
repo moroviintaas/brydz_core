@@ -6,5 +6,8 @@ mod bidding;
 pub use bidding::*;
 mod trick;
 mod score;
+mod distribution;
+
 pub use score::*;
 pub use trick::*;
+pub use distribution::*;
