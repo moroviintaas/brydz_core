@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
 use karty::suits::Suit;
 use crate::cards::trump::Trump;
 use crate::error::BiddingError;
@@ -36,6 +37,15 @@ impl<S: Suit> PartialOrd for Bid<S> {
         Some(self.number.cmp(&other.number).then_with(|| {
             self.trump.cmp(&other.trump)
         }))
+    }
+}
+
+impl<S: Suit + Display> Display for Bid<S>{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        if f.alternate(){
+
+        }
+        todo!();
     }
 }
 

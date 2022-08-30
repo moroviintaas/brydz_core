@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
 use karty::cards::Card;
 use karty::figures::Figure;
@@ -57,6 +58,12 @@ impl<S: Suit> Ord for Trump<S>{
                 Colored(right) => left.cmp(right)
             }
         }
+    }
+}
+
+impl <S:Suit + Display> Display for Trump<S>{
+    fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {
+        todo!()
     }
 }
 

@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use karty::suits::Suit;
 use crate::bidding::bid::Bid;
 
@@ -19,11 +20,32 @@ pub enum Call<S: Suit> {
     ReDouble,
     Pass
 }
+
+impl<S: Suit+ Display> Display for Call<S>{
+    fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {
+        todo!();
+        /*
+        if f.alternate(){
+            match self{
+                Call::Bid(bid) => write!(f, "Call::Bid{{ {:#} }}", bid),
+
+            }
+
+        }
+        else{
+            match self{
+                Call::Bid(bid) => write!(f, "Call::Bid{{ {} }}", bid),
+            }
+        }*/
+    }
+}
+
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 pub struct CallEntry<S: Suit>{
     player_side: Side,
     call: Call<S>
 }
+
 
 impl<S: Suit> CallEntry<S> {
     pub fn new(player_side: Side, call: Call<S>) -> Self{

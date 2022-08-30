@@ -3,10 +3,13 @@ pub mod deal;
 pub mod score;
 pub mod bidding;
 pub mod cards;
-pub mod protocol;
+
 pub mod meta;
 pub mod error;
 pub mod distribution;
+
+#[cfg(feature = "protocol")]
+pub mod protocol;
 
 pub use ron;
 pub use karty;

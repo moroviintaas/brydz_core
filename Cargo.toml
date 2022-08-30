@@ -14,3 +14,6 @@ arrayvec = {version = "0.7.2", features = ["serde"]}
 ron = "0.7.0"
 nom = "7.1.0"
 karty = {path = "../karty", features = ["register", "parse"]}
+
+[features]
+protocol = []
