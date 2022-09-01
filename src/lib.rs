@@ -8,8 +8,8 @@ pub mod meta;
 pub mod error;
 pub mod distribution;
 
-#[cfg(feature = "protocol")]
-pub mod protocol;
+//#[cfg(feature = "protocol")]
+//pub mod protocol;
 
 pub use ron;
 pub use karty;

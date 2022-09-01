@@ -1,3 +1,4 @@
+/*
 use karty::cards::CardStd;
 use crate::player::axis::Axis;
 use crate::player::side::Side;
@@ -8,4 +9,4 @@ pub enum ApiResource {
     Card(CardStd),
     CardVec(Vec<CardStd>)
 
-}
+}*/

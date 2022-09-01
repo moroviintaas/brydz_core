@@ -1,7 +1,7 @@
 use std::fmt::{Display, Formatter};
 use karty::cards::Card;
-use karty::figures::Figure;
-use karty::suits::Suit;
+use karty::figures::{Figure, FigureStd};
+use karty::suits::{Suit, SuitStd};
 use crate::error::TrickError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -18,3 +18,5 @@ impl<F: Figure, S: Suit>Display for DealError<F, S>{
         write!(f, "{:?}", self)
     }
 }
+
+pub type DealErrorStd = DealError<FigureStd, SuitStd>;

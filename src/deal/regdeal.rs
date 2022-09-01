@@ -313,6 +313,10 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> RegDe
         }
     }
 
+    pub fn used_cards(&self) -> &Um{
+        &self.used_cards_memory
+    }
+
 
 
 

@@ -6,8 +6,8 @@ pub use maintainer::*;
 pub mod collision;
 mod contract;
 pub use contract::Contract;
-mod regeal;
-pub use regeal::*;
+mod regdeal;
+pub use regdeal::*;
 
 
 

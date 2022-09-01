@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
-use karty::suits::Suit;
+use karty::suits::{SuitStd, Suit};
 use crate::cards::trump::Trump;
 use crate::error::BiddingError;
 use crate::error::BiddingError::IllegalBidNumber;
@@ -12,6 +12,9 @@ pub struct Bid<S: Suit> {
     trump: Trump<S>,
     number: u8
 }
+
+pub type BidStd = Bid<SuitStd>;
+
 impl <S: Suit + Copy> Copy for Bid<S>{}
 
 impl<S: Suit>  Bid<S> {

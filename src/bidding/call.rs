@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use karty::suits::Suit;
+use karty::suits::{Suit, SuitStd};
 use crate::bidding::bid::Bid;
 
 use crate::player::side::Side;
@@ -20,6 +20,8 @@ pub enum Call<S: Suit> {
     ReDouble,
     Pass
 }
+
+pub type CallStd = Call<SuitStd>;
 
 impl<S: Suit+ Display> Display for Call<S>{
     fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {

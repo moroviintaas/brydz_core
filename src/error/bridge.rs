@@ -1,12 +1,12 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use karty::figures::Figure;
-use karty::suits::Suit;
+use karty::figures::{Figure, FigureStd};
+use karty::suits::{Suit, SuitStd};
 use crate::error::bidding::BiddingError;
 
 
 use crate::error::deal::DealError;
-use crate::error::{DistributionError, ScoreError, TrickError};
+use crate::error::{DistributionError, FlowError, ScoreError, TrickError};
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -31,6 +31,7 @@ pub enum BridgeError<F: Figure, S: Suit>{
     Score(ScoreError),
     Trick(TrickError<F, S>),
     Distribution(DistributionError),
+    Flow(FlowError),
     Custom(String),
 
 }
@@ -51,3 +52,5 @@ impl<F: Figure, S: Suit> Display for BridgeError<F, S> {
 impl<F: Figure, S: Suit> Error for BridgeError<F, S>{
 
 }
+
+pub type BridgeErrorStd = BridgeError<FigureStd, SuitStd>;

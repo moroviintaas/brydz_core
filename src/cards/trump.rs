@@ -13,6 +13,9 @@ pub enum Trump<S: Suit>{
     Colored(S),
     NoTrump
 }
+
+pub type TrumpStd = Trump<SuitStd>;
+
 impl<S: Suit> Trump<S>{
     pub fn order_cards<F: Figure> (&self, card_one: &Card<F, S>, card_two: &Card<F, S>) -> Ordering{
         match self{
