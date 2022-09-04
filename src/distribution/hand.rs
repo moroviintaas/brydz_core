@@ -5,6 +5,7 @@ use karty::suits::{SuitStd};
 use crate::error::{BridgeError, DistributionError};
 use crate::error::BridgeError::Distribution;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct BridgeHand{
     //cant be generic for now, because generic types cannot take part in const expressions
     //cards: Vec<CardStd>
@@ -39,6 +40,7 @@ impl BridgeHand{
     pub fn cards(&self) -> &HashSet<CardStd>{
         &self.cards
     }
+    pub(crate) fn cards_mut(&mut self) -> &mut HashSet<CardStd>{ &mut self.cards}
     pub fn empty() -> Self{
         Self{cards: HashSet::new()}
     }
@@ -51,12 +53,12 @@ impl BridgeHand{
     ///     TEN_SPADES, NINE_HEARTS, EIGHT_DIAMONDS, SEVEN_CLUBS, SIX_SPADES, FIVE_HEARTS,
     ///     FOUR_DIAMONDS, THREE_CLUBS, TWO_SPADES]);
     /// let hand = BridgeHand::init(&mut card_supply).unwrap();
-    /// let spades_in_hand = hand.cards_in_suit(Spades);
+    /// let spades_in_hand = hand.cards_in_suit(&Spades);
     /// assert!(spades_in_hand.contains(&ACE_SPADES));
     /// assert!(!spades_in_hand.contains(&KING_HEARTS));
     /// ```
-    pub fn cards_in_suit(&self, suit: SuitStd) -> HashSet<&CardStd>{
-        self.cards.iter().filter(|x| x.suit() == &suit).collect()
+    pub fn cards_in_suit(&self, suit: &SuitStd) -> HashSet<CardStd>{
+        self.cards.iter().filter(|x| x.suit() == suit).map(|x| x.to_owned()).collect()
     }
 }
 /*

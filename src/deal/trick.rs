@@ -1,9 +1,9 @@
 use std::cmp::Ordering;
 use std::ops::{Index, IndexMut};
 use karty::cards::Card;
-use karty::figures::Figure;
+use karty::figures::{Figure, FigureStd};
 use karty::register::Register;
-use karty::suits::Suit;
+use karty::suits::{Suit, SuitStd};
 use crate::cards::trump::Trump;
 
 use crate::error::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
@@ -26,6 +26,9 @@ pub struct Trick<F: Figure, S: Suit>{
     card_num: u8,
 
 }
+
+pub type TrickStd = Trick<FigureStd, SuitStd>;
+
 impl<F: Figure + Copy, S: Suit + Copy> Copy for Trick<F, S>{}
 
 impl<F: Figure, S: Suit> Index<Side> for Trick<F, S>{
@@ -278,7 +281,18 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// ```
     pub fn is_complete(&self) -> bool{
 
-        self[North].as_ref().and(self[East].as_ref()).and(self[South].as_ref()).and(self[West].as_ref()).is_some()
+        self[North].as_ref()
+            .and(self[East].as_ref())
+            .and(self[South].as_ref())
+            .and(self[West].as_ref())
+            .is_some()
+    }
+    pub fn is_empty(&self) -> bool {
+        self[North].as_ref()
+            .or(self[East].as_ref())
+            .or(self[South].as_ref())
+            .or(self[West].as_ref())
+            .is_none()
     }
     pub fn missing_card(&self) -> Option<Side>{
         for s in SIDES{

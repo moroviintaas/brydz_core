@@ -20,5 +20,11 @@ pub trait DealMaintainer<F: Figure, S: Suit>{
     fn current_side(&self) -> Option<Side>{
         self.current_trick().current_side()
     }
+    fn declarer(&self) -> Side{
+        self.contract().declarer()
+    }
+    fn dummy(&self) -> Side{
+        self.contract().declarer().partner()
+    }
 }
 

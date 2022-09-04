@@ -87,7 +87,7 @@ for ScoreTableSport{
 
         }
         else{
-            Err(BridgeError::DealError(DealError::DealIncomplete))
+            Err(BridgeError::Deal(DealError::DealIncomplete))
         }
     }
 

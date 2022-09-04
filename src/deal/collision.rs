@@ -63,7 +63,7 @@ mod tests_card_memory{
 
 
 
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct SuitExhaustStd{
     array: u16
 }

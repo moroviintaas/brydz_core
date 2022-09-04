@@ -1,15 +1,40 @@
-use karty::cards::{Card};
-use crate::bidding::Bid;
+use karty::cards::{CardStd};
+use crate::bidding::{ CallStd};
+use crate::distribution::hand::BridgeHand;
+use crate::error::BridgeErrorStd;
 use crate::player::side::Side;
-use crate::karty::figures::Figure;
-use crate::karty::suits::Suit;
 
 
-
-pub enum DealActionGeneric<F: Figure, S:Suit> {
-    PlayCard(Side, Card<F,S>),
-    Quit
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DealAction{
+    PlayCard(CardStd),
+    NotMyTurn,
+    ShowHand(BridgeHand)
 }
-pub enum BiddingAction<S: Suit> {
-    Bid(Bid<S>)
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BiddingAction {
+    Call(CallStd)
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum DealInfoRequest {
+
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BiddingInfoRequest {
+
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ClientMessage{
+    Dealing(DealAction),
+    Bidding(BiddingAction),
+    DealInfo(DealInfoRequest),
+    BiddingInfo(BiddingInfoRequest),
+    Error(BridgeErrorStd),
+    Ready,
+    Quit,
+
 }

@@ -203,6 +203,7 @@ impl<F: Figure, S: Suit,
     fn total_tricks_taken_axis(&self, axis: Axis) -> usize{
         self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract.bid().trump()).unwrap().axis() == axis).count()
     }
+
 }
 
 impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> RegDeal<F, S, Um, Se>{

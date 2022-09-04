@@ -8,10 +8,15 @@ mod trick;
 mod score;
 mod distribution;
 mod correctness;
-mod flow;
+
+mod hand;
 
 pub use score::*;
 pub use trick::*;
 pub use distribution::*;
 pub use correctness::*;
+pub use hand::*;
+#[cfg(feature = "protocol")]
+mod flow;
+#[cfg(feature = "protocol")]
 pub use flow::*;

@@ -1,9 +1,11 @@
 mod action;
 mod information;
-mod control;
 mod server;
 mod client;
+mod controller;
 
 pub use action::*;
 pub use information::*;
-pub use control::*;
+pub use server::*;
+pub use client::*;
+pub use controller::*;
