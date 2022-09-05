@@ -42,7 +42,7 @@ impl PointsOverTrick{
     /// ```
     pub fn points(&self, contract: &Contract<SuitStd>, taken: u8, vulnerable: bool) -> i32 {
 
-        let number_of_overtricks = taken.checked_sub(contract.bid().number_normalised()).unwrap_or(0);
+        let number_of_overtricks = taken.saturating_sub(contract.bid().number_normalised());
         (number_of_overtricks as i32) * match contract.doubling() {
             Doubling::None => match contract.bid().trump() {
                 Trump::Colored(SuitStd::Clubs) => self.not_doubled_clubs,

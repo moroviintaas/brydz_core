@@ -1,4 +1,5 @@
 use std::collections::HashSet;
+use std::fmt::{Display, Formatter};
 use karty::cards::{Card2S, CardStd};
 use karty::figures::{FigureStd};
 use karty::suits::{SuitStd};
@@ -59,6 +60,26 @@ impl BridgeHand{
     /// ```
     pub fn cards_in_suit(&self, suit: &SuitStd) -> HashSet<CardStd>{
         self.cards.iter().filter(|x| x.suit() == suit).map(|x| x.to_owned()).collect()
+    }
+}
+
+impl Display for BridgeHand{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let v: Vec<&CardStd> = self.cards().iter().collect();
+        write!(f,  "[")?;
+        if f.alternate(){
+            for e in v.into_iter(){
+                write!(f, "{:#}, ", e)?;
+            }
+
+
+        }
+        else{
+            for e in v.into_iter(){
+                write!(f, "{}, ", e)?;
+            }
+        }
+        write!(f, "]")
     }
 }
 /*

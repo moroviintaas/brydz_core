@@ -9,7 +9,7 @@ use crate::score::ScoreTracker;
 use crate::score::tables::{PENALTY_UNDER_TRICK, POINTS_CONTRACTED_TRICK, POINTS_OVER_TRICK, POINTS_PREMIUM_CONTRACT, POINTS_PREMIUM_SPORT, POINTS_SLAM};
 
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct ScoreTableSport {
     ns_score: i32,
     ew_score: i32,
@@ -17,11 +17,7 @@ pub struct ScoreTableSport {
     ew_vulnerability: bool
 
 }
-impl Default for ScoreTableSport{
-    fn default() -> Self {
-        Self{ns_score: 0, ew_score: 0, ns_vulnerability: false, ew_vulnerability: false}
-    }
-}
+
 impl ScoreTableSport{
     pub fn new(ns_vulnerability: bool, ew_vulnerability: bool) -> Self{
         Self{ns_score: 0, ew_score: 0, ns_vulnerability, ew_vulnerability}

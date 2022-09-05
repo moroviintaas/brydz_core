@@ -63,7 +63,7 @@ impl PointsContractedTrick{
             }
             Trump::NoTrump => {
                 if taken == 0{
-                    i32::from(0)
+                    0
                 } else{
                     let number = if contract.bid().number_normalised() < taken{
                         contract.bid().number_normalised() - 1
@@ -71,7 +71,7 @@ impl PointsContractedTrick{
                     else{
                         taken - 1
                     };
-                    (&self.nt_first + (&self.nt_next * i32::from(number))) * multiplier
+                    (self.nt_first + (self.nt_next * i32::from(number))) * multiplier
 
                 }
 

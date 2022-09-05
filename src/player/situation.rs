@@ -47,7 +47,7 @@ impl Situation {
         self.side
     }
     pub fn used_cards(&self) -> &RegisterCardStd{
-        &self.deal.used_cards()
+        self.deal.used_cards()
     }
     pub fn hand(&self) -> &BridgeHand{
         &self.hand
