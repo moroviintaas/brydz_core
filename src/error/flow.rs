@@ -1,6 +1,6 @@
 use std::error::Error;
 use std::fmt::{Display, Formatter};
-use std::sync::mpsc::{RecvError, SendError};
+use std::sync::mpsc::{RecvError, SendError, TryRecvError};
 use karty::figures::Figure;
 use karty::suits::Suit;
 use crate::error::BridgeError;
@@ -17,6 +17,7 @@ pub enum FlowError{
     PlayAfterEnd(Side),
     ConfusingMessage,
     RecvError,
+    TryRecvError,
     SendError,
     MissingConnection(Side),
     DifferentSideExpected(Side)
@@ -47,6 +48,11 @@ impl<F:Figure, S:Suit, T > From<SendError<T>> for BridgeError<F, S>{
 impl<F:Figure, S:Suit> From<RecvError> for BridgeError<F, S>{
     fn from(_: RecvError) -> Self {
         Self::Flow(FlowError::RecvError)
+    }
+}
+impl<F:Figure, S:Suit> From<TryRecvError> for BridgeError<F, S>{
+    fn from(_: TryRecvError) -> Self {
+        Self::Flow(FlowError::TryRecvError)
     }
 }
 
