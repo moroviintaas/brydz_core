@@ -7,8 +7,18 @@ use crate::error::BridgeErrorStd;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum DealAction{
     PlayCard(CardStd),
-    NotMyTurn,
-    ShowHand(BridgeHand)
+
+}
+
+impl From<DealAction> for ClientDealMessage{
+    fn from(m: DealAction) -> Self {
+        Self::Action(m)
+    }
+}
+impl From<DealAction> for ClientMessage{
+    fn from(m: DealAction) -> Self {
+        Self::Deal(m)
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -25,15 +35,51 @@ pub enum DealInfoRequest {
 pub enum BiddingInfoRequest {
 
 }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ClientDealInformation{
+    ShowHand(BridgeHand)
+}
+
+impl From<ClientDealInformation> for ClientDealMessage{
+    fn from(m: ClientDealInformation) -> Self {
+        Self::Info(m)
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ClientDealMessage{
+    Action(DealAction),
+    Info(ClientDealInformation),
+    InfoRequest(DealInfoRequest),
+    Control(ClientControlMessage),
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ClientControlMessage{
+    IamReady,
+    Quit,
+    ClientBridgeError(BridgeErrorStd),
+    NotMyTurn,
+}
+
+impl From<ClientControlMessage> for ClientDealMessage{
+    fn from(m: ClientControlMessage) -> Self {
+        Self::Control(m)
+    }
+}
+
+impl From<ClientControlMessage> for ClientMessage{
+    fn from(m: ClientControlMessage) -> Self {
+        Self::Control(m)
+    }
+}
+
+
+
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ClientMessage{
-    Dealing(DealAction),
+    Deal(DealAction),
     Bidding(BiddingAction),
-    DealInfo(DealInfoRequest),
-    BiddingInfo(BiddingInfoRequest),
-    Error(BridgeErrorStd),
-    Ready,
-    Quit,
-
+    Control(ClientControlMessage),
 }

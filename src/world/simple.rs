@@ -1,23 +1,23 @@
 use std::sync::Arc;
-use std::sync::mpsc::{channel, Receiver,  Sender,  TryRecvError};
+use std::sync::mpsc::{channel, Receiver, Sender, TryRecvError};
 use crate::deal::{DealMaintainer, RegDealStd};
 use crate::error::{BridgeError, BridgeErrorStd,  FlowError};
-use crate::overseer::{Overseer, PlayerStatus};
+use crate::world::{Overseer, PlayerStatus};
 use crate::player::side::{Side, SideAssociated, SIDES};
-use crate::protocol::{ClientMessage, ControlCommand, DealAction, DealNotify, ServerMessage};
-use log::{info, warn,};
+use crate::protocol::{ClientControlMessage, ClientDealInformation, ClientDealMessage,  ControlCommand, DealAction, DealNotify,  ServerDealMessage,};
+use log::{debug, info, warn};
 use parking_lot::Mutex;
 use crate::distribution::hand::BridgeHand;
-use crate::error::FlowError::{MissingConnection, PlayerLeft, ServerDead};
-use crate::overseer::PlayerStatus::Ready;
+use crate::error::FlowError::{MissingConnection, AbsentPlayer, ServerDead};
+use crate::world::PlayerStatus::Ready;
 use crate::player::side::Side::{East, North, South, West};
 use crate::protocol::DealNotify::{CardAccepted, CardPlayed, DealClosed, DummyPlacedHand, TrickClosed, YourMove};
-use crate::protocol::ServerMessage::{Deal, ServerStopping};
+use crate::protocol::ServerControlMessage::{GameOver, PlayerLeft, ServerBridgeError,  ServerStopping};
 
 
 pub struct SimpleOverseer{
-    receivers: SideAssociated<Option<Arc<Mutex<Receiver<ClientMessage>>>>>,
-    senders: SideAssociated<Option<Sender<ServerMessage>>>,
+    receivers: SideAssociated<Option<Arc<Mutex<Receiver<ClientDealMessage>>>>>,
+    senders: SideAssociated<Option<Sender<ServerDealMessage>>>,
     deal: RegDealStd,
     player_status: SideAssociated<PlayerStatus>,
     control_rx: Receiver<ControlCommand>,
@@ -44,16 +44,8 @@ impl SimpleOverseer{
         self.control_tx.clone()
     }
 
-    /*fn receiver(&self, side: &Side) -> &Arc<Mutex<Receiver<ClientMessage>>>{
 
-        self.receivers[side].as_ref().unwrap()
-    /
-    fn sender(&self, side: &Side) -> &Sender<ServerMessage>{
-
-        self.senders[side].as_ref().unwrap()
-    }*/
-
-    fn send_to_all(&self, message: ServerMessage) -> Result<(), BridgeErrorStd>{
+    fn send_to_all(&self, message: ServerDealMessage) -> Result<(), BridgeErrorStd>{
         let mut err: Result<(), BridgeErrorStd> = Ok(());
         if let Some(n) = &self.senders[&North]{
             if let Err(e) = n.send(message.clone()){
@@ -85,14 +77,12 @@ impl SimpleOverseer{
 
 
 
-    pub fn create_connection(&mut self, side: &Side) -> (Sender<ClientMessage>, Receiver<ServerMessage>){
+    pub fn create_connection(&mut self, side: &Side) -> (Sender<ClientDealMessage>, Receiver<ServerDealMessage>){
         let (cms, cmr) = channel();
         let (sms, smr) = channel();
         self.senders[side]  = Some(sms);
 
         self.receivers[side] = Some(Arc::new(Mutex::new(cmr)));
-        //println!("Connection: {:?}, {:?}", &side, &self.senders[&side]);
-        //println!("Connection: {:?}, {:?}", &side, &self.receivers[&side]);
         (cms, smr)
     }
     pub fn deal(&self) -> &RegDealStd{
@@ -119,13 +109,13 @@ impl SimpleOverseer{
     ///
     /// use bridge_core::cards::trump::Trump;
     /// use bridge_core::deal::{Contract, RegDealStd};
-    /// use bridge_core::overseer::SimpleOverseer;
+    /// use bridge_core::world::SimpleOverseer;
     /// use bridge_core::karty::suits::SuitStd::Spades;
     /// use bridge_core::player::side::Side;
     /// use bridge_core::bidding::Bid;
     /// use std::thread;
     /// use bridge_core::player::side::Side::{East, North, South, West};
-    /// use bridge_core::protocol::ClientMessage;
+    /// use bridge_core::protocol::ClientControlMessage::IamReady;
     /// let deal = RegDealStd::new(Contract::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap()));
     /// let mut simple_overseer = SimpleOverseer::new(deal);
     /// let (n_tx, n_rx) = simple_overseer.create_connection(&North);
@@ -137,10 +127,10 @@ impl SimpleOverseer{
     ///     s.spawn(||{
     ///        simple_overseer.wait_for_readiness_rr();
     ///     });
-    ///     n_tx.send(ClientMessage::Ready);
-    ///     s_tx.send(ClientMessage::Ready);
-    ///     e_tx.send(ClientMessage::Ready);
-    ///     w_tx.send(ClientMessage::Ready);
+    ///     n_tx.send(IamReady.into());
+    ///     s_tx.send(IamReady.into());
+    ///     e_tx.send(IamReady.into());
+    ///     w_tx.send(IamReady.into());
     ///
     /// });
     /// assert!(simple_overseer.are_players_ready());
@@ -149,9 +139,6 @@ impl SimpleOverseer{
     pub fn wait_for_readiness_rr(&mut self) -> Result<(), BridgeErrorStd>{
         //let mg_north = self.receivers[&North].unwrap().as_ref().lock();
 
-        /*if self.receivers.or(|x| x.is_none()){
-            return BridgeErrorStd::Flow(MissingConnection())
-        }*/
         if let Some(undefined) = self.receivers.find(|x| x.is_none()){
             return Err(BridgeError::Flow(MissingConnection(undefined)))
         }
@@ -170,37 +157,39 @@ impl SimpleOverseer{
             for side in SIDES{
                 match receiver_guards[&side].try_recv(){
                     Ok(m) => match m{
+                        ClientDealMessage::Control(control) => match control{
+                            ClientControlMessage::IamReady => {
+                                info!("Player {:?} declared to be ready during asking for readiness.", &side);
+                                self.player_status[&side] = Ready
+                            }
+                            ClientControlMessage::Quit => {
+                                info!("Player {:?} sent 'Quit' signal during asking for readiness.", &side);
+                                return Err(AbsentPlayer(side).into())
+                            }
+                            ClientControlMessage::ClientBridgeError(e) => {
+                                warn!("Player {:?} reported error: {:?}.", &side, e);
+                            }
+                            m => {
+                                debug!("Player {:?} sent control message: {:?}", side, m);
+                            }
 
-                        ClientMessage::Ready => {
-                            info!("Player {:?} declared to be ready during asking for readiness.", &side);
-                            self.player_status[&side] = Ready
-                        }
-                        ClientMessage::Quit => {
-                            info!("Player {:?} sent 'Quit' signal during asking for readiness.", &side);
-                            return Err(PlayerLeft(side).into())
-                        }
-                        ClientMessage::Dealing(_) => {
-                            info!("Player {:?} made dealing action, during readiness check.", &side);
-                            self.senders[&side].as_ref().unwrap().send(ServerMessage::ServerNotReady)?;
-                        }
-                        ClientMessage::Bidding(_) => {
-                            info!("Player {:?} made a bid during dealing phase (readiness check). Response not implemented.", &side);
-                        }
-                        ClientMessage::DealInfo(_) => {
-                            info!("Player {:?} requested info on deal. Response not implemented.", &side);
-                        }
-                        ClientMessage::BiddingInfo(_) => {
-                            info!("Player {:?} requested info on bidding. Response not implemented. Such request is not expected.", &side);
-                        }
-                        ClientMessage::Error(e) => {
-                            warn!("Player {:?} sent error message: {:?}.", &side, e)
-                        }
+                        },
+                        ClientDealMessage::Action(deal_message) =>  {
+                            warn!("Player {:?} attempted to perform action: {:?}", &side, deal_message);
+                        },
+                        ClientDealMessage::Info(info) => {
+                            debug!("Player {:?} sent info: {:?}", &side, info);
+                        },
+                        ClientDealMessage::InfoRequest(info_request) => {
+                            debug!("Player {:?} requested info: {:?}", &side, info_request);
+                        },
+
                     }
                     Err(e) => match e {
                         TryRecvError::Empty => {/*just skip*/}
                         TryRecvError::Disconnected => {
                             info!("Player {:?} disconnected during waiting for readiness (broken channel).", &side);
-                            return Err(PlayerLeft(side).into())
+                            return Err(AbsentPlayer(side).into())
                         }
                     }
                 }
@@ -216,34 +205,25 @@ impl SimpleOverseer{
         let sender = self.senders[&whist].as_ref().unwrap();
 
         info!("Asking first defender to start playing.");
-        sender.send(ServerMessage::Deal(YourMove)).unwrap_or(());
+        sender.send(YourMove.into()).unwrap_or(());
         let declarer = self.deal.declarer();
-        //let dbg = receiver_guard.recv();
-        //println!("{:?}", dbg);
-        //Ok(())
+
         loop{ //waiting for first card
             match receiver_guard.recv(){
                  Err(_) => {
 
                     warn!("Failed receiving first card from first defender ({:?}). Ending game.", &whist);
-                    self.send_to_all(ServerMessage::PlayerLeft(declarer)).unwrap_or(());
-                    self.send_to_all(ServerMessage::ServerStopping).unwrap_or(());
+                    self.send_to_all(PlayerLeft(declarer).into()).unwrap_or(());
+                    self.send_to_all(ServerStopping.into()).unwrap_or(());
                     return Err(FlowError::RecvError.into());
                 },
-                Ok(q) if q == ClientMessage::Quit => {
-                    warn!("Failed receiving first card from first defender ({:?}). Ending game.", &whist);
-                    self.send_to_all(ServerMessage::PlayerLeft(declarer)).unwrap_or(());
-                    self.send_to_all(ServerMessage::ServerStopping).unwrap_or(());
-                    return Err(FlowError::RecvError.into());
-                }
-
-                Ok(message) => match message{
-                    ClientMessage::Dealing(d) => match d{
-                        DealAction::PlayCard(c) => match self.deal.insert_card(whist, c){
+                Ok(client_message) => match client_message{
+                    ClientDealMessage::Action(action) => match action{
+                        DealAction::PlayCard(c) => match self.deal.insert_card(whist, c) {
                             Ok(_) => {
                                 info!("Received card {:#} from declarer ({:?})", c, &whist);
-                                sender.send(ServerMessage::Deal(CardAccepted(c)))?;
-                                self.send_to_all(ServerMessage::Deal(CardPlayed(whist, c))).unwrap_or(());
+                                sender.send(CardAccepted(c).into())?;
+                                self.send_to_all(CardPlayed(whist, c).into()).unwrap_or(());
 
                                 return Ok(())
                             }
@@ -251,17 +231,28 @@ impl SimpleOverseer{
                                 warn!("Received card from first defender, failed to add do deal however: {}", e);
                             }
                         }
-                        DealAction::NotMyTurn => {
-                            warn!("Player {:?} reported that it is not their turn to play", &declarer);
-                            continue
+                    }
+                    ClientDealMessage::InfoRequest(info_request) => {
+                        debug!("Player {:?} requested info: {:?}.", whist, info_request);
+                    }
+                    ClientDealMessage::Info(info) => {
+                        debug!("Player {:?} sent info: {:?}.", whist, info);
+                    }
+                    ClientDealMessage::Control(control) => match control{
+                        ClientControlMessage::IamReady => {}
+                        ClientControlMessage::Quit => {
+                            warn!("Failed receiving first card from first defender ({:?}). Ending game.", &whist);
+                            self.send_to_all(PlayerLeft(declarer).into()).unwrap_or(());
+                            self.send_to_all(ServerStopping.into()).unwrap_or(());
+                            return Err(FlowError::RecvError.into());
                         }
-                        DealAction::ShowHand(_) => {/* unexpted, harmless, ignoring for now*/}
+                        ClientControlMessage::ClientBridgeError(e) => {
+                            warn!("During waiting wor first card player {:?} reported error {:?}.", &whist, e);
+                        }
+                        ClientControlMessage::NotMyTurn => {}
                     }
-                    m => {
-                        warn!("Expected card from first defender, got: {:?}", m);
-                        continue;
-                    }
-                },
+                }
+
 
             }
         }
@@ -273,47 +264,34 @@ impl SimpleOverseer{
         let sender = self.senders[&dummy].as_ref().unwrap();
 
         info!("Asking dummy to show hand.");
-        sender.send(ServerMessage::Deal(YourMove)).unwrap_or(());
+        sender.send(YourMove.into()).unwrap_or(());
         let declarer = self.deal.declarer();
         loop{ //waiting for first card
             match receiver_guard.recv(){
                  Err(_) => {
 
                     warn!("Failed receiving first hand from dummy ({:?}). Ending game.", &dummy);
-                    self.send_to_all(ServerMessage::PlayerLeft(declarer)).unwrap_or(());
-                    self.send_to_all(ServerMessage::ServerStopping).unwrap_or(());
+                    self.send_to_all(PlayerLeft(declarer).into()).unwrap_or(());
+                    self.send_to_all(ServerStopping.into()).unwrap_or(());
                     return Err(FlowError::RecvError.into());
                 },
-                Ok(q) if q == ClientMessage::Quit => {
-                    warn!("Failed receiving first hand from dummy ({:?}). Ending game.", &dummy);
-                    self.send_to_all(ServerMessage::PlayerLeft(declarer)).unwrap_or(());
-                    self.send_to_all(ServerMessage::ServerStopping).unwrap_or(());
-                    return Err(FlowError::RecvError.into());
-                }
-
-                Ok(message) => match message{
-                    ClientMessage::Dealing(d) => match d{
-                        DealAction::PlayCard(_) => {
-                            warn!("Received card from dummy ({:?}), when hand expected", dummy);
-
-                        }
-                        DealAction::NotMyTurn => {
-                            warn!("Player {:?} reported that it is not their turn to play", &declarer);
-                            continue
-                        }
-                        DealAction::ShowHand(hand) => {
+                Ok(deal_message) => match deal_message{
+                    ClientDealMessage::Action(action) => {
+                        warn!("Dummy ({:?}) attempted to perform action: {:?}.", dummy, action);
+                    }
+                    ClientDealMessage::Info(information) => match information{
+                        ClientDealInformation::ShowHand(hand) => {
                             info!("Dummy ({:?}) sent hand: {:?}", dummy, &hand);
                             self.dummy_hand = hand;
                             //println!("{:?}", self.dummy_hand.clone());
-                            self.send_to_all(ServerMessage::Deal(DealNotify::DummyPlacedHand(self.dummy_hand.clone()))).unwrap_or(());
+                            self.send_to_all(DummyPlacedHand(self.dummy_hand.clone()).into()).unwrap_or(());
                             return Ok(());
                         }
                     }
-                    m => {
-                        warn!("Expected card from first defender, got: {:?}", m);
-                        continue;
-                    }
-                },
+                    ClientDealMessage::InfoRequest(_) => {}
+                    ClientDealMessage::Control(_) => {}
+                }
+
 
             }
         }
@@ -332,7 +310,7 @@ impl SimpleOverseer{
             west: self.senders[&West].as_ref().unwrap()
         };
         info!("Notifying player {:?} (declarer) to play card (dummy's)", self.next_side_dummy_corrected().unwrap());
-        sender_guards[&self.next_side_dummy_corrected().unwrap()].send(ServerMessage::Deal(YourMove)).unwrap_or(());
+        sender_guards[&self.next_side_dummy_corrected().unwrap()].send(YourMove.into()).unwrap_or(());
         while !self.deal.is_completed(){
             match self.control_rx.try_recv(){
                 Ok(signal) => match signal {
@@ -343,15 +321,15 @@ impl SimpleOverseer{
                         info!("Received 'Pause'. Ignoring. Reserved for future use");
                     }
                     ControlCommand::Kill => {
-                        info!("Received 'Kill'. Stopping overseer.");
-                        self.send_to_all(ServerStopping).unwrap_or(());
+                        info!("Received 'Kill'. Stopping world.");
+                        self.send_to_all(ServerStopping.into()).unwrap_or(());
                     }
                 }
                 Err(e) => match e{
                     TryRecvError::Empty => {/* ignore */}
                     TryRecvError::Disconnected => {
                         warn!("Command Interface disconnected. Should not have happen, because Overseer keeps his copy of sender. Anyway sending ServerStopped to players.");
-                        self.send_to_all(ServerStopping).unwrap_or(());
+                        self.send_to_all(ServerStopping.into()).unwrap_or(());
                         return Err(BridgeError::Flow(ServerDead));
                     }
                 }
@@ -360,92 +338,71 @@ impl SimpleOverseer{
             for side in SIDES{
                 match receiver_guards[&side].try_recv(){
                     Ok(message) => match message{
-                        ClientMessage::Dealing(action) => match action {
-                            DealAction::PlayCard(card) => match self.deal.current_side(){
+
+                        ClientDealMessage::Action(action) => match action{
+                            DealAction::PlayCard(card) => match self.deal.current_side() {
                                 None => {
                                     warn!("Player {:?} played card when no one's turn - possibly end of deal.", side);
                                 }
                                 Some(s) => {
-                                    if s == side || (self.deal.declarer() == side && s == side.partner()){
-                                        match self.deal.insert_card(s, card){
+                                    if s == side || (self.deal.declarer() == side && s == side.partner()) {
+                                        match self.deal.insert_card(s, card) {
                                             Ok(next_side) => {
-                                                info!("Player {:?} sent card {:#}", &s, &card );
-                                                sender_guards[&side].send(Deal(CardAccepted(card))).unwrap_or(());
-                                                self.send_to_all(ServerMessage::Deal(CardPlayed(s, card))).unwrap_or(());
-                                                if self.deal.current_trick().is_empty(){
+                                                info!("Player {:?} sent card {:#}, and it is accepted.", &s, &card );
+                                                sender_guards[&side].send(CardAccepted(card).into()).unwrap_or(());
+                                                self.send_to_all(CardPlayed(s, card).into()).unwrap_or(());
+                                                if self.deal.current_trick().is_empty() {
                                                     info!("Trick completed. It was {:?} so far.", self.deal.completed_tricks().len());
-                                                    self.send_to_all(ServerMessage::Deal(TrickClosed(next_side))).unwrap_or(());
-                                                    if self.deal.is_completed(){
+                                                    self.send_to_all(TrickClosed(next_side).into()).unwrap_or(());
+                                                    if self.deal.is_completed() {
                                                         info!("Deal completed.");
-                                                        self.send_to_all(ServerMessage::Deal(DealClosed)).unwrap_or(());
-                                                        self.send_to_all(ServerMessage::GameOver).unwrap_or(());
+                                                        self.send_to_all(DealClosed.into()).unwrap_or(());
+                                                        self.send_to_all(GameOver.into()).unwrap_or(());
                                                         return Ok(());
                                                     }
-
                                                 }
                                                 info!("Informing next player: {:?}", &next_side);
                                                 //sender_guards[&next_side].send(ServerMessage::Deal(YourMove)).unwrap_or(());
-                                                sender_guards[&self.next_side_dummy_corrected().unwrap()].send(ServerMessage::Deal(DealNotify::YourMove)).unwrap_or(());
+                                                sender_guards[&self.next_side_dummy_corrected().unwrap()].send(DealNotify::YourMove.into()).unwrap_or(());
                                             }
                                             Err(e) => {
                                                 warn!("Player {:?} sent card {:#}. Error inserting card: {}.", side, &card, &e);
-                                                sender_guards[&side].send(ServerMessage::Error(e.into())).unwrap_or(());
+                                                sender_guards[&side].send(ServerBridgeError(e.into()).into()).unwrap_or(());
                                             }
                                         }
                                     }
                                 }
-
-
-
-
-                            },
-
-
-
-                            DealAction::NotMyTurn => {todo!()}
-                            DealAction::ShowHand(hand) => {
-                                if side == self.deal.dummy(){
-                                    info!("Received hand from dummy: {:?}", &side);
-                                    if self.dummy_hand.cards().is_empty() && !self.deal.is_completed(){
-                                        self.dummy_hand = hand;
-                                        self.send_to_all(ServerMessage::Deal(DummyPlacedHand(self.dummy_hand.clone()))).unwrap_or(());
-                                        sender_guards[&self.next_side_dummy_corrected().unwrap()].send(ServerMessage::Deal(DealNotify::YourMove)).unwrap_or(());
-                                    }
-
-
-
-                                }
-                                else{
-                                    todo!();
-                                }
                             }
                         }
-                        ClientMessage::Bidding(_) => {/*ignoring */}
-                        ClientMessage::DealInfo(dir) => {
-                            info!("Player {:?} requested game related information: {:?}. Request ignored as not yet implemented", &side, dir);
+                        ClientDealMessage::Info(info) => {
+                            debug!("Player {:?} sent info: {:?}. Doing nothing with it for now.", side ,info );
                         }
-                        ClientMessage::BiddingInfo(_) => {/*ignoring */}
-                        ClientMessage::Error(e) => {
-                            warn!("Player {:?} reported error {:?}.", &side, e);
-                                todo!();
+                        ClientDealMessage::InfoRequest(info_request) => {
+                            debug!("Player {:?} sent info request: {:?}.", side, info_request);
                         }
-                        ClientMessage::Ready => {
-                            info!("Player {:?} sent signal 'Ready'", &side);
-                            self.player_status[&side] = Ready; //or whatever they should be already ready
-                        }
-                        ClientMessage::Quit => {
-                            warn!("Player {:?} has left the game. ", &side);
-                            self.send_to_all(ServerMessage::PlayerLeft(side)).unwrap_or(());
-                            self.send_to_all(ServerMessage::ServerStopping).unwrap_or(());
-                            return Err(FlowError::PlayerLeft(side).into());
+                        ClientDealMessage::Control(control) => match control{
+                            ClientControlMessage::IamReady => {}
+                            ClientControlMessage::Quit => {
+                                info!("Player {:?} has left the game. ", &side);
+                                self.send_to_all(PlayerLeft(side).into()).unwrap_or(());
+                                self.send_to_all(ServerStopping.into()).unwrap_or(());
+                                return Err(FlowError::AbsentPlayer(side).into());
+                            }
+                            ClientControlMessage::ClientBridgeError(e) => {
+                                warn!("Player {:?} reported error {:?}.", &side, e);
+                            }
+                            ClientControlMessage::NotMyTurn => {
+                                warn!("Player {:?} reported it is not his turn. Possibly bad behaviour.", side);
+                            }
+
                         }
                     }
                     Err(e) => match e{
                         TryRecvError::Empty => {/* ignore */}
                         TryRecvError::Disconnected => {
                             info!("Player {:?} disconnected. Closing game.", &side);
-                            self.send_to_all(ServerStopping).unwrap_or(());
-                            return Err(BridgeError::Flow(PlayerLeft(side)));
+                            self.send_to_all(ServerStopping.into()).unwrap_or(());
+                            return Err(BridgeError::Flow(AbsentPlayer(side)));
                         }
                     }
                 }

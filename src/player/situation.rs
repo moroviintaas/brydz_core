@@ -76,14 +76,13 @@ impl Situation {
     pub fn deal_consume(self) -> RegDealStd{
         self.deal
     }
-    /*
-    fn use_card(&mut self, card: &CardStd) -> Result<(), HandError>{
-        if self.cards_hand_mut().remove(card){
-            self.mark_card_used(card.to_owned());
-            Ok(())
-        }
-        Err(HandError::CardNotInHand)
-    }*/
 
 
+}
+
+
+impl From<&Situation> for Side{
+    fn from(s: &Situation) -> Self {
+        s.side
+    }
 }

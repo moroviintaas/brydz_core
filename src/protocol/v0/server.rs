@@ -16,6 +16,14 @@ pub enum DealNotify {
 
 
 }
+
+impl From<DealNotify> for ServerDealMessage{
+    fn from(d: DealNotify) -> Self {
+        Self::Notify(d)
+    }
+}
+
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BiddingNotify{
 
@@ -24,23 +32,64 @@ pub enum BiddingNotify{
 pub enum DealInfoResponse {
 
 }
+
+impl From<DealInfoResponse> for ServerDealMessage{
+    fn from(m: DealInfoResponse) -> Self {
+        Self::Info(m)
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum BiddingInfoResponse{
 
 }
 
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ServerControlMessage{
+    ServerStopping,
+    ServerBridgeError(BridgeErrorStd),
+    ServerNotReady,
+    PlayerLeft(Side),
+    GameOver,
+    GameOverUnfinished
+}
+
+impl From<ServerControlMessage> for ServerDealMessage{
+    fn from(m: ServerControlMessage) -> Self {
+        Self::Control(m)
+    }
+}
+
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ServerDealMessage{
+    Notify(DealNotify),
+    Info(DealInfoResponse),
+    Control(ServerControlMessage)
+
+}
+
+impl From<ServerDealMessage> for ServerMessage{
+    fn from(m: ServerDealMessage) -> Self {
+        Self::Deal(m)
+    }
+}
+
+
+
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ServerBiddingMessage{
+    Notify(BiddingNotify),
+    Info(BiddingInfoResponse)
+}
+
+
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ServerMessage{
-    Deal(DealNotify),
-    Bidding(BiddingNotify),
-    PlayerLeft(Side),
-    DealInfo(DealInfoResponse),
-    BiddingInfo(DealInfoResponse),
-    GameOver,
-    ServerStopping,
-
-    ServerNotReady,
-    Error(BridgeErrorStd),
-
-
+    Deal(ServerDealMessage),
+    Bidding(ServerBiddingMessage),
+    Control(ServerControlMessage),
 }

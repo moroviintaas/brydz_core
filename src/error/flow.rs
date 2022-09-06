@@ -10,7 +10,7 @@ use crate::protocol::{ClientMessage, ServerMessage};
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FlowError{
     ServerDead,
-    PlayerLeft(Side),
+    AbsentPlayer(Side),
     ImpersonationAbuse,
     UnexpectedServerMessage(Box<ServerMessage>),
     UnexpectedClientMessage(Box<ClientMessage>),

@@ -3,7 +3,7 @@
 pub enum PlayerStatus{
     Ready,
     NotReady,
-    Quit
+    Absent
 }
 
 impl Default for PlayerStatus{

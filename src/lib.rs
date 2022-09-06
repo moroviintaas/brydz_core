@@ -10,8 +10,8 @@ pub mod distribution;
 
 #[cfg(feature = "protocol")]
 pub mod protocol;
-#[cfg(feature = "overseer")]
-pub mod overseer;
+#[cfg(feature = "world")]
+pub mod world;
 
 
 pub use ron;

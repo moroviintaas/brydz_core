@@ -19,4 +19,4 @@ parking_lot = {version = "0.12.1", optional = true}
 
 [features]
 protocol = []
-overseer = ["protocol", "parking_lot", "log"]
+world = ["protocol", "parking_lot", "log"]
