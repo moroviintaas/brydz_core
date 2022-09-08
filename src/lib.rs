@@ -13,6 +13,9 @@ pub mod protocol;
 #[cfg(feature = "world")]
 pub mod world;
 
+#[cfg(feature = "speedy")]
+pub use karty::speedy;
+
 
 pub use ron;
 pub use karty;

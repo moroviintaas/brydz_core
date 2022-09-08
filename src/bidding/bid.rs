@@ -6,7 +6,10 @@ use crate::error::BiddingError;
 use crate::error::BiddingError::IllegalBidNumber;
 use crate::meta::{HALF_TRICKS, MAX_BID_NUMBER, MIN_BID_NUMBER};
 
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Bid<S: Suit> {
     trump: Trump<S>,

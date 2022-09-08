@@ -2,9 +2,11 @@ use karty::cards::{CardStd};
 use crate::bidding::{ CallStd};
 use crate::distribution::hand::BridgeHand;
 use crate::error::BridgeErrorStd;
-
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum DealAction{
     PlayCard(CardStd),
 
@@ -22,20 +24,24 @@ impl From<DealAction> for ClientMessage{
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BiddingAction {
     Call(CallStd)
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum DealInfoRequest {
-
+    TODO
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BiddingInfoRequest {
-
+    TODO
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ClientDealInformation{
     ShowHand(BridgeHand)
 }
@@ -47,6 +53,7 @@ impl From<ClientDealInformation> for ClientDealMessage{
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ClientDealMessage{
     Action(DealAction),
     Info(ClientDealInformation),
@@ -55,6 +62,7 @@ pub enum ClientDealMessage{
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ClientControlMessage{
     IamReady,
     Quit,
@@ -78,6 +86,7 @@ impl From<ClientControlMessage> for ClientMessage{
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ClientMessage{
     Deal(DealAction),
     Bidding(BiddingAction),

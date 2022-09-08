@@ -6,9 +6,13 @@ use karty::figures::Figure;
 use karty::suits::{Suit, SuitStd};
 use karty::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
+
 use crate::cards::trump::Trump::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum Trump<S: Suit>{
     Colored(S),
     NoTrump

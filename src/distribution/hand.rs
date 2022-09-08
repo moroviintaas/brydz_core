@@ -6,7 +6,11 @@ use karty::suits::{SuitStd};
 use crate::error::{BridgeError, DistributionError};
 use crate::error::BridgeError::Distribution;
 
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub struct BridgeHand{
     //cant be generic for now, because generic types cannot take part in const expressions
     //cards: Vec<CardStd>

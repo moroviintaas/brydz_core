@@ -4,8 +4,11 @@ use crate::bidding::Bid;
 use crate::error::bridge::Mismatch;
 use crate::error::BridgeError;
 use crate::player::side::Side;
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BiddingError<S: Suit>{
     DoubleAfterDouble,
     DoubleAfterReDouble,

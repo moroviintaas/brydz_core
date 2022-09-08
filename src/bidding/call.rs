@@ -3,10 +3,13 @@ use karty::suits::{Suit, SuitStd};
 use crate::bidding::bid::Bid;
 
 use crate::player::side::Side;
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
 
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum Doubling{
     None,
     Double,
@@ -14,6 +17,7 @@ pub enum Doubling{
 }
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum Call<S: Suit> {
     Bid(Bid<S>),
     Double,

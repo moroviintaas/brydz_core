@@ -2,8 +2,12 @@ use std::fmt::{Display, Formatter};
 use karty::figures::Figure;
 use karty::suits::Suit;
 use crate::error::BridgeError;
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
+
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ScoreError{
     NegativeTrickNumber
 }

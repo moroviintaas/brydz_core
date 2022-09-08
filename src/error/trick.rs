@@ -4,8 +4,11 @@ use karty::figures::Figure;
 use karty::suits::Suit;
 use crate::error::{BridgeError, Mismatch};
 use crate::player::side::Side;
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum TrickError<F: Figure, S: Suit>{
     MissingCard(Side),
     CardSlotAlreadyUsed(Side),

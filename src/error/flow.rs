@@ -6,8 +6,11 @@ use karty::suits::Suit;
 use crate::error::BridgeError;
 use crate::player::side::Side;
 use crate::protocol::{ClientMessage, ServerMessage};
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum FlowError{
     ServerDead,
     AbsentPlayer(Side),

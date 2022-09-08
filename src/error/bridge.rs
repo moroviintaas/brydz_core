@@ -10,9 +10,14 @@ use crate::error::{DistributionError,  HandError, ScoreError, TrickError};
 #[cfg(feature="protocol")]
 use crate::error::FlowError;
 
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
+
+
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub struct Mismatch<T>{
     pub expected: T,
     pub found: T
@@ -28,6 +33,7 @@ impl<S:Suit> Display for BiddingError<S>{
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BridgeError<F: Figure, S: Suit>{
     Deal(DealError<F, S>),
     Bidding(BiddingError<S>),

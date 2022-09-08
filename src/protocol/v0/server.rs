@@ -4,7 +4,11 @@ use crate::distribution::hand::BridgeHand;
 use crate::error::{BridgeErrorStd};
 use crate::player::side::Side;
 
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
+
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum DealNotify {
     CardPlayed(Side, CardStd),
     TrickClosed(Side),
@@ -25,12 +29,15 @@ impl From<DealNotify> for ServerDealMessage{
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BiddingNotify{
+    TODO
 
 }
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum DealInfoResponse {
-
+    TODO
 }
 
 impl From<DealInfoResponse> for ServerDealMessage{
@@ -40,12 +47,14 @@ impl From<DealInfoResponse> for ServerDealMessage{
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BiddingInfoResponse{
-
+    TODO
 }
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ServerControlMessage{
     ServerStopping,
     ServerBridgeError(BridgeErrorStd),
@@ -63,6 +72,7 @@ impl From<ServerControlMessage> for ServerDealMessage{
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ServerDealMessage{
     Notify(DealNotify),
     Info(DealInfoResponse),
@@ -80,6 +90,7 @@ impl From<ServerDealMessage> for ServerMessage{
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ServerBiddingMessage{
     Notify(BiddingNotify),
     Info(BiddingInfoResponse)
@@ -88,6 +99,7 @@ pub enum ServerBiddingMessage{
 
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ServerMessage{
     Deal(ServerDealMessage),
     Bidding(ServerBiddingMessage),

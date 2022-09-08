@@ -3,8 +3,11 @@ use karty::cards::Card;
 use karty::figures::{Figure, FigureStd};
 use karty::suits::{Suit, SuitStd};
 use crate::error::{BridgeError, TrickError};
+#[cfg(feature="speedy")]
+use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum DealError<F: Figure, S: Suit>{
     DealFull,
     DealIncomplete,
