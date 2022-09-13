@@ -48,18 +48,18 @@ impl<F: Figure, S: Suit,
     ///
     /// # Examples:
     /// ```
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::bidding::Doubling;
-    /// use bridge_core::deal::{Contract};
-    /// use bridge_core::bidding::Bid;
-    /// use bridge_core::deal::RegDeal;
-    /// use bridge_core::error::DealError;
-    /// use bridge_core::player::side::Side;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::bidding::Doubling;
+    /// use brydz_core::deal::{Contract};
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::deal::RegDeal;
+    /// use brydz_core::error::DealError;
+    /// use brydz_core::player::side::Side;
     /// use std::str::FromStr;
-    /// use bridge_core::deal::DealMaintainer;
-    /// use bridge_core::player::axis::Axis;
-    /// use bridge_core::error::TrickError;
-    /// use bridge_core::deal::collision::{SuitExhaustStd};
+    /// use brydz_core::deal::DealMaintainer;
+    /// use brydz_core::player::axis::Axis;
+    /// use brydz_core::error::TrickError;
+    /// use brydz_core::deal::collision::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::SuitStd;
     /// use karty::register::RegisterCardStd;
@@ -127,15 +127,15 @@ impl<F: Figure, S: Suit,
     /// Counts tricks taken by `Side` (one player)
     /// # Examples:
     /// ```
-    /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::deal::Trick;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::deal::{DealMaintainer,RegDeal};
+    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::deal::Trick;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::deal::{DealMaintainer,RegDeal};
     /// use std::str::FromStr;
-    /// use bridge_core::deal::{Contract};
-    /// use bridge_core::bidding::Bid;
-    /// use bridge_core::bidding::Doubling;
-    /// use bridge_core::deal::collision::{SuitExhaustStd};
+    /// use brydz_core::deal::{Contract};
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::bidding::Doubling;
+    /// use brydz_core::deal::collision::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -168,16 +168,16 @@ impl<F: Figure, S: Suit,
     /// Counts tricks taken by `Side` (one player)
     /// # Examples:
     /// ```
-    /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::deal::Trick;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::deal::{DealMaintainer, RegDeal};
+    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::deal::Trick;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::deal::{DealMaintainer, RegDeal};
     /// use std::str::FromStr;
-    /// use bridge_core::player::axis::Axis;
-    /// use bridge_core::bidding::Doubling;
-    /// use bridge_core::deal::{Contract};
-    /// use bridge_core::bidding::Bid;
-    /// use bridge_core::deal::collision::{SuitExhaustStd};
+    /// use brydz_core::player::axis::Axis;
+    /// use brydz_core::bidding::Doubling;
+    /// use brydz_core::deal::{Contract};
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::deal::collision::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -268,17 +268,17 @@ impl<F: Figure, S: Suit, Um: Register<Card<F,S>>, Se: Register<(Side, S)>> RegDe
     /// Based on index of trick returns the side who won the trick.
     /// # Examples:
     /// ```
-    /// use bridge_core::player::side::Side::*;
-    /// use bridge_core::deal::Trick;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::cards::deck::Deck;
-    /// use bridge_core::player::side::SIDES;
-    /// use bridge_core::deal::{DealMaintainer,RegDeal};
+    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::deal::Trick;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::deck::Deck;
+    /// use brydz_core::player::side::SIDES;
+    /// use brydz_core::deal::{DealMaintainer,RegDeal};
     /// use std::str::FromStr;
-    /// use bridge_core::bidding::Doubling;
-    /// use bridge_core::deal::{Contract};
-    /// use bridge_core::bidding::Bid;
-    /// use bridge_core::deal::collision::{SuitExhaustStd};
+    /// use brydz_core::bidding::Doubling;
+    /// use brydz_core::deal::{Contract};
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::deal::collision::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;

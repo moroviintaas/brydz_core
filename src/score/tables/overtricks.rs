@@ -20,13 +20,13 @@ impl PointsOverTrick{
     /// Calculates points for taken overtricks.
     /// # Examples:
     /// ```
-    /// use bridge_core::deal::Contract;
-    /// use bridge_core::player::side::Side::North;
-    /// use bridge_core::bidding::Bid;
-    /// use bridge_core::bidding::Doubling::{ReDouble, Double};
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::cards::trump::Trump::NoTrump;
-    /// use bridge_core::score::tables::{POINTS_OVER_TRICK};
+    /// use brydz_core::deal::Contract;
+    /// use brydz_core::player::side::Side::North;
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::bidding::Doubling::{ReDouble, Double};
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::Trump::NoTrump;
+    /// use brydz_core::score::tables::{POINTS_OVER_TRICK};
     /// use karty::suits::SuitStd::Hearts;
     /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_OVER_TRICK;

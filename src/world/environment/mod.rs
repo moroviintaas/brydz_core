@@ -1,7 +1,5 @@
-mod round_robin;
 
 use std::error::Error;
-pub use round_robin::*;
 mod channel;
 pub use channel::*;
 
@@ -27,4 +25,10 @@ pub trait CommunicatingEnvironment<Sm, Cm, E:Error>{
     fn send_to_all(&self, message: Sm) -> Result<(), E>;
     fn recv(&self, side: &Side) -> Result<Cm, E>;
     fn try_recv(&self, side: &Side) -> Result<Cm, E>;
+}
+
+pub trait StagingEnvironment<E: Error, Sm, Cm>: CommunicatingEnvironment<Sm, Cm, E> {
+    fn are_players_ready(&self) -> bool;
+    fn run (&mut self) -> Result<(), E>;
+    //fn run_until<G: FnMut(&Self) -> bool> (&mut self, guard: G) -> Result<(), E>;
 }

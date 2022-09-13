@@ -107,15 +107,15 @@ impl SimpleOverseer{
     /// Waits for readiness, this works in round robin try_recv on channels
     /// ```
     ///
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::deal::{Contract, RegDealStd};
-    /// use bridge_core::world::SimpleOverseer;
-    /// use bridge_core::karty::suits::SuitStd::Spades;
-    /// use bridge_core::player::side::Side;
-    /// use bridge_core::bidding::Bid;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::deal::{Contract, RegDealStd};
+    /// use brydz_core::world::SimpleOverseer;
+    /// use brydz_core::karty::suits::SuitStd::Spades;
+    /// use brydz_core::player::side::Side;
+    /// use brydz_core::bidding::Bid;
     /// use std::thread;
-    /// use bridge_core::player::side::Side::{East, North, South, West};
-    /// use bridge_core::protocol::ClientControlMessage::IamReady;
+    /// use brydz_core::player::side::Side::{East, North, South, West};
+    /// use brydz_core::protocol::ClientControlMessage::IamReady;
     /// let deal = RegDealStd::new(Contract::new(Side::East, Bid::init(Trump::Colored(Spades), 2).unwrap()));
     /// let mut simple_overseer = SimpleOverseer::new(deal);
     /// let (n_tx, n_rx) = simple_overseer.create_connection(&North);

@@ -19,13 +19,13 @@ impl PointsContractedTrick{
     /// Calculates points for contracted tricks based on number of taken, does not count overtricks
     /// # Examples:
     /// ```
-    /// use bridge_core::deal::Contract;
-    /// use bridge_core::player::side::Side::North;
-    /// use bridge_core::bidding::Bid;
-    /// use bridge_core::bidding::Doubling::ReDouble;
-    /// use bridge_core::cards::trump::Trump;
-    /// use bridge_core::cards::trump::Trump::NoTrump;
-    /// use bridge_core::score::tables::POINTS_CONTRACTED_TRICK;
+    /// use brydz_core::deal::Contract;
+    /// use brydz_core::player::side::Side::North;
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::bidding::Doubling::ReDouble;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::Trump::NoTrump;
+    /// use brydz_core::score::tables::POINTS_CONTRACTED_TRICK;
     /// use karty::suits::SuitStd::Hearts;
     /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_CONTRACTED_TRICK;

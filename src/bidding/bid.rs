@@ -59,9 +59,9 @@ impl<S: Suit + Display> Display for Bid<S>{
 /// Delivers `Ord` for `Bid`
 /// ```
 /// use std::cmp::Ordering;
-/// use bridge_core::cards::trump::Trump::{Colored, NoTrump};
+/// use brydz_core::cards::trump::Trump::{Colored, NoTrump};
 /// use karty::suits::SuitStd::*;
-/// use bridge_core::bidding::Bid;
+/// use brydz_core::bidding::Bid;
 /// let bid1 = Bid::init(NoTrump, 2).unwrap();
 /// let bid2 = Bid::init(Colored(Spades), 3).unwrap();
 /// let bid3 = Bid::init(Colored(Clubs), 3).unwrap();

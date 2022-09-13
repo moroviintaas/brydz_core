@@ -21,7 +21,7 @@ impl BridgeHand{
 
     /// # Example:
     /// ```
-    /// use bridge_core::distribution::hand::BridgeHand;
+    /// use brydz_core::distribution::hand::BridgeHand;
     /// use karty::cards::STANDARD_DECK;
     /// use karty::cards;
     ///
@@ -51,9 +51,9 @@ impl BridgeHand{
     }
     /// Returns subset of cards which are in specific `SuitStd`
     /// ```
-    /// use bridge_core::distribution::hand::BridgeHand;
-    /// use bridge_core::karty::cards::*;
-    /// use bridge_core::karty::suits::SuitStd::Spades;
+    /// use brydz_core::distribution::hand::BridgeHand;
+    /// use brydz_core::karty::cards::*;
+    /// use brydz_core::karty::suits::SuitStd::Spades;
     /// let mut card_supply = Vec::from([ACE_SPADES, KING_HEARTS, QUEEN_DIAMONDS, JACK_CLUBS,
     ///     TEN_SPADES, NINE_HEARTS, EIGHT_DIAMONDS, SEVEN_CLUBS, SIX_SPADES, FIVE_HEARTS,
     ///     FOUR_DIAMONDS, THREE_CLUBS, TWO_SPADES]);

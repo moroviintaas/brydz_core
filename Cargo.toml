@@ -1,5 +1,5 @@
 [package]
-name = "bridge_core"
+name = "brydz_core"
 version = "0.1.0"
 edition = "2021"
 
@@ -20,6 +20,6 @@ speedy = {version = "0.8.3", optional =true}
 
 [features]
 protocol = []
-world = ["protocol", "parking_lot", "log"]
+world = ["protocol", "log"]
 speedy = ["dep:speedy", "protocol"]
 

@@ -1,5 +1,5 @@
-use bridge_core::deal::Trick;
-use bridge_core::cards::trump::Trump;
+use brydz_core::deal::Trick;
+use brydz_core::cards::trump::Trump;
 use karty::cards::Card;
 use karty::figures::FigureStd;
 use karty::suits::SuitStd;

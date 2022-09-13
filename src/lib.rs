@@ -13,6 +13,7 @@ pub mod protocol;
 #[cfg(feature = "world")]
 pub mod world;
 
+
 #[cfg(feature = "speedy")]
 pub use karty::speedy;
 
@@ -29,12 +30,12 @@ pub use karty;
 /// # Examples:
 /// ```
 /// use karty::cards::*;
-/// use bridge_core::bidding::consts::BID_H3;
-/// use bridge_core::deal::*;
-/// use bridge_core::deal::{Contract, DealMaintainer, RegDealStd};
-/// use bridge_core::player::side::Side::{East, North, South};
-/// use bridge_core::fill_deal;
-/// use bridge_core::player::axis::Axis::{EastWest, NorthSouth};
+/// use brydz_core::bidding::consts::BID_H3;
+/// use brydz_core::deal::*;
+/// use brydz_core::deal::{Contract, DealMaintainer, RegDealStd};
+/// use brydz_core::player::side::Side::{East, North, South};
+/// use brydz_core::fill_deal;
+/// use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 /// let contract = Contract::new(North, BID_H3);
 /// let mut dl = RegDealStd::new(contract);
 ///
