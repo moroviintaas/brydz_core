@@ -5,6 +5,9 @@ pub use channel::*;
 
 
 use karty::cards::CardStd;
+use crate::deal::{RegDeal, RegDealStd};
+use crate::distribution::hand::BridgeHand;
+use crate::error::BridgeErrorStd;
 use crate::player::side::Side;
 
 pub trait OrderGuard{
@@ -15,6 +18,20 @@ pub trait OrderGuard{
 pub trait CardCheck<E: Error>{
     fn check(&self, card: &CardStd) -> Result<(), E>;
 
+}
+
+pub trait Environment{
+    fn deal(&self) -> &RegDealStd;
+    fn deal_mut(&mut self) -> &mut RegDealStd;
+    fn card_check(&self, card: &CardStd) -> Result<(), BridgeErrorStd>;
+    fn dummy_hand(&self) -> Option<&BridgeHand>;
+    fn set_dummy_hand(&mut self, hand: BridgeHand);
+    fn next_player(&self) -> Option<Side>;
+}
+
+pub trait WaitReady{
+    fn are_players_ready(&self) -> bool;
+    fn set_ready(&mut self, side: &Side);
 }
 
 pub trait AutomaticEnvironment<E: Error>{
@@ -28,7 +45,7 @@ pub trait CommunicatingEnvironment<Sm, Cm, E:Error>{
 }
 
 pub trait StagingEnvironment<E: Error, Sm, Cm>: CommunicatingEnvironment<Sm, Cm, E> {
-    fn are_players_ready(&self) -> bool;
+    //fn are_players_ready(&self) -> bool;
     fn run (&mut self) -> Result<(), E>;
     //fn run_until<G: FnMut(&Self) -> bool> (&mut self, guard: G) -> Result<(), E>;
 }

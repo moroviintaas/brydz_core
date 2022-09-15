@@ -9,7 +9,7 @@ use crate::player::side::{Side, SideAssociated, SIDES};
 use crate::protocol::{ClientControlMessage, ClientDealInformation, ClientDealMessage, ControlCommand, DealAction, ServerDealMessage};
 use crate::protocol::DealNotify::{CardAccepted, CardPlayed, DealClosed, DummyPlacedHand, TrickClosed, YourMove};
 use crate::protocol::ServerControlMessage::{GameOver, PlayerLeft, ServerBridgeError, ServerStopping};
-use crate::world::environment::{ CardCheck, CommunicatingEnvironment, OrderGuard, StagingEnvironment};
+use crate::world::environment::{CardCheck, CommunicatingEnvironment, Environment, OrderGuard, StagingEnvironment, WaitReady};
 use crate::world::PlayerStatus;
 use crate::world::PlayerStatus::Ready;
 
@@ -118,6 +118,46 @@ impl<F: CardCheck<BridgeErrorStd> + Default> CommunicatingEnvironment<ServerDeal
     }
 }
 
+impl<F: CardCheck<BridgeErrorStd> + Default> WaitReady for  ChannelDealEnvironment<F>{
+    fn are_players_ready(&self) -> bool {
+        self.player_status.and(|x| *x == Ready)
+    }
+
+    fn set_ready(&mut self, side: &Side) {
+        self.player_status[side] = Ready
+    }
+}
+
+impl<F: CardCheck<BridgeErrorStd> + Default> Environment for  ChannelDealEnvironment<F>{
+    fn deal(&self) -> &RegDealStd {
+        &self.deal
+    }
+
+    fn deal_mut(&mut self) -> &mut RegDealStd {
+        &mut self.deal
+    }
+
+    fn card_check(&self, card: &CardStd) -> Result<(), BridgeErrorStd> {
+        self.checker.check(card)
+    }
+
+    fn dummy_hand(&self) -> Option<&BridgeHand> {
+        self.dummy_hand.as_ref()
+    }
+
+    fn set_dummy_hand(&mut self, hand: BridgeHand) {
+        self.dummy_hand = Some(hand)
+    }
+
+    fn next_player(&self) -> Option<Side> {
+        match self.deal().current_side(){
+            None => None,
+            Some(dummy) if dummy == self.deal().dummy() => Some(dummy.partner()),
+            Some(n) => Some(n)
+        }
+    }
+}
+
 impl<F: CardCheck<BridgeErrorStd> + Default> OrderGuard for ChannelDealEnvironment<F>{
     fn current_side(&self) -> Option<Side> {
         self.deal.current_side()
@@ -128,19 +168,23 @@ impl<F: CardCheck<BridgeErrorStd> + Default> OrderGuard for ChannelDealEnvironme
     }
 }
 
-impl<F: CardCheck<BridgeErrorStd> + Default> StagingEnvironment<BridgeErrorStd, ServerDealMessage, ClientDealMessage>
-    for ChannelDealEnvironment<F>{
-    fn are_players_ready(&self) -> bool {
+//impl<F: CardCheck<BridgeErrorStd> + Default> StagingEnvironment<BridgeErrorStd, ServerDealMessage, ClientDealMessage>
+//    for ChannelDealEnvironment<F>{
+impl<T > StagingEnvironment<BridgeErrorStd, ServerDealMessage, ClientDealMessage>
+    for T
+where T:  CommunicatingEnvironment<ServerDealMessage, ClientDealMessage, BridgeErrorStd> +
+OrderGuard + WaitReady + Environment{
+    /*fn are_players_ready(&self) -> bool {
         self.player_status.and(|x| *x == Ready)
-    }
+    }*/
 
     fn run(&mut self)  -> Result<(), BridgeErrorStd>{
 
-        if let Some(whist) = self.deal.current_side(){
+        if let Some(whist) = self.deal().current_side(){
             info!("Sending start signal to first player.");
             self.send(&whist, YourMove.into())?;
         }
-        loop{
+        loop{/*
             match self.control_rx.try_recv(){
                 Ok(signal) => match signal {
                     ControlCommand::Start => {
@@ -164,39 +208,40 @@ impl<F: CardCheck<BridgeErrorStd> + Default> StagingEnvironment<BridgeErrorStd, 
                         return Err(BridgeError::Flow(ServerDead));
                     }
                 }
-            }
+            }*/
             for player in SIDES{
                 match self.try_recv(&player){
                     Ok(client_message) => match client_message{
                         ClientDealMessage::Action(action) => match action{
-                            DealAction::PlayCard(card) => match self.checker.check(&card){
-                                Ok(_) => match self.deal.current_side(){
+                            DealAction::PlayCard(card) => match self.card_check(&card){
+                                Ok(_) => match self.deal().current_side(){
                                     None => {
                                         warn!("Player {:?} played card when no one's turn - possibly end of deal.", player);
                                     }
-                                    Some(s) if s == player || (s == player.partner() && player == self.deal.declarer())=> match self.deal.insert_card(self.side_correction(player), card){
+                                    Some(s) if s == player || (s == player.partner() && player == self.deal().declarer())=>
+                                        match self.deal_mut().insert_card(s/*self.side_correction(player)*/, card){
                                         Ok(next_side) => {
                                             info!("Player {:?} sent card {:#}, and it is accepted.", &player, &card );
                                             self.send(&player, CardAccepted(card).into()).unwrap_or(());
                                             //debug!("Side correction: {:?} -> {:?}", side, self.side_correction(side));
                                             self.send_to_all(CardPlayed(s, card).into()).unwrap_or(());
-                                            if self.deal.current_trick().is_empty() {
-                                                info!("Trick completed. It was {:?} so far.", self.deal.completed_tricks().len());
+                                            if self.deal().current_trick().is_empty() {
+                                                info!("Trick completed. It was {:?} so far.", self.deal().completed_tricks().len());
                                                 self.send_to_all(TrickClosed(next_side).into()).unwrap_or(());
-                                                if self.deal.is_completed() {
+                                                if self.deal().is_completed() {
                                                     info!("Deal completed.");
                                                     self.send_to_all(DealClosed.into()).unwrap_or(());
                                                     self.send_to_all(GameOver.into()).unwrap_or(());
                                                     return Ok(());
                                                 }
                                             }
-                                            if self.dummy_hand.is_some(){
+                                            if self.dummy_hand().is_some(){
                                                 info!("Informing next player: {:?}", &next_side);
-                                                self.send(&self.next_side_dummy_corrected().unwrap(), YourMove.into()).unwrap_or(());
+                                                self.send(&self.next_player()/*next_side_dummy_corrected()*/.unwrap(), YourMove.into()).unwrap_or(());
                                             }
                                             else{
-                                                info!("Informing dummy {:?} that it is time for him show cards.", self.deal.dummy());
-                                                self.send(&self.deal.dummy(), YourMove.into()).unwrap_or(());
+                                                info!("Informing dummy {:?} that it is time for him show cards.", self.deal().dummy());
+                                                self.send(&self.deal().dummy(), YourMove.into()).unwrap_or(());
                                             }
                                         }
                                         Err(e) => {
@@ -217,14 +262,14 @@ impl<F: CardCheck<BridgeErrorStd> + Default> StagingEnvironment<BridgeErrorStd, 
                         }
                         ClientDealMessage::Info(info) => match info{
                             ClientDealInformation::ShowHand(hand) => {
-                                if player == self.deal.dummy(){
+                                if player == self.deal().dummy(){
                                     info!("Received dummy's hand: {:#}", hand);
-                                    if self.dummy_hand.is_none(){
+                                    if self.dummy_hand().is_none(){
                                         info!("Setting and sending dummy's hand.");
-                                        self.dummy_hand = Some(hand);
-                                        self.send_to_all(DummyPlacedHand(self.dummy_hand.as_ref().unwrap().clone()).into()).unwrap_or(());
-                                        info!("Sending player: {:?} signal 'YourMove'", &self.next_side_dummy_corrected().unwrap());
-                                        self.send(&self.next_side_dummy_corrected().unwrap(), YourMove.into()).unwrap_or(());
+                                        self.set_dummy_hand(hand);// = Some(hand);
+                                        self.send_to_all(DummyPlacedHand(self.dummy_hand().unwrap().clone()).into()).unwrap_or(());
+                                        info!("Sending player: {:?} signal 'YourMove'", &self.next_player().unwrap());
+                                        self.send(&self.next_player().unwrap(), YourMove.into()).unwrap_or(());
                                     }
                                     else{
                                         warn!("Dummy's hand already set. Ignoring.");
@@ -234,11 +279,11 @@ impl<F: CardCheck<BridgeErrorStd> + Default> StagingEnvironment<BridgeErrorStd, 
                                 }
                             }
                         }
-                        ClientDealMessage::InfoRequest(_) => {}
+                        ClientDealMessage::InfoRequest(_) => {},
                         ClientDealMessage::Control(control) => match control{
                             ClientControlMessage::IamReady => {
                                 info!("Player {:?} declared readiness", &player);
-                                self.player_status[&player] = Ready;
+                                self.set_ready(&player);
                             }
                             ClientControlMessage::Quit => {
                                 info!("Player {:?} has left the game. ", &player);
