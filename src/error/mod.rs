@@ -19,4 +19,9 @@ pub use hand::*;
 #[cfg(feature = "protocol")]
 mod flow;
 #[cfg(feature = "protocol")]
+mod comm;
+#[cfg(feature = "protocol")]
+pub use comm::*;
+
+#[cfg(feature = "protocol")]
 pub use flow::*;

@@ -6,7 +6,7 @@ use crate::error::bidding::BiddingError;
 
 
 use crate::error::deal::DealError;
-use crate::error::{DistributionError,  HandError, ScoreError, TrickError};
+use crate::error::{CommError, DistributionError, HandError, ScoreError, TrickError};
 #[cfg(feature="protocol")]
 use crate::error::FlowError;
 
@@ -42,6 +42,8 @@ pub enum BridgeError<F: Figure, S: Suit>{
     Distribution(DistributionError),
     #[cfg(feature = "protocol")]
     Flow(FlowError),
+    #[cfg(feature = "protocol")]
+    Comm(CommError),
     Hand(HandError),
     Custom(String),
 

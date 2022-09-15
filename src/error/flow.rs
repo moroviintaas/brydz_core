@@ -3,7 +3,7 @@ use std::fmt::{Display, Formatter};
 use std::sync::mpsc::{RecvError, SendError, TryRecvError};
 use karty::figures::Figure;
 use karty::suits::Suit;
-use crate::error::BridgeError;
+use crate::error::{BridgeError, CommError};
 use crate::player::side::Side;
 use crate::protocol::{ClientMessage, ServerMessage};
 #[cfg(feature="speedy")]
@@ -19,9 +19,6 @@ pub enum FlowError{
     UnexpectedClientMessage(Box<ClientMessage>),
     PlayAfterEnd(Side),
     ConfusingMessage,
-    RecvError,
-    TryRecvError,
-    SendError,
     MissingConnection(Side),
     DifferentSideExpected(Side)
 
@@ -44,28 +41,18 @@ impl Error for FlowError{}
 
 impl<F:Figure, S:Suit, T > From<SendError<T>> for BridgeError<F, S>{
     fn from(_: SendError<T>) -> Self {
-        Self::Flow(FlowError::SendError)
+        Self::Comm(CommError::SendError)
     }
 }
 
 impl<F:Figure, S:Suit> From<RecvError> for BridgeError<F, S>{
     fn from(_: RecvError) -> Self {
-        Self::Flow(FlowError::RecvError)
+        Self::Comm(CommError::RecvError)
     }
 }
 impl<F:Figure, S:Suit> From<TryRecvError> for BridgeError<F, S>{
     fn from(_: TryRecvError) -> Self {
-        Self::Flow(FlowError::TryRecvError)
+        Self::Comm(CommError::TryRecvError)
     }
 }
 
-impl From<RecvError> for FlowError{
-    fn from(_: RecvError) -> Self {
-        Self::RecvError
-    }
-}
-impl<T> From<SendError<T>> for FlowError{
-    fn from(_: SendError<T>) -> Self {
-        Self::SendError
-    }
-}

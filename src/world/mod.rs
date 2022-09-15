@@ -3,6 +3,9 @@ mod status;
 pub mod environment;
 pub mod agent;
 mod dummy;
+pub mod comm;
+
+
 pub use dummy::*;
 
 //pub use simple::*;
