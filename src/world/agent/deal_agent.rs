@@ -36,7 +36,7 @@ AutomaticAgent<BridgeErrorStd> for Player{
                         DealNotify::DummyPlacedHand(hand) => {
                             debug!("Declarer {:?} received message with dummy's hand: {:?}", &self.env().side(), &hand);
                             if self.env().dummy_hand().cards().is_empty(){
-                                self.env_mut().set_dummy(hand);
+                                self.set_dummy_hand(hand);//env_mut().set_dummy(hand);
                             }
                             else{
                                 self.send(ClientBridgeError(FlowError::ConfusingMessage.into()).into())?;

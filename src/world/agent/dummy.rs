@@ -1,34 +1,35 @@
-use std::sync::mpsc::{Receiver, Sender};
 use crate::error::BridgeErrorStd;
 use crate::player::situation::Situation;
 use crate::protocol::{ClientDealMessage, DealNotify, ServerDealMessage};
 use crate::protocol::ClientControlMessage::{IamReady, Quit};
 use crate::protocol::ClientDealInformation::ShowHand;
 use crate::world::agent::AutomaticAgent;
+use crate::world::comm::CommunicationEnd;
 
-pub struct ChannelDummy{
-    sender: Sender<ClientDealMessage>,
-    receiver: Receiver<ServerDealMessage>,
+pub struct DummyBot<Comm: CommunicationEnd<ClientDealMessage, ServerDealMessage, BridgeErrorStd>>{
     situation: Situation,
+    comm: Comm,
 }
 
-impl ChannelDummy{
-    pub fn new(sender: Sender<ClientDealMessage>, receiver: Receiver<ServerDealMessage>, situation: Situation) -> Self{
-        Self{sender, receiver, situation}
+impl<Comm> DummyBot<Comm>
+where Comm: CommunicationEnd<ClientDealMessage, ServerDealMessage, BridgeErrorStd>{
+    pub fn new(comm: Comm, situation: Situation) -> Self{
+        Self{comm, situation}
     }
 }
 
-impl AutomaticAgent<BridgeErrorStd> for ChannelDummy{
+impl<Comm> AutomaticAgent<BridgeErrorStd> for DummyBot<Comm>
+where Comm: CommunicationEnd<ClientDealMessage, ServerDealMessage, BridgeErrorStd>{
     fn run(&mut self) -> Result<(), BridgeErrorStd> {
-        self.sender.send(IamReady.into())?;
+        self.comm.send(IamReady.into())?;
         loop{
-            match self.receiver.recv()?{
+            match self.comm.recv()?{
                 ServerDealMessage::Notify(notify) => match notify{
                     DealNotify::YourMove => {
-                        self.sender.send(ShowHand(self.situation.hand().clone()).into())?
+                        self.comm.send(ShowHand(self.situation.hand().clone()).into())?
                     },
                     DealNotify::DealClosed => {
-                        self.sender.send(Quit.into()).unwrap_or(());
+                        self.comm.send(Quit.into()).unwrap_or(());
                         return Ok(())
                     },
                     _ => {}

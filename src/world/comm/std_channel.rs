@@ -74,7 +74,7 @@ mod test{
     #[test]
     fn t1(){
         let (com1, mut com2) = SyncComm::<String, String, BridgeErrorStd>::new_pair();
-        let h1 = spawn(move || {
+        let _h1 = spawn(move || {
             com1.send(format!("Hello")).unwrap();
         });
         let r = com2.recv().unwrap();

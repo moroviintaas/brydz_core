@@ -2,11 +2,11 @@
 mod status;
 pub mod environment;
 pub mod agent;
-mod dummy;
+//mod dummy;
 pub mod comm;
 
 
-pub use dummy::*;
+//pub use dummy::*;
 
 //pub use simple::*;
 pub use status::*;

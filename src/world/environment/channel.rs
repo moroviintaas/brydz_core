@@ -170,4 +170,7 @@ impl<F: CardCheck<BridgeErrorStd> + Default> OrderGuard for ChannelDealEnvironme
     }
 }
 
+pub trait AutomaticEnvironment{
+    fn run_auto(&mut self) -> Result<(), BridgeErrorStd>;
+}
 

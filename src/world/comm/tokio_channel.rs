@@ -66,12 +66,12 @@ where E: Error  + From<SendError<OT>> + From<TryRecvError> + From<SendError<IT>>
 mod test{
     use std::thread::spawn;
     use crate::error::BridgeErrorStd;
-    use crate::world::comm::{CommunicationEnd, SyncComm, TokioComm};
+    use crate::world::comm::{CommunicationEnd, TokioComm};
 
     #[test]
     fn t1(){
         let (com1, mut com2) = TokioComm::<String, String, BridgeErrorStd>::new_pair();
-        let h1 = spawn(move || {
+        let _h1 = spawn(move || {
             com1.send(format!("Hello")).unwrap();
         });
         let r = com2.recv().unwrap();

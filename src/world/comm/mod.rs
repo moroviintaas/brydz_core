@@ -6,6 +6,8 @@ pub use std_channel::SyncComm;
 mod tokio_channel;
 #[cfg(feature = "async")]
 pub use tokio_channel::*;
+use crate::error::BridgeErrorStd;
+use crate::protocol::{ClientDealMessage, ServerDealMessage};
 
 pub trait CommunicationEnd< OT, IT,E: Error>{
 
@@ -19,3 +21,5 @@ pub trait CommunicationEnd< OT, IT,E: Error>{
 
 
 }
+
+pub trait CommunicationEndStd: CommunicationEnd<ServerDealMessage, ClientDealMessage, BridgeErrorStd>{}
