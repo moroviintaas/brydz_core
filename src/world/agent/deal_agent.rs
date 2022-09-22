@@ -1,6 +1,8 @@
-use log::{debug, error, info};
+use log::{debug, error, info, warn};
 use crate::deal::DealMaintainer;
 use crate::error::{BridgeErrorStd, DealError, FlowError};
+use crate::error::BridgeError::{Flow};
+use crate::error::FlowError::UnexpectedServerMessage;
 use crate::player::situation::Situation;
 use crate::protocol::{ClientDealMessage, DealAction, DealNotify, ServerDealMessage};
 use crate::protocol::ClientControlMessage::{ClientBridgeError, IamReady, Quit};
@@ -67,6 +69,10 @@ AutomaticAgent<BridgeErrorStd> for Player{
                                 }
                             }
                         }
+                        DealNotify::ShowYourHand => {
+                            warn!("Environment requested showing hand, only dummy expects this message.");
+                            self.send(ClientBridgeError(Flow(UnexpectedServerMessage(Box::new(DealNotify::ShowYourHand.into())))).into()).unwrap_or(());
+                        },
                         DealNotify::DealClosed => {
                             self.send(Quit.into()).unwrap_or(());
                             return Ok(());

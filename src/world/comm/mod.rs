@@ -22,4 +22,19 @@ pub trait CommunicationEnd< OT, IT,E: Error>{
 
 }
 
+impl<OT, IT, E: Error, T> CommunicationEnd<OT, IT, E> for Box<T>
+where T: CommunicationEnd<OT, IT, E>{
+    fn send(&self, message: OT) -> Result<(), E> {
+        self.as_ref().send(message)
+    }
+
+    fn recv(&mut self) -> Result<IT, E> {
+        self.as_mut().recv()
+    }
+
+    fn try_recv(&mut self) -> Result<IT, E> {
+        self.as_mut().try_recv()
+    }
+}
+
 pub trait CommunicationEndStd: CommunicationEnd<ServerDealMessage, ClientDealMessage, BridgeErrorStd>{}

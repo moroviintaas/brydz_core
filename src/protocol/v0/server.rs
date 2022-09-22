@@ -16,6 +16,7 @@ pub enum DealNotify {
     CardDeclined(CardStd),
     DummyPlacedHand(BridgeHand),
     YourMove,
+    ShowYourHand,
     DealClosed,
 
 
@@ -27,6 +28,11 @@ impl From<DealNotify> for ServerDealMessage{
     }
 }
 
+impl From<DealNotify> for ServerMessage{
+    fn from(d: DealNotify) -> Self {
+        Self::Deal(ServerDealMessage::Notify(d))
+    }
+}
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]

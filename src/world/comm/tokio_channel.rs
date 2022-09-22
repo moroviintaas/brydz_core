@@ -46,17 +46,14 @@ impl<OT, IT, E> CommunicationEnd<OT, IT, E> for TokioComm<OT, IT, E>
 where E: Error  + From<SendError<OT>> + From<TryRecvError> + From<SendError<IT>> + From<CommError>{
 //where E: Error    {
     fn send(&self, message: OT) -> Result<(), E> {
-        //todo!()
         self.sender.send(message).map_err(|e| e.into())
     }
 
     fn recv(&mut self) -> Result<IT, E> {
         self.rt.block_on(self.receiver.recv()).ok_or(RecvError.into())
-        //todo!()
     }
 
     fn try_recv(&mut self) -> Result<IT, E> {
-        //todo!()
         self.receiver.try_recv().map_err(|e| e.into())
     }
 }

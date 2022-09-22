@@ -5,7 +5,7 @@ use crate::distribution::hand::BridgeHand;
 use crate::error::{BridgeErrorStd, CommError, FlowError};
 use crate::player::side::{Side, SideAssociated, SIDES};
 use crate::protocol::{ClientControlMessage, ClientDealInformation, ClientDealMessage, DealAction, ServerDealMessage};
-use crate::protocol::DealNotify::{CardAccepted, CardPlayed, DealClosed, DummyPlacedHand, TrickClosed, YourMove};
+use crate::protocol::DealNotify::{CardAccepted, CardPlayed, DealClosed, DummyPlacedHand, ShowYourHand, TrickClosed, YourMove};
 use crate::protocol::ServerControlMessage::{GameOver, PlayerLeft, ServerBridgeError, ServerStopping};
 use crate::world::comm::CommunicationEnd;
 use crate::world::environment::{AutomaticEnvironment, CardCheck, CommunicatingEnvironment, Environment, OrderGuard, WaitReady};
@@ -66,7 +66,7 @@ where Comm: CommunicationEnd<ServerDealMessage, ClientDealMessage, BridgeErrorSt
                                             }
                                             else{
                                                 info!("Informing dummy {:?} that it is time for him show cards.", self.deal().dummy());
-                                                self.send(&self.deal().dummy(), YourMove.into()).unwrap_or(());
+                                                self.send(&self.deal().dummy(), ShowYourHand.into()).unwrap_or(());
                                             }
                                         }
                                         Err(e) => {

@@ -25,7 +25,7 @@ where Comm: CommunicationEnd<ClientDealMessage, ServerDealMessage, BridgeErrorSt
         loop{
             match self.comm.recv()?{
                 ServerDealMessage::Notify(notify) => match notify{
-                    DealNotify::YourMove => {
+                    DealNotify::ShowYourHand => {
                         self.comm.send(ShowHand(self.situation.hand().clone()).into())?
                     },
                     DealNotify::DealClosed => {

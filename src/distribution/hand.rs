@@ -26,16 +26,16 @@ impl BridgeHand{
     /// use karty::cards;
     ///
     /// let mut card_supply = Vec::from(STANDARD_DECK);
-    /// let hand_north = BridgeHand::init(&mut card_supply).unwrap();
-    /// let hand_east = BridgeHand::init(&mut card_supply).unwrap();
-    /// let hand_south = BridgeHand::init(&mut card_supply).unwrap();
-    /// let hand_west = BridgeHand::init(&mut card_supply).unwrap();
+    /// let hand_north = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_east = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_south = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_west = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
     /// assert!(hand_north.cards().contains(&cards::TWO_CLUBS));
     /// assert!(hand_east.cards().contains(&cards::FIVE_DIAMONDS));
     /// assert!(hand_south.cards().contains(&cards::EIGHT_HEARTS));
     /// assert!(hand_west.cards().contains(&cards::JACK_SPADES));
     /// ```
-    pub fn init(cards: &mut Vec<CardStd>) -> Result<Self, BridgeError<FigureStd, SuitStd>>{
+    pub fn drain_full_from_vec(cards: &mut Vec<CardStd>) -> Result<Self, BridgeError<FigureStd, SuitStd>>{
         if cards.len() < CardStd::CARD_SPACE/4{
             return Err(Distribution(DistributionError::TooFewCards(cards.len())))
         }
@@ -57,7 +57,7 @@ impl BridgeHand{
     /// let mut card_supply = Vec::from([ACE_SPADES, KING_HEARTS, QUEEN_DIAMONDS, JACK_CLUBS,
     ///     TEN_SPADES, NINE_HEARTS, EIGHT_DIAMONDS, SEVEN_CLUBS, SIX_SPADES, FIVE_HEARTS,
     ///     FOUR_DIAMONDS, THREE_CLUBS, TWO_SPADES]);
-    /// let hand = BridgeHand::init(&mut card_supply).unwrap();
+    /// let hand = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
     /// let spades_in_hand = hand.cards_in_suit(&Spades);
     /// assert!(spades_in_hand.contains(&ACE_SPADES));
     /// assert!(!spades_in_hand.contains(&KING_HEARTS));
