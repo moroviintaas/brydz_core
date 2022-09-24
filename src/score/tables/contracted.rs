@@ -1,7 +1,9 @@
+use std::mem::take;
 use karty::suits::SuitStd;
 use crate::bidding::Doubling;
 use crate::deal::Contract;
 use crate::cards::trump::Trump;
+use crate::meta::HALF_TRICKS;
 use crate::score::calculation::ScoreIngredient;
 
 pub struct PointsContractedTrick{
@@ -29,14 +31,14 @@ impl PointsContractedTrick{
     /// use karty::suits::SuitStd::Hearts;
     /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_CONTRACTED_TRICK;
-    /// assert_eq!(points_table.points(&contract, 7), 210 );
-    /// assert_eq!(points_table.points(&contract, 8), 240 );
-    /// assert_eq!(points_table.points(&contract, 9), 240 );
+    /// assert_eq!(points_table.points(&contract, 7), 0 );
+    /// assert_eq!(points_table.points(&contract, 8), 60 );
+    /// assert_eq!(points_table.points(&contract, 9), 60 );
     ///
     /// let contract = Contract::new_d(North, Bid::init(NoTrump, 1).unwrap(), ReDouble);
-    /// assert_eq!(points_table.points(&contract, 6), 760 );
-    /// assert_eq!(points_table.points(&contract, 7), 880 );
-    /// assert_eq!(points_table.points(&contract, 8), 880 );
+    /// assert_eq!(points_table.points(&contract, 6), 0 );
+    /// assert_eq!(points_table.points(&contract, 7), 160 );
+    /// assert_eq!(points_table.points(&contract, 8), 160 );
     ///
     /// ```
 
@@ -49,10 +51,10 @@ impl PointsContractedTrick{
         match contract.bid().trump(){
             Trump::Colored(c) => {
 
-                let number = if contract.bid().number_normalised() < taken{
-                    contract.bid().number_normalised()
+                let number = if contract.bid().number_normalised() <= taken{
+                    contract.bid().number()
                 } else{
-                    taken
+                    0
                 };
                 i32::from(number) * multiplier * match c{
                     SuitStd::Spades => &self.spades,
@@ -62,14 +64,14 @@ impl PointsContractedTrick{
                 }
             }
             Trump::NoTrump => {
-                if taken == 0{
+                if taken <= HALF_TRICKS{
                     0
                 } else{
-                    let number = if contract.bid().number_normalised() < taken{
-                        contract.bid().number_normalised() - 1
+                    let number = if contract.bid().number_normalised() <= taken{
+                        contract.bid().number() - 1
                     }
                     else{
-                        taken - 1
+                        0
                     };
                     (self.nt_first + (self.nt_next * i32::from(number))) * multiplier
 

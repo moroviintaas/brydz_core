@@ -39,8 +39,94 @@ for ScoreTableSport{
 
     /// # Example:
     /// ```
-    /// todo!();
-    /// assert!(false);
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::deal::{Contract, DealMaintainer, RegDealStd};
+    /// use brydz_core::player::axis::Axis::NorthSouth;
+    /// use brydz_core::player::side::Side::{East, North, South, West};
+    /// use brydz_core::score::ScoreTracker;
+    /// use brydz_core::score::sport::ScoreTableSport;
+    /// use karty::suits::SuitStd::{Diamonds, Hearts};
+    /// use karty::cards::*;
+    /// use karty::figures::FigureStd;
+    /// use karty::suits::SuitStd;
+    /// let mut score = ScoreTableSport::new(false, false);
+    /// let mut deal = RegDealStd::new(Contract::new(South, Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
+    /// deal.insert_card(West, ACE_CLUBS).expect("Error inserting in deal 0.");
+    /// deal.insert_card(North, THREE_CLUBS).expect("Error inserting card 1.");
+    /// deal.insert_card(East, FOUR_CLUBS).expect("Error inserting card  2.");
+    /// deal.insert_card(South, TWO_CLUBS).expect("Error inserting card  3.");
+    ///
+    /// deal.insert_card(West, JACK_CLUBS).expect("Error inserting card  4.");
+    /// deal.insert_card(North, TEN_CLUBS).expect("Error inserting card  5.");
+    /// deal.insert_card(East, SEVEN_CLUBS).expect("Error inserting card 6.");
+    /// deal.insert_card(South, FIVE_CLUBS).expect("Error inserting card 7.");
+    ///
+    /// deal.insert_card(West, NINE_SPADES).expect("Error inserting card  8.");
+    /// deal.insert_card(North, JACK_SPADES).expect("Error inserting card  9.");
+    /// deal.insert_card(East, KING_SPADES).expect("Error inserting card  10.");
+    /// deal.insert_card(South, ACE_SPADES).expect("Error inserting card  11.");
+    ///
+    /// deal.insert_card(South, ACE_DIAMONDS).expect("Error inserting card  12.");
+    /// deal.insert_card(West, SIX_DIAMONDS).expect("Error inserting card  13.");
+    /// deal.insert_card(North, TWO_DIAMONDS).expect("Error inserting card  14.");
+    /// deal.insert_card(East, JACK_DIAMONDS).expect("Error inserting card  15.");
+    ///
+    /// deal.insert_card(South, FIVE_DIAMONDS).expect("Error inserting card  16.");
+    /// deal.insert_card(West, SEVEN_DIAMONDS).expect("Error inserting card  17.");
+    /// deal.insert_card(North, TEN_DIAMONDS).expect("Error inserting card  18.");
+    /// deal.insert_card(East, TWO_HEARTS).expect("Error inserting card  19.");
+    ///
+    /// deal.insert_card(North, QUEEN_SPADES).expect("Error inserting card  20.");
+    /// deal.insert_card(East, FOUR_SPADES).expect("Error inserting card  21.");
+    /// deal.insert_card(South, TWO_SPADES).expect("Error inserting card  22.");
+    /// deal.insert_card(West, THREE_SPADES).expect("Error inserting card  23.");
+    ///
+    /// deal.insert_card(North, FIVE_SPADES).expect("Error inserting card  24.");
+    /// deal.insert_card(East, SEVEN_SPADES).expect("Error inserting card  25.");
+    /// deal.insert_card(South, TEN_SPADES).expect("Error inserting card  26.");
+    /// deal.insert_card(West, EIGHT_SPADES).expect("Error inserting card  27.");
+    ///
+    /// deal.insert_card(South, ACE_HEARTS).expect("Error inserting card  28.");
+    /// deal.insert_card(West, FIVE_HEARTS).expect("Error inserting card  29.");
+    /// deal.insert_card(North, THREE_HEARTS).expect("Error inserting card  30.");
+    /// deal.insert_card(East, SIX_HEARTS).expect("Error inserting card  31.");
+    ///
+    /// deal.insert_card(South, FOUR_HEARTS).expect("Error inserting card  32.");
+    /// deal.insert_card(West, SEVEN_HEARTS).expect("Error inserting card  33.");
+    /// deal.insert_card(North, QUEEN_HEARTS).expect("Error inserting card  34.");
+    /// deal.insert_card(East, EIGHT_HEARTS).expect("Error inserting card  35.");
+    ///
+    /// deal.insert_card(North, KING_HEARTS).expect("Error inserting card  36.");
+    /// deal.insert_card(East, NINE_HEARTS).expect("Error inserting card  37.");
+    /// deal.insert_card(South, SIX_SPADES).expect("Error inserting card  38.");
+    /// deal.insert_card(West, JACK_HEARTS).expect("Error inserting card  39.");
+    ///
+    /// deal.insert_card(North, THREE_DIAMONDS).expect("Error inserting card  40.");
+    /// deal.insert_card(East, TEN_HEARTS).expect("Error inserting card  41.");
+    /// deal.insert_card(South, KING_DIAMONDS).expect("Error inserting card  42.");
+    /// deal.insert_card(West, SIX_CLUBS).expect("Error inserting card  43.");
+    ///
+    /// deal.insert_card(South, QUEEN_DIAMONDS).expect("Error inserting card  44.");
+    /// deal.insert_card(West, EIGHT_CLUBS).expect("Error inserting card  45.");
+    /// deal.insert_card(North, FOUR_DIAMONDS).expect("Error inserting card  46.");
+    /// deal.insert_card(East, QUEEN_CLUBS).expect("Error inserting card  47.");
+    ///
+    /// deal.insert_card(South, NINE_DIAMONDS).expect("Error inserting card  48.");
+    /// deal.insert_card(West, NINE_CLUBS).expect("Error inserting card  49.");
+    /// deal.insert_card(North, EIGHT_DIAMONDS).expect("Error inserting card  50.");
+    /// deal.insert_card(East, KING_CLUBS).expect("Error inserting card  51.");
+    ///
+    /// score.update(&mut deal).unwrap();
+    ///
+    ///
+    ///
+    ///
+    /// //60 + 40 + 50 zapis czesciowy
+    /// assert_eq!(<ScoreTableSport as ScoreTracker<RegDealStd, FigureStd, SuitStd>>::points(&score, &NorthSouth), 150);
+    /// //assert_eq!(score.points(&NorthSouth), 150);
+    ///
+    ///
     /// ```
     fn update(&mut self, deal: &Co) -> Result<(), BridgeError<F, SuitStd>> {
         if deal.is_completed(){
@@ -63,6 +149,7 @@ for ScoreTableSport{
                 Ok(points) => points,
                 Err(e) => return Err(BridgeError::Score(e))
             };
+            println!("contracted: {}, overtrick: {}", &contracted_points, &overtrick_bonus);
 
             let declarer_axis_score = contracted_points+ overtrick_bonus + slam_bonus
                 + premium_game_points + premium_contract_points;
