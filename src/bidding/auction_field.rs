@@ -1,5 +1,4 @@
 use std::cmp::Ordering;
-use serde::{Deserialize, Serialize};
 use karty::suits::Suit;
 use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::bidding::call::{Call, CallEntry, Doubling};
@@ -13,7 +12,8 @@ use crate::player::side::Side;
 
 
 
-#[derive(Debug, Eq, PartialEq, Serialize, Deserialize, Copy ,Clone)]
+#[derive(Debug, Eq, PartialEq, Copy ,Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum AuctionStatus{
     Running(Side),
     Finished,

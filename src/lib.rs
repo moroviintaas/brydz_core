@@ -12,12 +12,14 @@ pub mod distribution;
 pub mod protocol;
 #[cfg(feature = "world")]
 pub mod world;
+#[cfg(feature = "serde")]
+pub use serde;
 
 
 #[cfg(feature = "speedy")]
 pub use karty::speedy;
 
-
+#[cfg(feature = "serde_ron")]
 pub use ron;
 pub use karty;
 

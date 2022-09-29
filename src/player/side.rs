@@ -2,14 +2,14 @@ use std::fmt::Debug;
 use std::ops::{Index, IndexMut};
 use crate::player::axis::Axis;
 use crate::player::axis::Axis::{EastWest, NorthSouth};
-use serde::{Deserialize, Serialize};
 use crate::player::side::Side::{East, North, South, West};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
-#[derive(Debug, Clone, Copy, Eq, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Side{
     East,
     South,

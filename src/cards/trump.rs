@@ -13,6 +13,7 @@ use crate::cards::trump::Trump::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Trump<S: Suit>{
     Colored(S),
     NoTrump
