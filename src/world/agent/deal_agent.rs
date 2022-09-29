@@ -71,7 +71,7 @@ AutomaticAgent<BridgeErrorStd> for Player{
                         }
                         DealNotify::ShowYourHand => {
                             warn!("Environment requested showing hand, only dummy expects this message.");
-                            self.send(ClientBridgeError(Flow(UnexpectedServerMessage(Box::new(DealNotify::ShowYourHand.into())))).into()).unwrap_or(());
+                            self.send(ClientBridgeError(Flow(UnexpectedServerMessage)).into()).unwrap_or(());
                         },
                         DealNotify::DealClosed => {
                             self.send(Quit.into()).unwrap_or(());

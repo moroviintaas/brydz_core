@@ -6,7 +6,9 @@ use crate::error::bidding::BiddingError;
 
 
 use crate::error::deal::DealError;
-use crate::error::{CommError, DistributionError, HandError, ScoreError, TrickError};
+use crate::error::{DistributionError, HandError, ScoreError, TrickError};
+#[cfg(feature="protocol") ]
+use crate::error::CommError;
 #[cfg(feature="protocol")]
 use crate::error::FlowError;
 
