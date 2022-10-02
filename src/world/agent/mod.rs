@@ -21,7 +21,7 @@ pub trait AwareAgent<S> {
 }
 
 pub trait CommunicatingAgent<SM, CM: From<Ac>, Ac, E:Error> : Agent<Ac>{
-    fn send(&self, message: CM) -> Result<(),E>;
+    fn send(&mut self, message: CM) -> Result<(),E>;
     fn recv(&mut self) -> Result<SM,E>;
 
 }

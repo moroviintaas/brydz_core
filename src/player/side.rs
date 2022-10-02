@@ -103,10 +103,9 @@ impl<T> SideAssociated<T>{
         }
         None
     }
-
-    
-
 }
+
+
 /*
 impl<'a, T> IntoIterator for SideAssociated<T>{
     type Item = Side;

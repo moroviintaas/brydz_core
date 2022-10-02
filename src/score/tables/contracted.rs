@@ -1,4 +1,4 @@
-use std::mem::take;
+
 use karty::suits::SuitStd;
 use crate::bidding::Doubling;
 use crate::deal::Contract;

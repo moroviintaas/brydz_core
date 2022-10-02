@@ -41,8 +41,8 @@ pub trait AutomaticEnvironment<E: Error>{
     fn run(&mut self) -> Result<(), E>;
 }*/
 pub trait CommunicatingEnvironment<Sm, Cm, E:Error>{
-    fn send(&self, side: &Side, message: Sm) -> Result<(), E>;
-    fn send_to_all(&self, message: Sm) -> Result<(), E>;
+    fn send(&mut self, side: &Side, message: Sm) -> Result<(), E>;
+    fn send_to_all(&mut self, message: Sm) -> Result<(), E>;
     fn recv(&mut self, side: &Side) -> Result<Cm, E>;
     fn try_recv(&mut self, side: &Side) -> Result<Cm, E>;
 }

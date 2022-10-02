@@ -29,12 +29,13 @@ where Comm: CommunicationEnd<ServerDealMessage, ClientDealMessage, BridgeErrorSt
 
     pub fn run(&mut self) -> Result<(), BridgeErrorStd>{
         if let Some(whist) = self.deal().current_side(){
-            info!("Sending start signal to first player.");
+            info!("Sending start signal to first player ({:?}).", &self.deal.current_side().unwrap());
             self.send(&whist, YourMove.into())?;
         }
 
         loop{
             for player in SIDES{
+                //debug!("Checking message from {:?}.", &player);
                 match self.try_recv(&player){
                     Ok(client_message) => match client_message{
                         ClientDealMessage::Action(action) => match action{
@@ -204,11 +205,11 @@ where Comm: CommunicationEnd<ServerDealMessage, ClientDealMessage, BridgeErrorSt
 
 impl<Comm, C> CommunicatingEnvironment<ServerDealMessage, ClientDealMessage, BridgeErrorStd> for RoundRobinDealEnvironment<Comm, C>
 where Comm: CommunicationEnd<ServerDealMessage, ClientDealMessage, BridgeErrorStd>, C: CardCheck<BridgeErrorStd>{
-    fn send(&self, side: &Side, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
+    fn send(&mut self, side: &Side, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
         self.comms[side].send(message)
     }
 
-    fn send_to_all(&self, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
+    fn send_to_all(&mut self, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
         let mut result: Result<(), BridgeErrorStd> = Ok(());
         for side in SIDES{
             if let Err(e) = self.comms[&side].send(message.clone()){

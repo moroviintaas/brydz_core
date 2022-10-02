@@ -15,6 +15,8 @@ use crate::error::FlowError;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
+use crate::error::FormatError;
+
 
 
 
@@ -47,6 +49,7 @@ pub enum BridgeError<F: Figure, S: Suit>{
     #[cfg(feature = "protocol")]
     Comm(CommError),
     Hand(HandError),
+    Format(FormatError),
     Custom(String),
 
 
@@ -70,3 +73,10 @@ impl<F: Figure, S: Suit> Error for BridgeError<F, S>{
 }
 
 pub type BridgeErrorStd = BridgeError<FigureStd, SuitStd>;
+/*
+impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
+    fn from(e: std::io::Error) -> Self {
+        Self::IO(e.kind())
+    }
+}
+*/

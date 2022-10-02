@@ -15,7 +15,7 @@ use crate::world::comm::CommunicationEnd;
 /// use brydz_core::error::BridgeErrorStd;
 /// use brydz_core::world::comm::CommunicationEnd;
 /// use brydz_core::world::comm::TokioComm;
-/// let (com1, mut com2) = TokioComm::<String, String, BridgeErrorStd>::new_pair();
+/// let (mut com1, mut com2) = TokioComm::<String, String, BridgeErrorStd>::new_pair();
 /// let h1 = spawn(move || {
 ///     com1.send(format!("Hello")).unwrap();
 /// });
@@ -45,12 +45,12 @@ where Self: CommunicationEnd<OT, IT, E>{
 impl<OT, IT, E> CommunicationEnd<OT, IT, E> for TokioComm<OT, IT, E>
 where E: Error  + From<SendError<OT>> + From<TryRecvError> + From<SendError<IT>> + From<CommError>{
 //where E: Error    {
-    fn send(&self, message: OT) -> Result<(), E> {
+    fn send(&mut self, message: OT) -> Result<(), E> {
         self.sender.send(message).map_err(|e| e.into())
     }
 
     fn recv(&mut self) -> Result<IT, E> {
-        self.rt.block_on(self.receiver.recv()).ok_or(RecvError.into())
+        self.rt.block_on(self.receiver.recv()).ok_or_else(|| RecvError.into())
     }
 
     fn try_recv(&mut self) -> Result<IT, E> {
@@ -67,7 +67,7 @@ mod test{
 
     #[test]
     fn t1(){
-        let (com1, mut com2) = TokioComm::<String, String, BridgeErrorStd>::new_pair();
+        let (mut com1, mut com2) = TokioComm::<String, String, BridgeErrorStd>::new_pair();
         let _h1 = spawn(move || {
             com1.send(format!("Hello")).unwrap();
         });

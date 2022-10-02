@@ -11,7 +11,7 @@ use crate::world::comm::CommunicationEnd;
 /// use brydz_core::error::BridgeErrorStd;
 /// use brydz_core::world::comm::CommunicationEnd;
 /// use brydz_core::world::comm::SyncComm;
-/// let (com1, mut com2) = SyncComm::<String, String, BridgeErrorStd>::new_pair();
+/// let (mut com1, mut com2) = SyncComm::<String, String, BridgeErrorStd>::new_pair();
 /// let h1 = spawn(move || {
 ///     com1.send(format!("Hello")).unwrap();
 /// });
@@ -50,7 +50,7 @@ where E: Error + From<RecvError> + From<SendError<OT>> + From<TryRecvError> + Fr
 
 
 
-    fn send(&self, message: OT) -> Result<(), E> {
+    fn send(&mut self, message: OT) -> Result<(), E> {
         self.sender.send(message).map_err(|e| e.into())
     }
 
@@ -73,7 +73,7 @@ mod test{
 
     #[test]
     fn t1(){
-        let (com1, mut com2) = SyncComm::<String, String, BridgeErrorStd>::new_pair();
+        let (mut com1, mut com2) = SyncComm::<String, String, BridgeErrorStd>::new_pair();
         let _h1 = spawn(move || {
             com1.send(format!("Hello")).unwrap();
         });

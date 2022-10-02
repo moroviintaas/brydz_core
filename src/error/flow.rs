@@ -5,7 +5,6 @@ use karty::figures::Figure;
 use karty::suits::Suit;
 use crate::error::{BridgeError, CommError};
 use crate::player::side::Side;
-use crate::protocol::{ClientMessage, ServerMessage};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 

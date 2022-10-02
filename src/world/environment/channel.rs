@@ -74,7 +74,7 @@ impl<F: CardCheck<BridgeErrorStd> + Default> ChannelDealEnvironment<F>{
 }
 
 impl<F: CardCheck<BridgeErrorStd> + Default> CommunicatingEnvironment<ServerDealMessage, ClientDealMessage, BridgeErrorStd> for ChannelDealEnvironment<F>{
-    fn send(&self, side: &Side, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
+    fn send(&mut self, side: &Side, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
         match &self.senders[side]{
             None => Err(MissingConnection(*side).into()),
             Some(sender) => {
@@ -83,7 +83,7 @@ impl<F: CardCheck<BridgeErrorStd> + Default> CommunicatingEnvironment<ServerDeal
         }
     }
 
-    fn send_to_all(&self, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
+    fn send_to_all(&mut self, message: ServerDealMessage) -> Result<(), BridgeErrorStd> {
         let mut result: Result<(), BridgeErrorStd> = Ok(());
         for side in SIDES{
             match &self.senders[&side]{

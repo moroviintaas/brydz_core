@@ -64,7 +64,11 @@ AutomaticAgent<BridgeErrorStd> for Player{
                                 Ok(action) => match action{
                                     DealAction::PlayCard(card) => {
                                         debug!("Player {:?} selected {:#} card to play.", self.env().side(), card);
-                                        self.send(action.into()).unwrap_or(());
+                                        match self.send(action.into()){
+                                            Ok(_) => {debug!("Action choice sent");},
+                                            Err(_) => {debug!("Failed sending action choice.");}
+                                        }
+                                        //self.send(action.into()).unwrap_or(());
                                     }
                                 }
                             }
