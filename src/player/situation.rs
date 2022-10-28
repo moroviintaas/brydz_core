@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use karty::cards::CardStd;
 use karty::register::{RegisterCardStd};
 use karty::suits::SuitStd;
-use crate::deal::{Contract, DealMaintainer, RegDeal, RegDealStd, TrickStd};
+use crate::contract::{ContractSpec, DealMaintainer, Contract, RegDealStd, TrickStd};
 use crate::distribution::hand::BridgeHand;
 use crate::error::{DealError, DealErrorStd, Mismatch, TrickError};
 use crate::error::TrickError::TrickFull;
@@ -17,8 +17,8 @@ pub struct Situation {
 }
 
 impl Situation {
-    pub fn new(side: Side, hand: BridgeHand, contract: Contract<SuitStd>) -> Self{
-        Self{side, hand, dummy_hand: BridgeHand::empty(), deal: RegDeal::new(contract)}
+    pub fn new(side: Side, hand: BridgeHand, contract: ContractSpec<SuitStd>) -> Self{
+        Self{side, hand, dummy_hand: BridgeHand::empty(), deal: Contract::new(contract)}
     }
     pub fn set_dummy(&mut self, dummy_hand: BridgeHand){
         self.dummy_hand = dummy_hand

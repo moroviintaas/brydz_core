@@ -1,16 +1,16 @@
 use karty::cards::Card;
 use karty::figures::Figure;
 use karty::suits::Suit;
-use crate::deal::trick::{Trick};
+use crate::contract::trick::{Trick};
 use crate::player::side::Side;
 use crate::player::axis::Axis;
-use crate::deal::contract::Contract;
+use crate::contract::spec::ContractSpec;
 use crate::error::DealError;
 
 
 pub trait DealMaintainer<F: Figure, S: Suit>{
     fn current_trick(&self) -> &Trick<F, S>;
-    fn contract(&self) -> &Contract<S>;
+    fn contract(&self) -> &ContractSpec<S>;
     fn count_completed_tricks(&self) -> usize;
     fn insert_card(&mut self, side: Side, card: Card<F, S>) -> Result<Side, DealError<F, S>>;
     fn is_completed(&self) -> bool;

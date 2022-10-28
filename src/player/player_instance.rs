@@ -2,7 +2,7 @@ use arrayvec::ArrayVec;
 use crate::karty::figures::Figure;
 use crate::karty::suits::Suit;
 use crate::player::side::Side;
-use crate::deal::Trick;
+use crate::contract::Trick;
 use crate::player::role::PlayRole;
 use crate::meta::QUARTER_SIZE;
 

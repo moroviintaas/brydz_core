@@ -1,5 +1,5 @@
 use karty::suits::{SuitStd};
-use crate::deal::Contract;
+use crate::contract::ContractSpec;
 use crate::meta::QUARTER_SIZE;
 use crate::score::calculation::ScoreIngredient;
 
@@ -23,7 +23,7 @@ impl PointsSlam{
     /// `taken: u8` - number of tricks taken (in total)
     /// # Examples:
     /// ```
-    /// use brydz_core::deal::Contract;
+    /// use brydz_core::contract::ContractSpec;
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling::ReDouble;
@@ -31,20 +31,20 @@ impl PointsSlam{
     /// use brydz_core::cards::trump::Trump::NoTrump;
     /// use brydz_core::score::tables::POINTS_SLAM;
     /// use karty::suits::SuitStd::Hearts;
-    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_SLAM;
     /// assert_eq!(points_table.points(&contract, 13, false), 0);
-    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 6).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 6).unwrap(),);
     /// assert_eq!(points_table.points(&contract, 12, false), 500);
     /// assert_eq!(points_table.points(&contract, 12, true), 750);
     /// assert_eq!(points_table.points(&contract, 13, true), 750);
-    /// let contract = Contract::new_d(North, Bid::init(NoTrump, 7).unwrap(), ReDouble);
+    /// let contract = ContractSpec::new_d(North, Bid::init(NoTrump, 7).unwrap(), ReDouble);
     /// assert_eq!(points_table.points(&contract, 12, false), 0 );
     /// assert_eq!(points_table.points(&contract, 13, true), 1500 );
     /// assert_eq!(points_table.points(&contract, 13, false), 1000 );
     ///
     /// ```
-    pub fn points(&self, contract: &Contract<SuitStd>, taken: u8, vulnerable: bool) -> i32{
+    pub fn points(&self, contract: &ContractSpec<SuitStd>, taken: u8, vulnerable: bool) -> i32{
         let declared = contract.bid().number_normalised() as usize;
         match declared{
             n if n == QUARTER_SIZE => {
@@ -74,7 +74,7 @@ impl PointsSlam{
     }
 }
 impl ScoreIngredient<SuitStd> for PointsSlam{
-    fn calculate(&self, contract: &Contract<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
+    fn calculate(&self, contract: &ContractSpec<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
         self.points(contract, taken, vulnerability)
     }
 }

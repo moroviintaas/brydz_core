@@ -7,13 +7,13 @@ use crate::error::BiddingError;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Contract<S: Suit> {
+pub struct ContractSpec<S: Suit> {
     declarer: Side,
     bid: Bid<S>,
     doubling: Doubling
 }
 
-impl<S: Suit> Contract<S> {
+impl<S: Suit> ContractSpec<S> {
     pub fn new_d(owner: Side, bid: Bid<S>, doubling: Doubling) -> Self{
         Self{bid, doubling, declarer: owner }
     }

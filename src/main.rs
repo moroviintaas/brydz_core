@@ -1,4 +1,4 @@
-use brydz_core::deal::Trick;
+use brydz_core::contract::Trick;
 use brydz_core::cards::trump::Trump;
 use karty::cards::Card;
 use karty::figures::FigureStd;

@@ -1,6 +1,6 @@
 use karty::suits::{SuitStd};
 use crate::bidding::Doubling;
-use crate::deal::Contract;
+use crate::contract::ContractSpec;
 use crate::cards::trump::Trump;
 use crate::score::calculation::ScoreIngredient;
 
@@ -20,7 +20,7 @@ impl PointsOverTrick{
     /// Calculates points for taken overtricks.
     /// # Examples:
     /// ```
-    /// use brydz_core::deal::Contract;
+    /// use brydz_core::contract::ContractSpec;
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling::{ReDouble, Double};
@@ -28,19 +28,19 @@ impl PointsOverTrick{
     /// use brydz_core::cards::trump::Trump::NoTrump;
     /// use brydz_core::score::tables::{POINTS_OVER_TRICK};
     /// use karty::suits::SuitStd::Hearts;
-    /// let contract = Contract::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_OVER_TRICK;
     /// assert_eq!(points_table.points(&contract, 8 ,false), 0);
     /// assert_eq!(points_table.points(&contract, 10 ,false), 60);
-    /// let contract = Contract::new_d(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(), Double);
+    /// let contract = ContractSpec::new_d(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(), Double);
     /// assert_eq!(points_table.points(&contract, 7 ,false), 0);
     /// assert_eq!(points_table.points(&contract, 10 ,false), 200);
     /// assert_eq!(points_table.points(&contract, 11 ,true), 600);
-    /// let contract = Contract::new_d(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(), ReDouble);
+    /// let contract = ContractSpec::new_d(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(), ReDouble);
     /// assert_eq!(points_table.points(&contract, 12 ,true), 1600);
     ///
     /// ```
-    pub fn points(&self, contract: &Contract<SuitStd>, taken: u8, vulnerable: bool) -> i32 {
+    pub fn points(&self, contract: &ContractSpec<SuitStd>, taken: u8, vulnerable: bool) -> i32 {
 
         let number_of_overtricks = taken.saturating_sub(contract.bid().number_normalised());
         (number_of_overtricks as i32) * match contract.doubling() {
@@ -64,7 +64,7 @@ impl PointsOverTrick{
 }
 
 impl ScoreIngredient<SuitStd> for PointsOverTrick{
-    fn calculate(&self, contract: &Contract<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
+    fn calculate(&self, contract: &ContractSpec<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
         self.points(contract, taken, vulnerability)
     }
 }

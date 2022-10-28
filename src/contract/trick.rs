@@ -71,7 +71,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// `Some(Side)` if determined
     /// `None` if trick is completed
     /// ```
-    /// use brydz_core::deal::Trick;
+    /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side::{East, North, South, West};
     /// use karty::cards::{ACE_SPADES, KING_CLUBS, KING_DIAMONDS, KING_HEARTS};
     /// let mut trick = Trick::new(North);
@@ -98,10 +98,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Adds card to trick with support for checking and updating suit exhaust table
     /// # Examples
     /// ```
-    /// use brydz_core::deal::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaustStd;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::error::TrickError;
-    /// use brydz_core::deal::Trick;
+    /// use brydz_core::contract::Trick;
     /// use std::str::FromStr;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
@@ -183,9 +183,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// Checks if trick contains a  specific card
     /// ```
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::deal::Trick;
+    /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::deal::collision::{SuitExhaustStd};
+    /// use brydz_core::contract::collision::{SuitExhaustStd};
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -221,9 +221,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// `None` if there is no collision
     /// ```
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::deal::Trick;
+    /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::deal::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -261,9 +261,9 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     ///
     /// ```
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::deal::Trick;
+    /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::deal::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;
@@ -319,10 +319,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use brydz_core::cards::trump::Trump::{Colored, NoTrump};
     /// use brydz_core::cards::deck::Deck;
     /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
-    /// use brydz_core::deal::Trick;
+    /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
-    /// use brydz_core::deal::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaustStd;
     /// use karty::figures::FigureStd;
     /// use karty::suits::{SuitStd, SuitStd::*};
     /// use karty::register::RegisterCardStd;

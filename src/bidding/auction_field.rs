@@ -5,7 +5,7 @@ use crate::bidding::call::{Call, CallEntry, Doubling};
 
 use crate::bidding::bid::{Bid};
 use crate::bidding::declaration_storage::DeclarationStorage;
-use crate::deal::Contract;
+use crate::contract::ContractSpec;
 use crate::error::{BiddingError, Mismatch};
 
 use crate::player::side::Side;
@@ -24,7 +24,7 @@ pub enum AuctionStatus{
 #[derive(Debug, Eq, PartialEq,  Clone)]
 pub struct AuctionStack<S: Suit, DS: DeclarationStorage<S>>{
     calls_entries: Vec<CallEntry<S>>,
-    current_contract: Option<Contract<S>>,
+    current_contract: Option<ContractSpec<S>>,
     declaration_storage: DS,
 
 }
@@ -36,7 +36,7 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
 
     }
 
-    pub fn current_contract(&self) -> Option<&Contract<S>>{
+    pub fn current_contract(&self) -> Option<&ContractSpec<S>>{
         match &self.current_contract{
             Some(x) => Some(x),
             None => None
@@ -77,10 +77,10 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                         match self.declaration_storage.get_declarer(player_side.axis(), bid.trump()){
                             None => {
                                 self.declaration_storage.set_declarer(player_side, bid.trump().to_owned());
-                                self.current_contract = Some(Contract::new(player_side, bid.to_owned(), ));
+                                self.current_contract = Some(ContractSpec::new(player_side, bid.to_owned(), ));
                             },
                             Some(s) => {
-                                self.current_contract = Some(Contract::new(s.to_owned(), bid.to_owned(), ));
+                                self.current_contract = Some(ContractSpec::new(s.to_owned(), bid.to_owned(), ));
                             }
 
                         }
@@ -114,10 +114,10 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                                     match self.declaration_storage.get_declarer(player_side.axis(), bid.trump()){
                                         None => {
                                             self.declaration_storage.set_declarer(player_side, bid.trump().to_owned());
-                                            self.current_contract = Some(Contract::new(player_side, bid.to_owned(), ));
+                                            self.current_contract = Some(ContractSpec::new(player_side, bid.to_owned(), ));
                                         },
                                         Some(s) => {
-                                            self.current_contract = Some(Contract::new(s.to_owned(), bid.to_owned(), ));
+                                            self.current_contract = Some(ContractSpec::new(s.to_owned(), bid.to_owned(), ));
                                         }
 
                                     }
@@ -187,7 +187,7 @@ mod tests{
     use crate::bidding::call::{Call, Doubling};
     use crate::bidding::bid::consts::{ BID_C1, BID_C2, BID_C3, BID_S2};
     use crate::bidding::declaration_storage::GeneralDeclarationStorage;
-    use crate::deal::Contract;
+    use crate::contract::ContractSpec;
 
     #[test]
     fn add_bids_legal(){
@@ -197,7 +197,7 @@ mod tests{
         assert_eq!(auction_stack.current_contract, None);
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)
@@ -208,7 +208,7 @@ mod tests{
         }*/));
         auction_stack.add_contract_bid(North, Call::Bid(
             Bid::init(Colored(Diamonds), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
             Bid::init(Colored(Diamonds), 1).unwrap(),
             Doubling::None)));
@@ -216,17 +216,17 @@ mod tests{
 
         auction_stack.add_contract_bid(South, Call::Bid(
             Bid::init(Colored(Diamonds), 2).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
             Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(West, Call::Double).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
             Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::Double)));
         auction_stack.add_contract_bid(North, Call::ReDouble).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
             Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::ReDouble)));
@@ -238,7 +238,7 @@ mod tests{
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
@@ -253,7 +253,7 @@ mod tests{
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
@@ -268,7 +268,7 @@ mod tests{
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
@@ -284,7 +284,7 @@ mod tests{
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
@@ -299,7 +299,7 @@ mod tests{
         let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
-        assert_eq!(auction_stack.current_contract, Some(Contract::new_d(
+        assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));

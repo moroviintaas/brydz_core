@@ -4,10 +4,10 @@ pub use trick::{TrickStd, Trick};
 mod maintainer;
 pub use maintainer::*;
 pub mod collision;
-mod contract;
-pub use contract::Contract;
-mod regdeal;
-pub use regdeal::*;
+mod spec;
+pub use spec::ContractSpec;
+mod registering_contract;
+pub use registering_contract::*;
 
 
 

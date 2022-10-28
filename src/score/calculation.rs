@@ -1,6 +1,6 @@
 use karty::figures::Figure;
 use karty::suits::Suit;
-use crate::deal::{Contract, DealMaintainer};
+use crate::contract::{ContractSpec, DealMaintainer};
 use crate::error::BridgeCoreError;
 use crate::player::axis::Axis;
 
@@ -11,5 +11,5 @@ pub trait ScoreTracker<Co: DealMaintainer<F, S>, F:Figure, S: Suit>: Default{
 }
 
 pub trait ScoreIngredient<S: Suit>{
-    fn calculate(&self, contract: &Contract<S>, taken: u8, vulnerability: bool) -> i32;
+    fn calculate(&self, contract: &ContractSpec<S>, taken: u8, vulnerability: bool) -> i32;
 }
