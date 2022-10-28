@@ -1,6 +1,6 @@
 use karty::figures::Figure;
 use karty::suits::Suit;
-use crate::error::BridgeError;
+use crate::error::BridgeCoreError;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
@@ -11,7 +11,7 @@ pub enum HandError{
     EmptyHand,
 }
 
-impl<F: Figure, S: Suit> From<HandError> for BridgeError<F, S>{
+impl<F: Figure, S: Suit> From<HandError> for BridgeCoreError<F, S>{
     fn from(e: HandError) -> Self {
         Self::Hand(e)
     }

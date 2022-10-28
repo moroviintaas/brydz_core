@@ -16,15 +16,7 @@ pub use trick::*;
 pub use distribution::*;
 pub use correctness::*;
 pub use hand::*;
-#[cfg(feature = "protocol")]
-mod flow;
-#[cfg(feature = "protocol")]
-mod comm;
-#[cfg(feature = "protocol")]
-pub use comm::*;
 
-#[cfg(feature = "protocol")]
-pub use flow::*;
 
 mod format;
 pub use format::*;

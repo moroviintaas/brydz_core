@@ -3,8 +3,8 @@ use std::fmt::{Display, Formatter};
 use karty::cards::{Card2S, CardStd};
 use karty::figures::{FigureStd};
 use karty::suits::{SuitStd};
-use crate::error::{BridgeError, DistributionError};
-use crate::error::BridgeError::Distribution;
+use crate::error::{BridgeCoreError, DistributionError};
+use crate::error::BridgeCoreError::Distribution;
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -35,7 +35,7 @@ impl BridgeHand{
     /// assert!(hand_south.cards().contains(&cards::EIGHT_HEARTS));
     /// assert!(hand_west.cards().contains(&cards::JACK_SPADES));
     /// ```
-    pub fn drain_full_from_vec(cards: &mut Vec<CardStd>) -> Result<Self, BridgeError<FigureStd, SuitStd>>{
+    pub fn drain_full_from_vec(cards: &mut Vec<CardStd>) -> Result<Self, BridgeCoreError<FigureStd, SuitStd>>{
         if cards.len() < CardStd::CARD_SPACE/4{
             return Err(Distribution(DistributionError::TooFewCards(cards.len())))
         }

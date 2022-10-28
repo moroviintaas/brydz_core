@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use karty::cards::Card;
 use karty::figures::{Figure, FigureStd};
 use karty::suits::{Suit, SuitStd};
-use crate::error::{BridgeError, TrickError};
+use crate::error::{BridgeCoreError, TrickError};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
@@ -24,7 +24,7 @@ impl<F: Figure, S: Suit>Display for DealError<F, S>{
 
 pub type DealErrorStd = DealError<FigureStd, SuitStd>;
 
-impl<F:Figure, S:Suit> From<DealError<F, S>> for BridgeError<F, S>{
+impl<F:Figure, S:Suit> From<DealError<F, S>> for BridgeCoreError<F, S>{
     fn from(e: DealError<F, S>) -> Self {
         Self::Deal(e)
     }

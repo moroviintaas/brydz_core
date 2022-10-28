@@ -7,10 +7,6 @@ use crate::error::bidding::BiddingError;
 
 use crate::error::deal::DealError;
 use crate::error::{DistributionError, HandError, ScoreError, TrickError};
-#[cfg(feature="protocol") ]
-use crate::error::CommError;
-#[cfg(feature="protocol")]
-use crate::error::FlowError;
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -38,16 +34,12 @@ impl<S:Suit> Display for BiddingError<S>{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum BridgeError<F: Figure, S: Suit>{
+pub enum BridgeCoreError<F: Figure, S: Suit>{
     Deal(DealError<F, S>),
     Bidding(BiddingError<S>),
     Score(ScoreError),
     Trick(TrickError<F, S>),
     Distribution(DistributionError),
-    #[cfg(feature = "protocol")]
-    Flow(FlowError),
-    #[cfg(feature = "protocol")]
-    Comm(CommError),
     Hand(HandError),
     Format(FormatError),
     Custom(String),
@@ -55,10 +47,10 @@ pub enum BridgeError<F: Figure, S: Suit>{
 
 }
 
-impl<F: Figure, S: Suit> Display for BridgeError<F, S> {
+impl<F: Figure, S: Suit> Display for BridgeCoreError<F, S> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self{
-            BridgeError::Deal(deal_error)=> match f.alternate(){
+            BridgeCoreError::Deal(deal_error)=> match f.alternate(){
                 true => write!(f, "BridgeError::DealError {{ {:#} }} ", deal_error ),
                 false => write!(f, "BridgeError::DealError {{ {} }} ", deal_error ),
             }
@@ -68,11 +60,12 @@ impl<F: Figure, S: Suit> Display for BridgeError<F, S> {
     }
 }
 
-impl<F: Figure, S: Suit> Error for BridgeError<F, S>{
+impl<F: Figure, S: Suit> Error for BridgeCoreError<F, S>{
 
 }
 
-pub type BridgeErrorStd = BridgeError<FigureStd, SuitStd>;
+
+pub type BridgeCoreErrorStd = BridgeCoreError<FigureStd, SuitStd>;
 /*
 impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
     fn from(e: std::io::Error) -> Self {

@@ -8,10 +8,7 @@ pub mod meta;
 pub mod error;
 pub mod distribution;
 
-#[cfg(feature = "protocol")]
-pub mod protocol;
-#[cfg(feature = "world")]
-pub mod world;
+
 #[cfg(feature = "serde")]
 pub use serde;
 

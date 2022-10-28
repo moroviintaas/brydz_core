@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use karty::figures::{Figure};
 use karty::suits::{SuitStd};
 use crate::deal::{DealMaintainer};
-use crate::error::{BridgeError, DealError};
+use crate::error::{BridgeCoreError, DealError};
 use crate::player::axis::Axis;
 use crate::score::calculation::ScoreIngredient;
 use crate::score::ScoreTracker;
@@ -128,7 +128,7 @@ for ScoreTableSport{
     ///
     ///
     /// ```
-    fn update(&mut self, deal: &Co) -> Result<(), BridgeError<F, SuitStd>> {
+    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<F, SuitStd>> {
         if deal.is_completed(){
             let axis = deal.contract().declarer().axis();
             let vulnerability = match axis{
@@ -147,7 +147,7 @@ for ScoreTableSport{
             let premium_contract_points = POINTS_PREMIUM_CONTRACT.points(deal.contract(), taken);
             let penalty_undertricks = match PENALTY_UNDER_TRICK.penalty_checked(deal.contract(), taken, defender_vulnerability){
                 Ok(points) => points,
-                Err(e) => return Err(BridgeError::Score(e))
+                Err(e) => return Err(BridgeCoreError::Score(e))
             };
             println!("contracted: {}, overtrick: {}", &contracted_points, &overtrick_bonus);
 
@@ -170,7 +170,7 @@ for ScoreTableSport{
 
         }
         else{
-            Err(BridgeError::Deal(DealError::DealIncomplete))
+            Err(BridgeCoreError::Deal(DealError::DealIncomplete))
         }
     }
 

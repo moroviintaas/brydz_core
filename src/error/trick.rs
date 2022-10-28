@@ -2,7 +2,7 @@ use std::fmt::{Display, Formatter};
 use karty::cards::Card;
 use karty::figures::Figure;
 use karty::suits::Suit;
-use crate::error::{BridgeError, Mismatch};
+use crate::error::{BridgeCoreError, Mismatch};
 use crate::player::side::Side;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -24,7 +24,7 @@ impl<F: Figure, S: Suit> Display for TrickError<F, S> {
     }
 }
 
-impl<F:Figure, S:Suit> From<TrickError<F, S>> for BridgeError<F, S>{
+impl<F:Figure, S:Suit> From<TrickError<F, S>> for BridgeCoreError<F, S>{
     fn from(e: TrickError<F, S>) -> Self {
         Self::Trick(e)
     }

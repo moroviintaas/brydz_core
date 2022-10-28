@@ -2,7 +2,7 @@ use karty::figures::Figure;
 use karty::suits::{Suit, SuitStd};
 use crate::bidding::Bid;
 use crate::error::bridge::Mismatch;
-use crate::error::BridgeError;
+use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -26,7 +26,7 @@ pub enum BiddingError<S: Suit>{
 
 pub type BiddingErrorStd = BiddingError<SuitStd>;
 
-impl<F: Figure, S:Suit> From<BiddingError<S>> for BridgeError<F, S>{
+impl<F: Figure, S:Suit> From<BiddingError<S>> for BridgeCoreError<F, S>{
     fn from(e: BiddingError<S>) -> Self {
         Self::Bidding(e)
     }

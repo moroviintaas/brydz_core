@@ -6,7 +6,7 @@ use karty::suits::Suit;
 use crate::speedy::{Readable, Writable};
 
 
-use super::BridgeError;
+use super::BridgeCoreError;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
@@ -16,7 +16,7 @@ pub enum FormatError{
 
 }
 
-impl<F:Figure, S:Suit>  From<FormatError> for BridgeError<F, S>{
+impl<F:Figure, S:Suit>  From<FormatError> for BridgeCoreError<F, S>{
     fn from(e: FormatError) -> Self {
         Self::Format(e)
     }
