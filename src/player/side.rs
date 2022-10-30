@@ -103,7 +103,11 @@ impl<T> SideAssociated<T>{
         }
         None
     }
+    pub fn destruct(self) -> (T,T,T,T){
+    (self.north, self.east, self.south, self.west)
+    }
 }
+
 
 
 /*

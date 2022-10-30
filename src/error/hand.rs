@@ -9,6 +9,8 @@ use crate::speedy::{Readable, Writable};
 pub enum HandError{
     CardNotInHand,
     EmptyHand,
+    HandFull,
+    CardDuplicated
 }
 
 impl<F: Figure, S: Suit> From<HandError> for BridgeCoreError<F, S>{

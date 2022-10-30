@@ -11,25 +11,25 @@ use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub struct BridgeHand{
+pub struct HandVector{
     //cant be generic for now, because generic types cannot take part in const expressions
     //cards: Vec<CardStd>
     cards: HashSet<CardStd>
 }
-impl BridgeHand{
+impl HandVector{
 
 
     /// # Example:
     /// ```
-    /// use brydz_core::distribution::hand::BridgeHand;
+    /// use brydz_core::deal::hand::HandVector;
     /// use karty::cards::STANDARD_DECK;
     /// use karty::cards;
     ///
     /// let mut card_supply = Vec::from(STANDARD_DECK);
-    /// let hand_north = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    /// let hand_east = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    /// let hand_south = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
-    /// let hand_west = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_north = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_east = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_south = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand_west = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
     /// assert!(hand_north.cards().contains(&cards::TWO_CLUBS));
     /// assert!(hand_east.cards().contains(&cards::FIVE_DIAMONDS));
     /// assert!(hand_south.cards().contains(&cards::EIGHT_HEARTS));
@@ -51,13 +51,13 @@ impl BridgeHand{
     }
     /// Returns subset of cards which are in specific `SuitStd`
     /// ```
-    /// use brydz_core::distribution::hand::BridgeHand;
+    /// use brydz_core::deal::hand::HandVector;
     /// use brydz_core::karty::cards::*;
     /// use brydz_core::karty::suits::SuitStd::Spades;
     /// let mut card_supply = Vec::from([ACE_SPADES, KING_HEARTS, QUEEN_DIAMONDS, JACK_CLUBS,
     ///     TEN_SPADES, NINE_HEARTS, EIGHT_DIAMONDS, SEVEN_CLUBS, SIX_SPADES, FIVE_HEARTS,
     ///     FOUR_DIAMONDS, THREE_CLUBS, TWO_SPADES]);
-    /// let hand = BridgeHand::drain_full_from_vec(&mut card_supply).unwrap();
+    /// let hand = HandVector::drain_full_from_vec(&mut card_supply).unwrap();
     /// let spades_in_hand = hand.cards_in_suit(&Spades);
     /// assert!(spades_in_hand.contains(&ACE_SPADES));
     /// assert!(!spades_in_hand.contains(&KING_HEARTS));
@@ -67,7 +67,7 @@ impl BridgeHand{
     }
 }
 
-impl Display for BridgeHand{
+impl Display for HandVector{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let v: Vec<&CardStd> = self.cards().iter().collect();
         write!(f,  "[")?;
@@ -87,10 +87,11 @@ impl Display for BridgeHand{
     }
 }
 /*
-impl Index<usize> for BridgeHand{
+impl Index<usize> for HandVectored{
     type Output = CardStd;
 
     fn index(&self, index: usize) -> &Self::Output {
         &self.cards[index]
     }
 }*/
+

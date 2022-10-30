@@ -6,7 +6,7 @@ pub mod cards;
 
 pub mod meta;
 pub mod error;
-pub mod distribution;
+pub mod deal;
 
 
 #[cfg(feature = "serde")]

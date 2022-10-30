@@ -3,24 +3,24 @@ use karty::cards::CardStd;
 use karty::register::{RegisterCardStd};
 use karty::suits::SuitStd;
 use crate::contract::{ContractSpec, DealMaintainer, Contract, RegDealStd, TrickStd};
-use crate::distribution::hand::BridgeHand;
+use crate::deal::hand::HandVector;
 use crate::error::{DealError, DealErrorStd, Mismatch, TrickError};
 use crate::error::TrickError::TrickFull;
 use crate::player::side::Side;
 
 pub struct Situation {
     side: Side,
-    hand: BridgeHand,
-    dummy_hand: BridgeHand,
+    hand: HandVector,
+    dummy_hand: HandVector,
     deal: RegDealStd
 
 }
 
 impl Situation {
-    pub fn new(side: Side, hand: BridgeHand, contract: ContractSpec<SuitStd>) -> Self{
-        Self{side, hand, dummy_hand: BridgeHand::empty(), deal: Contract::new(contract)}
+    pub fn new(side: Side, hand: HandVector, contract: ContractSpec<SuitStd>) -> Self{
+        Self{side, hand, dummy_hand: HandVector::empty(), deal: Contract::new(contract)}
     }
-    pub fn set_dummy(&mut self, dummy_hand: BridgeHand){
+    pub fn set_dummy(&mut self, dummy_hand: HandVector){
         self.dummy_hand = dummy_hand
     }
     pub fn mark_card_used(&mut self, side: Side, card: CardStd) -> Result<(), DealErrorStd>{
@@ -49,10 +49,10 @@ impl Situation {
     pub fn used_cards(&self) -> &RegisterCardStd{
         self.deal.used_cards()
     }
-    pub fn hand(&self) -> &BridgeHand{
+    pub fn hand(&self) -> &HandVector{
         &self.hand
     }
-    pub fn dummy_hand(&self) -> &BridgeHand{
+    pub fn dummy_hand(&self) -> &HandVector{
         &self.dummy_hand
     }
     pub fn current_side(&self) -> Option<Side>{
