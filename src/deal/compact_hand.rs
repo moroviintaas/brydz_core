@@ -28,7 +28,7 @@ impl Hand for StackHandStd{
     }
 
     fn remove_card(&mut self, card: &Self::CardType) -> Result<(), crate::error::HandError> {
-        match self.contains(&card){
+        match self.contains(card){
             true => {
                 self.cards ^= card.mask();
                 Ok(())

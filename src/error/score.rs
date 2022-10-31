@@ -1,6 +1,5 @@
 use std::fmt::{Display, Formatter};
-use karty::figures::Figure;
-use karty::suits::Suit;
+use karty::{cards::Card2Sym};
 use crate::error::BridgeCoreError;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -18,7 +17,7 @@ impl Display for ScoreError{
     }
 }
 
-impl<F:Figure, S:Suit> From<ScoreError> for BridgeCoreError<F, S>{
+impl<Card: Card2Sym> From<ScoreError> for BridgeCoreError<Card>{
     fn from(e: ScoreError) -> Self {
         Self::Score(e)
     }

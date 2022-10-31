@@ -1,5 +1,6 @@
-use karty::figures::Figure;
-use karty::suits::Suit;
+
+use karty::cards::Card2Sym;
+
 use crate::error::BridgeCoreError;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -13,7 +14,7 @@ pub enum HandError{
     CardDuplicated
 }
 
-impl<F: Figure, S: Suit> From<HandError> for BridgeCoreError<F, S>{
+impl<Card: Card2Sym> From<HandError> for BridgeCoreError<Card>{
     fn from(e: HandError) -> Self {
         Self::Hand(e)
     }

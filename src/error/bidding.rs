@@ -1,4 +1,4 @@
-use karty::figures::Figure;
+use karty::cards::Card2Sym;
 use karty::suits::{Suit, SuitStd};
 use crate::bidding::Bid;
 use crate::error::bridge::Mismatch;
@@ -26,8 +26,8 @@ pub enum BiddingError<S: Suit>{
 
 pub type BiddingErrorStd = BiddingError<SuitStd>;
 
-impl<F: Figure, S:Suit> From<BiddingError<S>> for BridgeCoreError<F, S>{
-    fn from(e: BiddingError<S>) -> Self {
+impl<Card: Card2Sym> From<BiddingError<Card::Suit>> for BridgeCoreError<Card>{
+    fn from(e: BiddingError<Card::Suit>) -> Self {
         Self::Bidding(e)
     }
 }

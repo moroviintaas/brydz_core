@@ -1,9 +1,7 @@
 use std::cmp::Ordering;
 use std::ops::{Index, IndexMut};
-use karty::cards::Card;
-use karty::figures::{Figure, FigureStd};
+use karty::cards::{ Card2Sym, CardStd};
 use karty::register::Register;
-use karty::suits::{Suit, SuitStd};
 use crate::cards::trump::Trump;
 
 use crate::error::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
@@ -17,22 +15,22 @@ use crate::player::side::{Side, SIDES};
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Trick<F: Figure, S: Suit>{
-    north_card: Option<Card<F,S>>,
-    west_card: Option<Card<F,S>>,
-    south_card: Option<Card<F,S>>,
-    east_card: Option<Card<F,S>>,
+pub struct Trick<Card: Card2Sym>{
+    north_card: Option<Card>,
+    west_card: Option<Card>,
+    south_card: Option<Card>,
+    east_card: Option<Card>,
     first_player: Side,
     card_num: u8,
 
 }
 
-pub type TrickStd = Trick<FigureStd, SuitStd>;
+pub type TrickStd = Trick<CardStd>;
 
-impl<F: Figure + Copy, S: Suit + Copy> Copy for Trick<F, S>{}
+impl<Card: Card2Sym + Copy> Copy for Trick<Card>{}
 
-impl<F: Figure, S: Suit> Index<Side> for Trick<F, S>{
-    type Output = Option<Card<F, S>>;
+impl<Card: Card2Sym> Index<Side> for Trick<Card>{
+    type Output = Option<Card>;
 
     fn index(&self, index: Side ) -> &Self::Output {
         match index{
@@ -48,7 +46,7 @@ impl<F: Figure, S: Suit> Index<Side> for Trick<F, S>{
 
 
 
-impl<F: Figure, S: Suit> IndexMut<Side> for Trick<F,S>{
+impl<Card: Card2Sym> IndexMut<Side> for Trick<Card>{
     fn index_mut(&mut self, index: Side) -> &mut Self::Output {
         match index{
             Side::North => &mut self.north_card,
@@ -59,7 +57,7 @@ impl<F: Figure, S: Suit> IndexMut<Side> for Trick<F,S>{
     }
 }
 
-impl<F: Figure, S: Suit> Trick<F,S>{
+impl<Card: Card2Sym> Trick<Card>{
     pub fn new( first_player: Side) -> Self{
 
         Self{first_player, north_card: None, south_card: None, west_card: None, east_card: None, card_num: 0}
@@ -109,7 +107,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// use karty::cards::*;
     ///
     /// let mut exhaust_table = SuitExhaustStd::default();
-    /// let mut trick1 = Trick::<FigureStd, SuitStd>::new(Side::West);
+    /// let mut trick1 = Trick::<CardStd>::new(Side::West);
     /// trick1.add_card(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
     /// let r1 = trick1.add_card(Side::North, TEN_CLUBS, &mut exhaust_table);
     /// assert_eq!(r1, Ok(2));
@@ -121,7 +119,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Clubs)));
     ///
     /// ```
-    pub fn add_card<Se: Register<(Side, S)>>(&mut self, side: Side, card: Card<F,S>, exhaust_register: &mut Se) -> Result<u8, TrickError<F, S>>{
+    pub fn add_card<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickError<Card>>{
         //if exhaust_register.is_exhausted(&side, card.suit()){
         if exhaust_register.is_registered(&(side, card.suit().to_owned())){
             // This suit was already exhausted for player, therefore possible cheating
@@ -154,7 +152,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
         }
     }
 
-    pub fn add_card_no_register(&mut self, side: Side, card: Card<F,S>) ->  Result<u8, TrickError<F, S>>{
+    pub fn add_card_no_register(&mut self, side: Side, card: Card) ->  Result<u8, TrickError<Card>>{
         let side_in_order = match self.current_side(){
             Some(s) => s,
             None => { return Err(TrickError::TrickFull)}
@@ -198,7 +196,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// assert!(trick.contains(&JACK_SPADES));
     /// assert!(!trick.contains(&ACE_SPADES));
     /// ```
-    pub fn contains(&self, card: &Card<F, S>) -> bool{
+    pub fn contains(&self, card: &Card) -> bool{
         for side in [North, East, South, West]{
             if self[side].as_ref().map_or(false, |c| c == card){
                 return true;
@@ -209,7 +207,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
 
     /// Checks if two tricks collide in some card
-    pub fn collides(&self, other: &Trick<F,S>) -> bool{
+    pub fn collides(&self, other: &Trick<Card>) -> bool{
         self.collision(other).is_some()
     }
 
@@ -242,7 +240,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// trick2.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.collision(&trick2), Some(ACE_HEARTS));
     /// ```
-    pub fn collision(&self, other: &Trick<F,S>) -> Option<Card<F,S>>{
+    pub fn collision(&self, other: &Trick<Card>) -> Option<Card>{
         for oc in [&other[North], &other[East], &other[South], &other[West]]{
             match oc {
                 Some(c) => match self.contains(c){
@@ -303,7 +301,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
         None
     }
 
-    fn winner_of_2(&self, winner_so_far: Side, check_side: Side, trump: &Trump<S>) -> Result<Side, TrickError<F,S>>{
+    fn winner_of_2(&self, winner_so_far: Side, check_side: Side, trump: &Trump<Card::Suit>) -> Result<Side, TrickError<Card>>{
         match self[check_side] {
             None => Err(MissingCard(check_side)),
             Some(_) => match trump.order_cards(self[check_side].as_ref().unwrap(), self[winner_so_far].as_ref().unwrap()) {
@@ -350,7 +348,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
     /// trick3.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
     /// ```
-    pub fn taker(&self, trump: &Trump<S>) -> Result<Side, TrickError<F,S>>{
+    pub fn taker(&self, trump: &Trump<Card::Suit>) -> Result<Side, TrickError<Card>>{
         let mut winner_so_far = match self.north_card {
             None => { return Err(MissingCard(North))},
             Some(_) => North
@@ -379,10 +377,10 @@ impl<F: Figure, S: Suit> Trick<F,S>{
         }
 
     }
-    pub fn prepare_new(&self, trump: Trump<S>) -> Option<Self>{
+    pub fn prepare_new(&self, trump: Trump<Card::Suit>) -> Option<Self>{
         self.taker(&trump).ok().map(|s| Trick::new(s))
     }
-    pub fn called_suit(&self) -> Option<&S>{
+    pub fn called_suit(&self) -> Option<&Card::Suit>{
         self[self.first_player].as_ref().map(|c| c.suit())
     }
     pub fn first_player_side(&self) -> Side{
@@ -391,7 +389,7 @@ impl<F: Figure, S: Suit> Trick<F,S>{
 
 }
 
-impl<F: Figure, S: Suit> Default for Trick<F, S>{
+impl<Card: Card2Sym> Default for Trick<Card>{
     fn default() -> Self {
         Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
     }

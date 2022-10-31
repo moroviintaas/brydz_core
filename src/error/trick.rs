@@ -1,7 +1,5 @@
 use std::fmt::{Display, Formatter};
-use karty::cards::Card;
-use karty::figures::Figure;
-use karty::suits::Suit;
+use karty::cards::{ Card2Sym};
 use crate::error::{BridgeCoreError, Mismatch};
 use crate::player::side::Side;
 #[cfg(feature="speedy")]
@@ -9,23 +7,23 @@ use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum TrickError<F: Figure, S: Suit>{
+pub enum TrickError<Card: Card2Sym>{
     MissingCard(Side),
     CardSlotAlreadyUsed(Side),
-    DuplicateCard(Card<F, S>),
+    DuplicateCard(Card),
     ViolatedOrder(Mismatch<Side>),
 
-    UsedPreviouslyExhaustedSuit(S),
+    UsedPreviouslyExhaustedSuit(Card::Suit),
     TrickFull,
 }
-impl<F: Figure, S: Suit> Display for TrickError<F, S> {
+impl<Card: Card2Sym> Display for TrickError<Card> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{:?}", &self)
     }
 }
 
-impl<F:Figure, S:Suit> From<TrickError<F, S>> for BridgeCoreError<F, S>{
-    fn from(e: TrickError<F, S>) -> Self {
+impl<Card: Card2Sym> From<TrickError<Card>> for BridgeCoreError<Card>{
+    fn from(e: TrickError<Card>) -> Self {
         Self::Trick(e)
     }
 }

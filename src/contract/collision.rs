@@ -1,21 +1,20 @@
 use std::fmt::Debug;
 use karty::symbol::CardSymbol;
-use karty::cards::Card;
-use karty::figures::Figure;
+use karty::cards::{Card2Sym};
 use karty::register::{Register};
-use karty::suits::{Suit, SuitStd};
+use karty::suits::{ SuitStd};
 use crate::contract::trick::Trick;
 use crate::player::side::{Side};
 
-pub trait TrickCollision<F: Figure, S: Suit>{
-    fn trick_collision(&self, trick: &Trick<F, S>)->Option<Card<F, S>>;
-    fn mark_cards_of_trick(&mut self, trick: &Trick<F, S>);
+pub trait TrickCollision<Card: Card2Sym>{
+    fn trick_collision(&self, trick: &Trick<Card>)->Option<Card>;
+    fn mark_cards_of_trick(&mut self, trick: &Trick<Card>);
 
 }
 
-impl <F: Figure, S: Suit, UM> TrickCollision<F, S> for UM
-where UM: Register<Card<F,S>>{
-    fn trick_collision(&self, trick: &Trick<F, S>) -> Option<Card<F, S>> {
+impl <Card: Card2Sym, UM> TrickCollision<Card> for UM
+where UM: Register<Card>{
+    fn trick_collision(&self, trick: &Trick<Card>) -> Option<Card> {
         for s in [Side::North, Side::East, Side::South, Side::West]{
             if let Some(card) = &trick[s]{
                 if self.is_registered(card){
@@ -27,7 +26,7 @@ where UM: Register<Card<F,S>>{
         None
     }
 
-    fn mark_cards_of_trick(&mut self, trick: &Trick<F, S>) {
+    fn mark_cards_of_trick(&mut self, trick: &Trick<Card>) {
         for s in [Side::North, Side::East, Side::South, Side::West]{
             if let Some(c) = &trick[s]{
                 self.register(c.to_owned());

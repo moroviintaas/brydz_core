@@ -1,22 +1,21 @@
 use arrayvec::ArrayVec;
-use crate::karty::figures::Figure;
-use crate::karty::suits::Suit;
+use karty::cards::Card2Sym;
 use crate::player::side::Side;
 use crate::contract::Trick;
 use crate::player::role::PlayRole;
 use crate::meta::QUARTER_SIZE;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Player<F: Figure, S: Suit>{
+pub struct Player<Card: Card2Sym>{
     id: u8,
     name: String,
     play_role: Option<PlayRole>,
-    tricks_taken: ArrayVec<Trick<F, S>, QUARTER_SIZE>,
+    tricks_taken: ArrayVec<Trick<Card>, QUARTER_SIZE>,
     side: Side
 
 
 }
-impl<F: Figure, S: Suit> Player<F, S>{
+impl<Card: Card2Sym> Player<Card>{
     pub fn new(id: u8, name: String, side: Side) -> Self{
         Self{id, name, play_role: None, tricks_taken: ArrayVec::new(), side}
     }
@@ -29,7 +28,7 @@ impl<F: Figure, S: Suit> Player<F, S>{
     pub fn play_role(&self) -> &Option<PlayRole>{
         &self.play_role
     }
-    pub fn tricks_taken(&self) -> &ArrayVec<Trick<F, S>, QUARTER_SIZE>{
+    pub fn tricks_taken(&self) -> &ArrayVec<Trick<Card>, QUARTER_SIZE>{
         &self.tricks_taken
     }
 }

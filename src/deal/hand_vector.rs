@@ -1,7 +1,6 @@
 use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
-use karty::cards::{Card2S, CardStd};
-use karty::figures::{FigureStd};
+use karty::cards::{CardStd, Card2Sym};
 use karty::suits::{SuitStd};
 use crate::error::{BridgeCoreError, DistributionError};
 use crate::error::BridgeCoreError::Distribution;
@@ -35,7 +34,7 @@ impl HandVector{
     /// assert!(hand_south.cards().contains(&cards::EIGHT_HEARTS));
     /// assert!(hand_west.cards().contains(&cards::JACK_SPADES));
     /// ```
-    pub fn drain_full_from_vec(cards: &mut Vec<CardStd>) -> Result<Self, BridgeCoreError<FigureStd, SuitStd>>{
+    pub fn drain_full_from_vec(cards: &mut Vec<CardStd>) -> Result<Self, BridgeCoreError<CardStd>>{
         if cards.len() < CardStd::CARD_SPACE/4{
             return Err(Distribution(DistributionError::TooFewCards(cards.len())))
         }

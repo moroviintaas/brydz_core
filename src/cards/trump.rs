@@ -1,8 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
-use karty::cards::Card;
-use karty::figures::Figure;
+use karty::cards::{Card2Sym};
 use karty::suits::{Suit, SuitStd};
 use karty::suits::SuitStd::{Clubs, Diamonds, Hearts, Spades};
 
@@ -22,7 +21,7 @@ pub enum Trump<S: Suit>{
 pub type TrumpStd = Trump<SuitStd>;
 
 impl<S: Suit> Trump<S>{
-    pub fn order_cards<F: Figure> (&self, card_one: &Card<F, S>, card_two: &Card<F, S>) -> Ordering{
+    pub fn order_cards<Card: Card2Sym<Suit = S>> (&self, card_one: &Card, card_two: &Card) -> Ordering{
         match self{
             Trump::NoTrump => {
                 card_one.figure().cmp(card_two.figure())

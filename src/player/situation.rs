@@ -2,7 +2,7 @@ use std::collections::HashSet;
 use karty::cards::CardStd;
 use karty::register::{RegisterCardStd};
 use karty::suits::SuitStd;
-use crate::contract::{ContractSpec, DealMaintainer, Contract, RegDealStd, TrickStd};
+use crate::contract::{ContractSpec, ContractMaintainer, Contract, ContractStd, TrickStd};
 use crate::deal::hand::HandVector;
 use crate::error::{DealError, DealErrorStd, Mismatch, TrickError};
 use crate::error::TrickError::TrickFull;
@@ -12,7 +12,7 @@ pub struct Situation {
     side: Side,
     hand: HandVector,
     dummy_hand: HandVector,
-    deal: RegDealStd
+    deal: ContractStd
 
 }
 
@@ -58,7 +58,7 @@ impl Situation {
     pub fn current_side(&self) -> Option<Side>{
         self.deal.current_side()
     }
-    pub fn deal(&self) -> &RegDealStd{
+    pub fn deal(&self) -> &ContractStd{
         &self.deal
     }
     pub fn current_trick(&self) -> &TrickStd{
@@ -73,7 +73,7 @@ impl Situation {
         self.dummy_hand.cards_mut()
     }
 
-    pub fn deal_consume(self) -> RegDealStd{
+    pub fn deal_consume(self) -> ContractStd{
         self.deal
     }
 

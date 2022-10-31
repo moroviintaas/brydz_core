@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
-use karty::figures::{Figure};
+use karty::cards::Card2Sym;
 use karty::suits::{SuitStd};
-use crate::contract::{DealMaintainer};
+use crate::contract::{ContractMaintainer};
 use crate::error::{BridgeCoreError, DealError};
 use crate::player::axis::Axis;
 use crate::score::calculation::ScoreIngredient;
@@ -26,7 +26,7 @@ impl ScoreTableSport{
 }
 
 
-impl<Co: DealMaintainer<F,SuitStd>, F: Figure> ScoreTracker<Co, F, SuitStd>
+impl<Co: ContractMaintainer<Card>, Card: Card2Sym<Suit = SuitStd>> ScoreTracker<Co, Card>
 for ScoreTableSport{
 
     fn winner_axis(&self) -> Option<Axis> {
@@ -41,7 +41,7 @@ for ScoreTableSport{
     /// ```
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::contract::{ContractSpec, DealMaintainer, RegDealStd};
+    /// use brydz_core::contract::{ContractSpec, ContractMaintainer, ContractStd};
     /// use brydz_core::player::axis::Axis::NorthSouth;
     /// use brydz_core::player::side::Side::{East, North, South, West};
     /// use brydz_core::score::ScoreTracker;
@@ -51,7 +51,7 @@ for ScoreTableSport{
     /// use karty::figures::FigureStd;
     /// use karty::suits::SuitStd;
     /// let mut score = ScoreTableSport::new(false, false);
-    /// let mut deal = RegDealStd::new(ContractSpec::new(South, Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
+    /// let mut deal = ContractStd::new(ContractSpec::new(South, Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
     /// deal.insert_card(West, ACE_CLUBS).expect("Error inserting in deal 0.");
     /// deal.insert_card(North, THREE_CLUBS).expect("Error inserting card 1.");
     /// deal.insert_card(East, FOUR_CLUBS).expect("Error inserting card  2.");
@@ -123,12 +123,12 @@ for ScoreTableSport{
     ///
     ///
     /// //60 + 40 + 50 zapis czesciowy
-    /// assert_eq!(<ScoreTableSport as ScoreTracker<RegDealStd, FigureStd, SuitStd>>::points(&score, &NorthSouth), 150);
+    /// assert_eq!(<ScoreTableSport as ScoreTracker<ContractStd, CardStd>>::points(&score, &NorthSouth), 150);
     /// //assert_eq!(score.points(&NorthSouth), 150);
     ///
     ///
     /// ```
-    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<F, SuitStd>> {
+    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Card>> {
         if deal.is_completed(){
             let axis = deal.contract().declarer().axis();
             let vulnerability = match axis{

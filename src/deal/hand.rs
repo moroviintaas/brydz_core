@@ -11,6 +11,9 @@ pub trait Hand{
     fn new_empty() -> Self;
     fn contains(&self, card: &Self::CardType) -> bool;
     fn len(&self) -> usize;
+    fn is_empty(&self) -> bool{
+        self.len() == 0
+    }
 }
 /* 
 impl<H: Hand> Default for H
