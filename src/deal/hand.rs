@@ -1,10 +1,12 @@
+use std::fmt::Debug;
+
 use karty::symbol::CardSymbol;
 
 pub use crate::deal::hand_vector::*;
 pub use crate::deal::hand_set::*;
 pub use crate::deal::compact_hand::*;
 use crate::error::HandError;
-pub trait Hand{
+pub trait Hand: Debug + Clone + Eq + IntoIterator{
     type CardType : CardSymbol;
     fn add_card(&mut self, card: Self::CardType) -> Result<(), HandError>;
     fn remove_card(&mut self, card: &Self::CardType) -> Result<(), HandError>;
@@ -15,6 +17,10 @@ pub trait Hand{
         self.len() == 0
     }
 }
+
+
+
+
 /* 
 impl<H: Hand> Default for H
 where H::CardType: CardSymbol,{

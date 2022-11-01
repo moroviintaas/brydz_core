@@ -15,6 +15,16 @@ pub struct HandSet<Crd: CardSymbol>{
     //_phantom: PhantomData<>
 }
 
+impl <Crd: CardSymbol> IntoIterator for HandSet<Crd>{
+    type Item = Crd;
+
+    type IntoIter = std::collections::hash_set::IntoIter<Crd>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.cards.into_iter()
+    }
+}
+
 impl<Crd: CardSymbol> Hand for HandSet<Crd>{
     type CardType = Crd;
     fn add_card(&mut self, card: Crd) -> Result<(), crate::error::HandError> {

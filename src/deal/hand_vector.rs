@@ -2,11 +2,13 @@ use std::collections::HashSet;
 use std::fmt::{Display, Formatter};
 use karty::cards::{CardStd, Card2Sym};
 use karty::suits::{SuitStd};
-use crate::error::{BridgeCoreError, DistributionError};
+use crate::error::{BridgeCoreError, DistributionError, HandError};
 use crate::error::BridgeCoreError::Distribution;
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
+
+use super::hand::Hand;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
@@ -14,6 +16,16 @@ pub struct HandVector{
     //cant be generic for now, because generic types cannot take part in const expressions
     //cards: Vec<CardStd>
     cards: HashSet<CardStd>
+}
+
+impl  IntoIterator for HandVector{
+    type Item = CardStd;
+
+    type IntoIter = std::collections::hash_set::IntoIter<CardStd>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.cards.into_iter()
+    }
 }
 impl HandVector{
 
@@ -83,6 +95,36 @@ impl Display for HandVector{
             }
         }
         write!(f, "]")
+    }
+}
+
+impl Hand for HandVector{
+    type CardType = CardStd;
+
+    fn add_card(&mut self, card: Self::CardType) -> Result<(), crate::error::HandError> {
+        match self.cards.contains(&card){
+            true => Err(HandError::CardDuplicated),
+            false => Ok(()),
+        }
+    }
+
+    fn remove_card(&mut self, card: &Self::CardType) -> Result<(), crate::error::HandError> {
+        match self.cards.remove(card){
+            true => Ok(()),
+            false => Err(HandError::CardNotInHand),
+        }
+    }
+
+    fn new_empty() -> Self {
+        Self{cards: HashSet::new()}
+    }
+
+    fn contains(&self, card: &Self::CardType) -> bool {
+        self.cards.contains(&card)
+    }
+
+    fn len(&self) -> usize {
+        self.cards.len()
     }
 }
 /*
