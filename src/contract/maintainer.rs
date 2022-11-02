@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use karty::cards::{ Card2Sym};
 use crate::contract::trick::{Trick};
 use crate::player::side::Side;
@@ -6,9 +7,9 @@ use crate::contract::spec::ContractSpec;
 use crate::error::DealError;
 
 
-pub trait ContractMaintainer<Card: Card2Sym>{
+pub trait ContractMaintainer<Card: Card2Sym>: Clone + Debug{
     fn current_trick(&self) -> &Trick<Card>;
-    fn contract(&self) -> &ContractSpec<Card::Suit>;
+    fn contract_spec(&self) -> &ContractSpec<Card::Suit>;
     fn count_completed_tricks(&self) -> usize;
     fn insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError<Card>>;
     fn is_completed(&self) -> bool;
@@ -19,10 +20,10 @@ pub trait ContractMaintainer<Card: Card2Sym>{
         self.current_trick().current_side()
     }
     fn declarer(&self) -> Side{
-        self.contract().declarer()
+        self.contract_spec().declarer()
     }
     fn dummy(&self) -> Side{
-        self.contract().declarer().partner()
+        self.contract_spec().declarer().partner()
     }
 }
 

@@ -130,7 +130,7 @@ for ScoreTableSport{
     /// ```
     fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Card>> {
         if deal.is_completed(){
-            let axis = deal.contract().declarer().axis();
+            let axis = deal.contract_spec().declarer().axis();
             let vulnerability = match axis{
                 Axis::EastWest => self.ew_vulnerability,
                 Axis::NorthSouth => self.ns_vulnerability
@@ -140,12 +140,12 @@ for ScoreTableSport{
                 Axis::NorthSouth => self.ew_vulnerability
             };
             let taken = deal.total_tricks_taken_axis(axis) as u8;
-            let contracted_points = POINTS_CONTRACTED_TRICK.calculate(deal.contract(), taken, false);
-            let overtrick_bonus = POINTS_OVER_TRICK.points(deal.contract(), taken, vulnerability);
-            let slam_bonus = POINTS_SLAM.points(deal.contract(), taken, vulnerability);
+            let contracted_points = POINTS_CONTRACTED_TRICK.calculate(deal.contract_spec(), taken, false);
+            let overtrick_bonus = POINTS_OVER_TRICK.points(deal.contract_spec(), taken, vulnerability);
+            let slam_bonus = POINTS_SLAM.points(deal.contract_spec(), taken, vulnerability);
             let premium_game_points = POINTS_PREMIUM_SPORT.points(contracted_points, vulnerability);
-            let premium_contract_points = POINTS_PREMIUM_CONTRACT.points(deal.contract(), taken);
-            let penalty_undertricks = match PENALTY_UNDER_TRICK.penalty_checked(deal.contract(), taken, defender_vulnerability){
+            let premium_contract_points = POINTS_PREMIUM_CONTRACT.points(deal.contract_spec(), taken);
+            let penalty_undertricks = match PENALTY_UNDER_TRICK.penalty_checked(deal.contract_spec(), taken, defender_vulnerability){
                 Ok(points) => points,
                 Err(e) => return Err(BridgeCoreError::Score(e))
             };

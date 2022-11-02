@@ -1,4 +1,4 @@
-
+use std::fmt::{Display, Formatter};
 use karty::cards::CardStd;
 
 use crate::error::HandError;
@@ -122,5 +122,25 @@ impl Hand for StackHandStd{
 
     fn len(&self) -> usize {
         self.cards.count_ones() as usize
+    }
+}
+
+impl Display for StackHandStd{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let v: Vec<CardStd> = self.into_iter().collect();
+        write!(f,  "[")?;
+        if f.alternate(){
+            for e in v.into_iter(){
+                write!(f, "{:#}, ", e)?;
+            }
+
+
+        }
+        else{
+            for e in v.into_iter(){
+                write!(f, "{}, ", e)?;
+            }
+        }
+        write!(f, "]")
     }
 }

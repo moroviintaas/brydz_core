@@ -1,4 +1,5 @@
 use std::{collections::HashSet};
+use std::fmt::{Display, Formatter};
 
 use karty::{symbol::CardSymbol, cards::CardStd};
 
@@ -10,12 +11,12 @@ use super::hand::Hand;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub struct HandSet<Crd: CardSymbol>{
+pub struct HandSet<Crd: CardSymbol + Display>{
     cards: HashSet<Crd>,
     //_phantom: PhantomData<>
 }
 
-impl <Crd: CardSymbol> IntoIterator for HandSet<Crd>{
+impl <Crd: CardSymbol + Display> IntoIterator for HandSet<Crd>{
     type Item = Crd;
 
     type IntoIter = std::collections::hash_set::IntoIter<Crd>;
@@ -25,8 +26,9 @@ impl <Crd: CardSymbol> IntoIterator for HandSet<Crd>{
     }
 }
 
-impl<Crd: CardSymbol> Hand for HandSet<Crd>{
+impl<Crd: CardSymbol + Display> Hand for HandSet<Crd>{
     type CardType = Crd;
+
     fn add_card(&mut self, card: Crd) -> Result<(), crate::error::HandError> {
         if self.cards.insert(card){
             Ok(())
@@ -53,12 +55,32 @@ impl<Crd: CardSymbol> Hand for HandSet<Crd>{
     fn len(&self) -> usize{
         self.cards.len()
     }
+
 }
 
 pub type HandSetStd = HandSet<CardStd>;
 
 
-impl<Crd: CardSymbol> HandSet<Crd>{
+impl<Crd: CardSymbol + Display> HandSet<Crd>{
     
 
+}
+impl<Crd: CardSymbol + Display> Display for HandSet<Crd>{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        //let v: Vec<CardStd> = self.cards.iter().collect();
+        write!(f,  "[")?;
+        if f.alternate(){
+            for e in self.cards.iter(){
+                write!(f, "{:#}, ", e)?;
+            }
+
+
+        }
+        else{
+            for e in self.cards.iter(){
+                write!(f, "{}, ", e)?;
+            }
+        }
+        write!(f, "]")
+    }
 }

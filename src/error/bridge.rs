@@ -59,6 +59,8 @@ impl<Card: Card2Sym> Display for BridgeCoreError<Card> {
     }
 }
 
+impl<Card: Card2Sym> std::error::Error for BridgeCoreError<Card>{}
+
 
 
 

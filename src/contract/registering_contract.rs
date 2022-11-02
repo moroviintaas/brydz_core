@@ -33,7 +33,7 @@ impl<Card: Card2Sym,
     fn current_trick(&self) -> &Trick<Card>{
         &self.current_trick
     }
-    fn contract(&self) -> &ContractSpec<Card::Suit>{
+    fn contract_spec(&self) -> &ContractSpec<Card::Suit>{
         &self.contract_spec
     }
     fn count_completed_tricks(&self) -> usize{

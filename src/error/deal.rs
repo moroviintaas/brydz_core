@@ -11,7 +11,9 @@ pub enum DealError<Card: Card2Sym>{
     DealIncomplete,
     DuplicateCard(Card),
     TrickError(TrickError<Card>),
-    IndexedOverCurrentTrick(usize)
+    IndexedOverCurrentTrick(usize),
+    DummyReplaceAttempt,
+    DummyNotPlaced,
 
 }
 impl<Card: Card2Sym>Display for DealError<Card>{

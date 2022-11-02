@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use karty::symbol::CardSymbol;
 
@@ -6,8 +6,9 @@ pub use crate::deal::hand_vector::*;
 pub use crate::deal::hand_set::*;
 pub use crate::deal::compact_hand::*;
 use crate::error::HandError;
-pub trait Hand: Debug + Clone + Eq + IntoIterator{
+pub trait Hand: Debug + Clone + Eq + IntoIterator<Item=Self::CardType> + Display{
     type CardType : CardSymbol;
+    //type IterType: Iterator<Item=CardSymbol>;
     fn add_card(&mut self, card: Self::CardType) -> Result<(), HandError>;
     fn remove_card(&mut self, card: &Self::CardType) -> Result<(), HandError>;
     fn new_empty() -> Self;
@@ -16,6 +17,7 @@ pub trait Hand: Debug + Clone + Eq + IntoIterator{
     fn is_empty(&self) -> bool{
         self.len() == 0
     }
+    //fn iter(&self) -> Self::IterType;
 }
 
 
