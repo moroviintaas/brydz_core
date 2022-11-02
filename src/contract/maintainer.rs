@@ -7,7 +7,7 @@ use crate::contract::spec::ContractSpec;
 use crate::error::DealError;
 
 
-pub trait ContractMaintainer<Card: Card2Sym>: Clone + Debug{
+pub trait ContractMaintainer<Card: Card2Sym>{
     fn current_trick(&self) -> &Trick<Card>;
     fn contract_spec(&self) -> &ContractSpec<Card::Suit>;
     fn count_completed_tricks(&self) -> usize;
