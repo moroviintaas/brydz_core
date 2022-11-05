@@ -5,9 +5,9 @@ use crate::contract::{ContractSpec, ContractMaintainer};
 use crate::error::BridgeCoreError;
 use crate::player::axis::Axis;
 
-pub trait ScoreTracker<Co: ContractMaintainer<Card>, Card: Card2Sym>: Default{
+pub trait ScoreTracker<Co: ContractMaintainer<Card = Crd>, Crd: Card2Sym>: Default{
     fn winner_axis(&self) -> Option<Axis>;
-    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Card>>;
+    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Crd>>;
     fn points(&self, axis: &Axis) -> i32;
 }
 

@@ -16,24 +16,26 @@ use crate::player::axis::Axis;
 use crate::player::side::Side;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Contract<Card: Card2Sym, Um: Register<Card>, Se:Register<(Side, Card::Suit)>>{
-    contract_spec: ContractSpec<Card::Suit>,
-    tricks: [Trick<Card>; QUARTER_SIZE],
+pub struct Contract<Crd: Card2Sym, Um: Register<Crd>, Se:Register<(Side, Crd::Suit)>>{
+    contract_spec: ContractSpec<Crd::Suit>,
+    tricks: [Trick<Crd>; QUARTER_SIZE],
     completed_tricks_number: usize,
     exhaust_table: Se,
-    current_trick: Trick<Card>,
+    current_trick: Trick<Crd>,
     used_cards_memory: Um
 
 }
 
-impl<Card: Card2Sym,
-    Um: Register<Card>,
-    Se:Register<(Side, Card::Suit)>> ContractMaintainer<Card> for Contract<Card, Um, Se>{
+impl<Crd: Card2Sym,
+    Um: Register<Crd>,
+    Se:Register<(Side, Crd::Suit)>> ContractMaintainer for Contract<Crd, Um, Se>{
 
-    fn current_trick(&self) -> &Trick<Card>{
+    type Card = Crd;
+
+    fn current_trick(&self) -> &Trick<Self::Card>{
         &self.current_trick
     }
-    fn contract_spec(&self) -> &ContractSpec<Card::Suit>{
+    fn contract_spec(&self) -> &ContractSpec<Crd::Suit>{
         &self.contract_spec
     }
     fn count_completed_tricks(&self) -> usize{
@@ -83,7 +85,7 @@ impl<Card: Card2Sym,
     /// assert_eq!(r, Err(DealError::DuplicateCard(TWO_CLUBS)));
     ///
     /// ```
-    fn insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError<Card>>{
+    fn insert_card(&mut self, side: Side, card: Crd) -> Result<Side, DealError<Crd>>{
         if self.completed_tricks_number >= QUARTER_SIZE{
             return Err(DealError::DealFull);
         }
@@ -115,7 +117,7 @@ impl<Card: Card2Sym,
         }
     }
 
-    fn completed_tricks(&self) -> Vec<Trick<Card>> {
+    fn completed_tricks(&self) -> Vec<Trick<Crd>> {
         let mut r = Vec::new();
         for i in 0..self.completed_tricks_number{
             r.push(self.tricks[i].to_owned());

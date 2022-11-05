@@ -7,13 +7,15 @@ use crate::contract::spec::ContractSpec;
 use crate::error::DealError;
 
 
-pub trait ContractMaintainer<Card: Card2Sym>{
-    fn current_trick(&self) -> &Trick<Card>;
-    fn contract_spec(&self) -> &ContractSpec<Card::Suit>;
+pub trait ContractMaintainer{
+    type Card: Card2Sym;
+    
+    fn current_trick(&self) -> &Trick<Self::Card>;
+    fn contract_spec(&self) -> &ContractSpec<<Self::Card as Card2Sym>::Suit>;
     fn count_completed_tricks(&self) -> usize;
-    fn insert_card(&mut self, side: Side, card: Card) -> Result<Side, DealError<Card>>;
+    fn insert_card(&mut self, side: Side, card: Self::Card) -> Result<Side, DealError<Self::Card>>;
     fn is_completed(&self) -> bool;
-    fn completed_tricks(&self) -> Vec<Trick<Card>>;
+    fn completed_tricks(&self) -> Vec<Trick<Self::Card>>;
     fn total_tricks_taken_side(&self, side: Side) -> usize;
     fn total_tricks_taken_axis(&self, axis: Axis) -> usize;
     fn current_side(&self) -> Option<Side>{

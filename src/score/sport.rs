@@ -26,7 +26,7 @@ impl ScoreTableSport{
 }
 
 
-impl<Co: ContractMaintainer<Card>, Card: Card2Sym<Suit = SuitStd>> ScoreTracker<Co, Card>
+impl<Co: ContractMaintainer<Card = Crd>, Crd: Card2Sym<Suit = SuitStd>> ScoreTracker<Co, Crd>
 for ScoreTableSport{
 
     fn winner_axis(&self) -> Option<Axis> {
@@ -128,7 +128,7 @@ for ScoreTableSport{
     ///
     ///
     /// ```
-    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Card>> {
+    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Crd>> {
         if deal.is_completed(){
             let axis = deal.contract_spec().declarer().axis();
             let vulnerability = match axis{

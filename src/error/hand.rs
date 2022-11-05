@@ -11,7 +11,8 @@ pub enum HandError{
     CardNotInHand,
     EmptyHand,
     HandFull,
-    CardDuplicated
+    CardDuplicated,
+    HandNotInitialised,
 }
 
 impl<Card: Card2Sym> From<HandError> for BridgeCoreError<Card>{
