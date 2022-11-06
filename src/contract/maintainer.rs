@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use karty::cards::{ Card2Sym};
 use crate::contract::trick::{Trick};
 use crate::player::side::Side;
