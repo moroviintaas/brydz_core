@@ -1,8 +1,8 @@
-use karty::figures::Figure;
-use karty::suits::Suit;
-use karty::cards::{Card2Sym, CardStd};
-pub const DECK_SIZE: usize = karty::suits::SuitStd::NUMBER_OF_SUITS * karty::figures::FigureStd::NUMBER_OF_FIGURES;
-pub const HAND_SIZE: usize = CardStd::CARD_SPACE/4;
+use karty::figures::FigureTrait;
+use karty::suits::SuitTrait;
+use karty::cards::{Card2SymTrait, Card};
+pub const DECK_SIZE: usize = karty::suits::Suit::NUMBER_OF_SUITS * karty::figures::Figure::NUMBER_OF_FIGURES;
+pub const HAND_SIZE: usize = Card::CARD_SPACE/4;
 
 
 pub const QUARTER_SIZE: usize = DECK_SIZE/4 ;

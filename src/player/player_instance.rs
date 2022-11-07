@@ -1,12 +1,12 @@
 use arrayvec::ArrayVec;
-use karty::cards::Card2Sym;
+use karty::cards::Card2SymTrait;
 use crate::player::side::Side;
 use crate::contract::Trick;
 use crate::player::role::PlayRole;
 use crate::meta::QUARTER_SIZE;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Player<Card: Card2Sym>{
+pub struct Player<Card: Card2SymTrait>{
     id: u8,
     name: String,
     play_role: Option<PlayRole>,
@@ -15,7 +15,7 @@ pub struct Player<Card: Card2Sym>{
 
 
 }
-impl<Card: Card2Sym> Player<Card>{
+impl<Card: Card2SymTrait> Player<Card>{
     pub fn new(id: u8, name: String, side: Side) -> Self{
         Self{id, name, play_role: None, tricks_taken: ArrayVec::new(), side}
     }

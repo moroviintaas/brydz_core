@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use karty::cards::CardStd;
+use karty::cards::Card;
 
 use crate::error::HandError;
 #[cfg(feature="speedy")]
@@ -29,19 +29,19 @@ impl StackHandStdIterator{
 /// ```
 /// use brydz_core::deal::hand::StackHandStd;
 /// use brydz_core::karty::cards::{ACE_CLUBS, JACK_SPADES, QUEEN_DIAMONDS, KING_HEARTS};
-/// use brydz_core::karty::cards::CardStd;
+/// use brydz_core::karty::cards::Card;
 /// use crate::brydz_core::deal::hand::Hand;
 /// let mut hand = StackHandStd::new_empty();
 /// hand.add_card(ACE_CLUBS);
 /// hand.add_card( KING_HEARTS);
 /// hand.add_card( QUEEN_DIAMONDS);
 /// hand.add_card( JACK_SPADES);
-/// let v: Vec<CardStd> = hand.into_iter().collect();
+/// let v: Vec<Card> = hand.into_iter().collect();
 /// assert_eq!(v.len(), 4);
 /// assert_eq!(v[0], ACE_CLUBS);
 /// ```
 impl Iterator for StackHandStdIterator{
-    type Item = CardStd;
+    type Item = Card;
 
     fn next(&mut self) -> Option<Self::Item> {
         /*
@@ -58,7 +58,7 @@ impl Iterator for StackHandStdIterator{
         if !self.end{
             while self.mask != (LARGEST_MASK){
                 if self.mask & self.hand.cards != 0{
-                    let card = CardStd::from_mask(self.mask).unwrap();
+                    let card = Card::from_mask(self.mask).unwrap();
                     self.mask <<=1;
                     return Some(card);
                 }
@@ -67,7 +67,7 @@ impl Iterator for StackHandStdIterator{
                 }
             }
             self.end = true;
-            CardStd::from_mask(self.mask)
+            Card::from_mask(self.mask)
 
         }
         else{
@@ -80,7 +80,7 @@ impl Iterator for StackHandStdIterator{
 }
 
 impl IntoIterator for StackHandStd{
-    type Item = CardStd;
+    type Item = Card;
 
     type IntoIter = StackHandStdIterator;
 
@@ -90,7 +90,7 @@ impl IntoIterator for StackHandStd{
 }
 
 impl Hand for StackHandStd{
-    type CardType = CardStd;
+    type CardType = Card;
 
     fn add_card(&mut self, card: Self::CardType) -> Result<(), crate::error::HandError> {
         match self.contains(&card){
@@ -127,7 +127,7 @@ impl Hand for StackHandStd{
 
 impl Display for StackHandStd{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        let v: Vec<CardStd> = self.into_iter().collect();
+        let v: Vec<Card> = self.into_iter().collect();
         write!(f,  "[")?;
         if f.alternate(){
             for e in v.into_iter(){

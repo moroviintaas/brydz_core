@@ -1,5 +1,5 @@
 use std::cmp::Ordering;
-use karty::suits::Suit;
+use karty::suits::SuitTrait;
 use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::bidding::call::{Call, CallEntry, Doubling};
 
@@ -22,14 +22,14 @@ pub enum AuctionStatus{
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct AuctionStack<S: Suit, DS: DeclarationStorage<S>>{
+pub struct AuctionStack<S: SuitTrait, DS: DeclarationStorage<S>>{
     calls_entries: Vec<CallEntry<S>>,
     current_contract: Option<ContractSpec<S>>,
     declaration_storage: DS,
 
 }
 
-impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
+impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
     pub fn new() -> Self{
         Self{ calls_entries: Vec::new(), current_contract: None,
             declaration_storage: DS::default()}
@@ -168,7 +168,7 @@ impl<S: Suit, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
         }
     }
 }
-impl<S: Suit, DS: DeclarationStorage<S>> Default for AuctionStack<S, DS> {
+impl<S: SuitTrait, DS: DeclarationStorage<S>> Default for AuctionStack<S, DS> {
      fn default() -> Self {
          Self::new()
      }
@@ -176,8 +176,8 @@ impl<S: Suit, DS: DeclarationStorage<S>> Default for AuctionStack<S, DS> {
 
 #[cfg(test)]
 mod tests{
-    use karty::suits::SuitStd;
-    use karty::suits::SuitStd::{Clubs, Diamonds};
+    use karty::suits::Suit;
+    use karty::suits::Suit::{Clubs, Diamonds};
     use crate::cards::trump::Trump::Colored;
     use crate::error::{BiddingError, Mismatch};
     use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
@@ -191,7 +191,7 @@ mod tests{
 
     #[test]
     fn add_bids_legal(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(East, Call::Pass).unwrap();
         auction_stack.add_contract_bid(South, Call::Pass).unwrap();
         assert_eq!(auction_stack.current_contract, None);
@@ -235,7 +235,7 @@ mod tests{
 
     #[test]
     fn violate_auction_order(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
@@ -250,7 +250,7 @@ mod tests{
 
     #[test]
     fn double_after_double(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
@@ -265,7 +265,7 @@ mod tests{
 
     #[test]
     fn redouble_after_redouble(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
@@ -281,7 +281,7 @@ mod tests{
 
     #[test]
     fn double_after_redouble(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
@@ -296,7 +296,7 @@ mod tests{
 
     #[test]
     fn redouble_without_double(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
@@ -309,7 +309,7 @@ mod tests{
 
     #[test]
     fn bid_too_low(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(
             Bid::init(Colored(Clubs), 2).unwrap())).unwrap();
 
@@ -322,7 +322,7 @@ mod tests{
 
     #[test]
     fn declarer_simple(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(BID_C1)).unwrap();
         auction_stack.add_contract_bid(North, Call::Bid(BID_C2)).unwrap();
         auction_stack.add_contract_bid(East, Call::Bid(BID_S2)).unwrap();
@@ -333,7 +333,7 @@ mod tests{
 
     #[test]
     fn declarer_partner(){
-        let mut auction_stack = AuctionStack::<SuitStd, GeneralDeclarationStorage<SuitStd>>::new();
+        let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
         auction_stack.add_contract_bid(West, Call::Bid(BID_C1)).unwrap();
         auction_stack.add_contract_bid(North, Call::Bid(BID_C2)).unwrap();
         auction_stack.add_contract_bid(East, Call::Bid(BID_C3)).unwrap();

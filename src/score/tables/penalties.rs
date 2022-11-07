@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use karty::suits::{Suit, SuitStd};
+use karty::suits::{SuitTrait, Suit};
 use crate::bidding::Doubling;
 use crate::contract::ContractSpec;
 use crate::error::{ScoreError};
@@ -59,7 +59,7 @@ pub const LEVEL_3_TRICK_PENALTY: PenaltyTable = PenaltyTable{
     vulnerable_redoubled: 600
 };
 
-pub struct PenaltyUnderTrick<S: Suit, const L: usize, >{
+pub struct PenaltyUnderTrick<S: SuitTrait, const L: usize, >{
 
     pub penalty_tables: [PenaltyTable;L],
     _phantom: PhantomData<S>
@@ -69,7 +69,7 @@ pub struct PenaltyUnderTrick<S: Suit, const L: usize, >{
     pub following_third_undertricks: PenaltyTable*/
 }
 
-impl<S: Suit, const L: usize> PenaltyUnderTrick<S, L>{
+impl<S: SuitTrait, const L: usize> PenaltyUnderTrick<S, L>{
 
     pub fn penalty_checked(&self, contract: &ContractSpec<S>, taken: u8, vulnerability: bool) -> Result<i32, ScoreError>{
         let number_of_undertricks = contract.bid().number_normalised().saturating_sub(taken);
@@ -86,7 +86,7 @@ impl<S: Suit, const L: usize> PenaltyUnderTrick<S, L>{
     }
 }
 
-pub const PENALTY_UNDER_TRICK: PenaltyUnderTrick<SuitStd, SIZE_GREATER_HALF_TRICKS> = PenaltyUnderTrick{
+pub const PENALTY_UNDER_TRICK: PenaltyUnderTrick<Suit, SIZE_GREATER_HALF_TRICKS> = PenaltyUnderTrick{
     penalty_tables: [
         FIRST_TRICK_PENALTY,
         LEVEL_2_TRICK_PENALTY,

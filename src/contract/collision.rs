@@ -1,18 +1,18 @@
 use std::fmt::Debug;
 use karty::symbol::CardSymbol;
-use karty::cards::{Card2Sym};
+use karty::cards::{Card2SymTrait};
 use karty::register::{Register};
-use karty::suits::{ SuitStd};
+use karty::suits::{Suit};
 use crate::contract::trick::Trick;
 use crate::player::side::{Side};
 
-pub trait TrickCollision<Card: Card2Sym>{
+pub trait TrickCollision<Card: Card2SymTrait>{
     fn trick_collision(&self, trick: &Trick<Card>)->Option<Card>;
     fn mark_cards_of_trick(&mut self, trick: &Trick<Card>);
 
 }
 
-impl <Card: Card2Sym, UM> TrickCollision<Card> for UM
+impl <Card: Card2SymTrait, UM> TrickCollision<Card> for UM
 where UM: Register<Card>{
     fn trick_collision(&self, trick: &Trick<Card>) -> Option<Card> {
         for s in [Side::North, Side::East, Side::South, Side::West]{
@@ -38,7 +38,7 @@ where UM: Register<Card>{
 mod tests_card_memory{
     use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use karty::register::{Register};
-    use karty::register::RegisterCardStd;
+    use karty::register::CardRegister;
     use crate::contract::collision::{SuitExhaustStd, TrickCollision};
     use crate::contract::trick::Trick;
     use crate::player::side::Side;
@@ -46,7 +46,7 @@ mod tests_card_memory{
     #[test]
     fn trick_collision_std_1(){
 
-        let mut register = RegisterCardStd::default();
+        let mut register = CardRegister::default();
         let mut exhaust_register = SuitExhaustStd::default();
 
         let mut trick = Trick::new(Side::South);
@@ -70,18 +70,18 @@ pub struct SuitExhaustStd{
 
 
 
-impl Register<(Side, SuitStd)> for SuitExhaustStd{
-    fn register(&mut self, element: (Side, SuitStd)) {
+impl Register<(Side, Suit)> for SuitExhaustStd{
+    fn register(&mut self, element: (Side, Suit)) {
         self.array  |= 1u16 << (usize::from(element.0.index()*4) + element.1.position());
     }
 
-    fn unregister(&mut self, element: &(Side, SuitStd)) {
+    fn unregister(&mut self, element: &(Side, Suit)) {
         let mask_neg  = 1u16 << (usize::from(element.0.index()*4) + element.1.position());
         let mask = mask_neg ^ u16::MAX;
         self.array &= mask;
     }
 
-    fn is_registered(&self, element: &(Side, SuitStd)) -> bool {
+    fn is_registered(&self, element: &(Side, Suit)) -> bool {
         !matches!(self.array & (1u16 << (usize::from(element.0.index()*4) + element.1.position())), 0)
     }
 }

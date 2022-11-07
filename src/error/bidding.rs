@@ -1,5 +1,5 @@
-use karty::cards::Card2Sym;
-use karty::suits::{Suit, SuitStd};
+use karty::cards::Card2SymTrait;
+use karty::suits::{SuitTrait, Suit};
 use crate::bidding::Bid;
 use crate::error::bridge::Mismatch;
 use crate::error::BridgeCoreError;
@@ -9,7 +9,7 @@ use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum BiddingError<S: Suit>{
+pub enum BiddingError<S: SuitTrait>{
     DoubleAfterDouble,
     DoubleAfterReDouble,
     ReDoubleWithoutDouble,
@@ -24,9 +24,9 @@ pub enum BiddingError<S: Suit>{
 
 }
 
-pub type BiddingErrorStd = BiddingError<SuitStd>;
+pub type BiddingErrorStd = BiddingError<Suit>;
 
-impl<Card: Card2Sym> From<BiddingError<Card::Suit>> for BridgeCoreError<Card>{
+impl<Card: Card2SymTrait> From<BiddingError<Card::Suit>> for BridgeCoreError<Card>{
     fn from(e: BiddingError<Card::Suit>) -> Self {
         Self::Bidding(e)
     }

@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 use std::ops::{Index, IndexMut};
-use karty::cards::{ Card2Sym, CardStd};
+use karty::cards::{Card2SymTrait, Card};
 use karty::register::Register;
 use crate::cards::trump::Trump;
 
@@ -15,7 +15,7 @@ use crate::player::side::{Side, SIDES};
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Trick<Card: Card2Sym>{
+pub struct Trick<Card: Card2SymTrait>{
     north_card: Option<Card>,
     west_card: Option<Card>,
     south_card: Option<Card>,
@@ -25,11 +25,11 @@ pub struct Trick<Card: Card2Sym>{
 
 }
 
-pub type TrickStd = Trick<CardStd>;
+pub type TrickStd = Trick<Card>;
 
-impl<Card: Card2Sym + Copy> Copy for Trick<Card>{}
+impl<Card: Card2SymTrait + Copy> Copy for Trick<Card>{}
 
-impl<Card: Card2Sym> Index<Side> for Trick<Card>{
+impl<Card: Card2SymTrait> Index<Side> for Trick<Card>{
     type Output = Option<Card>;
 
     fn index(&self, index: Side ) -> &Self::Output {
@@ -46,7 +46,7 @@ impl<Card: Card2Sym> Index<Side> for Trick<Card>{
 
 
 
-impl<Card: Card2Sym> IndexMut<Side> for Trick<Card>{
+impl<Card: Card2SymTrait> IndexMut<Side> for Trick<Card>{
     fn index_mut(&mut self, index: Side) -> &mut Self::Output {
         match index{
             Side::North => &mut self.north_card,
@@ -57,7 +57,7 @@ impl<Card: Card2Sym> IndexMut<Side> for Trick<Card>{
     }
 }
 
-impl<Card: Card2Sym> Trick<Card>{
+impl<Card: Card2SymTrait> Trick<Card>{
     pub fn new( first_player: Side) -> Self{
 
         Self{first_player, north_card: None, south_card: None, west_card: None, east_card: None, card_num: 0}
@@ -101,22 +101,22 @@ impl<Card: Card2Sym> Trick<Card>{
     /// use brydz_core::error::TrickError;
     /// use brydz_core::contract::Trick;
     /// use std::str::FromStr;
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::{RegisterCardStd, Register};
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::{CardRegister, Register};
     /// use karty::cards::*;
     ///
     /// let mut exhaust_table = SuitExhaustStd::default();
-    /// let mut trick1 = Trick::<CardStd>::new(Side::West);
+    /// let mut trick1 = Trick::<Card>::new(Side::West);
     /// trick1.add_card(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
     /// let r1 = trick1.add_card(Side::North, TEN_CLUBS, &mut exhaust_table);
     /// assert_eq!(r1, Ok(2));
     /// let r2 = trick1.add_card(Side::East, NINE_HEARTS, &mut exhaust_table);
     /// assert_eq!(r2, Ok(3));
-    /// assert!(exhaust_table.is_registered(&(Side::East, SuitStd::Clubs)));
+    /// assert!(exhaust_table.is_registered(&(Side::East, Suit::Clubs)));
     /// let mut trick2 = Trick::new(Side::East);
     /// let r3 = trick2.add_card(Side::East, NINE_CLUBS, &mut exhaust_table);
-    /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Clubs)));
+    /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
     ///
     /// ```
     pub fn add_card<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickError<Card>>{
@@ -184,9 +184,9 @@ impl<Card: Card2Sym> Trick<Card>{
     /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::contract::collision::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -222,9 +222,9 @@ impl<Card: Card2Sym> Trick<Card>{
     /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::contract::collision::SuitExhaustStd;
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
     /// let mut trick1 = Trick::new(Side::North);
@@ -262,9 +262,9 @@ impl<Card: Card2Sym> Trick<Card>{
     /// use brydz_core::contract::Trick;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::contract::collision::SuitExhaustStd;
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -321,9 +321,9 @@ impl<Card: Card2Sym> Trick<Card>{
     /// use brydz_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
     /// use brydz_core::contract::collision::SuitExhaustStd;
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
     /// let mut exhaust_register = SuitExhaustStd::default();
@@ -389,7 +389,7 @@ impl<Card: Card2Sym> Trick<Card>{
 
 }
 
-impl<Card: Card2Sym> Default for Trick<Card>{
+impl<Card: Card2SymTrait> Default for Trick<Card>{
     fn default() -> Self {
         Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
     }

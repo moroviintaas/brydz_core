@@ -7,7 +7,7 @@ use crate::bidding::bid::Bid;
 use crate::cards::trump::Trump;
 use nom::error::ErrorKind;
 use karty::suits::parse::parse_suit;
-use karty::suits::SuitStd;
+use karty::suits::Suit;
 
 
 ///Parses no trump strict
@@ -18,7 +18,7 @@ use karty::suits::SuitStd;
 /// assert_eq!(parse_nt("notrump"), Ok(("", Trump::NoTrump)));
 /// assert_eq!(parse_nt("n"), Ok(("", Trump::NoTrump)));
 /// ```
-pub fn parse_nt(s: &str) -> IResult<&str, Trump<SuitStd>>{
+pub fn parse_nt(s: &str) -> IResult<&str, Trump<Suit>>{
     alt((tag_no_case("no_trump"), tag_no_case("notrump"), tag_no_case("nt"), tag_no_case("n")))(s)
         .map(|(i,_)| (i, Trump::NoTrump ))
 }
@@ -30,39 +30,39 @@ pub fn parse_nt(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// assert_eq!(parse_nt_delimited("  notrump\t"), Ok(("", Trump::NoTrump)));
 /// assert_eq!(parse_nt_delimited("  n "), Ok(("", Trump::NoTrump)));
 /// ```
-pub fn parse_nt_delimited(s: &str) -> IResult<&str, Trump<SuitStd>>{
+pub fn parse_nt_delimited(s: &str) -> IResult<&str, Trump<Suit>>{
     delimited(space0, parse_nt, space0)(s)
 }
 
 /// Parses colored trump
 /// ```
 /// use brydz_core::bidding::parser::parse_trump_colored;
-/// use karty::suits::SuitStd::{Spades, Hearts};
+/// use karty::suits::Suit::{Spades, Hearts};
 /// use brydz_core::cards::trump::Trump;
 /// assert_eq!(parse_trump_colored("hjik"), Ok(("jik", Trump::Colored(Hearts))));
 /// assert_eq!(parse_trump_colored("spadesorsth"), Ok(("orsth", Trump::Colored(Spades))));
 /// ```
-pub fn parse_trump_colored(s: &str) -> IResult<&str, Trump<SuitStd>>{
+pub fn parse_trump_colored(s: &str) -> IResult<&str, Trump<Suit>>{
     parse_suit(s).map(|(r, s)| (r, Trump::Colored(s)))
 }
 
 /// Parses trump
 /// ```
 /// use brydz_core::bidding::parser::{parse_nt, parse_trump_colored};
-/// use karty::suits::SuitStd::{Spades, Hearts};
+/// use karty::suits::Suit::{Spades, Hearts};
 /// use brydz_core::cards::trump::Trump;
 /// assert_eq!(parse_trump_colored("hjik"), Ok(("jik", Trump::Colored(Hearts))));
 /// assert_eq!(parse_trump_colored("spadesorsth"), Ok(("orsth", Trump::Colored(Spades))));
 /// assert_eq!(parse_nt("notrump\t"), Ok(("\t", Trump::NoTrump)));
 /// ```
-pub fn parse_trump(s: &str) -> IResult<&str, Trump<SuitStd>>{
+pub fn parse_trump(s: &str) -> IResult<&str, Trump<Suit>>{
     alt((parse_trump_colored, parse_nt))(s)
 }
 /// parses bid
 /// ```
 /// use brydz_core::bidding::parser::parse_bid;
 /// use brydz_core::bidding::Bid;
-/// use karty::suits::SuitStd::Clubs;
+/// use karty::suits::Suit::Clubs;
 /// use brydz_core::cards::trump::Trump;
 /// use nom::error::ErrorKind;
 /// assert_eq!(parse_bid("3c"), Ok(("", Bid::init(Trump::Colored(Clubs), 3).unwrap())));
@@ -72,7 +72,7 @@ pub fn parse_trump(s: &str) -> IResult<&str, Trump<SuitStd>>{
 /// assert_eq!(parse_bid("8spades"), Err(nom::Err::Error(nom::error::Error::new("8spades", ErrorKind::Digit))));
 /// assert_eq!(parse_bid("h"), Err(nom::Err::Error(nom::error::Error::new("h", ErrorKind::Digit))));
 /// ```
-pub fn parse_bid(s: &str) -> IResult<&str, Bid<SuitStd>>{
+pub fn parse_bid(s: &str) -> IResult<&str, Bid<Suit>>{
     match separated_pair(digit1, space0, parse_trump)(s){
         Ok((remains, (digs, trump))) => match digs.parse::<u8>(){
             Ok(n) => Bid::init(trump, n).map_or_else(

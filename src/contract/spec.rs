@@ -1,4 +1,4 @@
-use karty::suits::Suit;
+use karty::suits::SuitTrait;
 use crate::error::BiddingError::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::bidding::{Doubling};
 use crate::player::side::Side;
@@ -7,13 +7,13 @@ use crate::error::BiddingError;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct ContractSpec<S: Suit> {
+pub struct ContractSpec<S: SuitTrait> {
     declarer: Side,
     bid: Bid<S>,
     doubling: Doubling
 }
 
-impl<S: Suit> ContractSpec<S> {
+impl<S: SuitTrait> ContractSpec<S> {
     pub fn new_d(owner: Side, bid: Bid<S>, doubling: Doubling) -> Self{
         Self{bid, doubling, declarer: owner }
     }

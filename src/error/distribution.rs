@@ -1,4 +1,4 @@
-use karty::{ cards::Card2Sym};
+use karty::{ cards::Card2SymTrait};
 use crate::error::BridgeCoreError;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -10,7 +10,7 @@ pub enum DistributionError{
     TooFewCards(usize)
 }
 
-impl<Card: Card2Sym> From<DistributionError> for BridgeCoreError<Card>{
+impl<Card: Card2SymTrait> From<DistributionError> for BridgeCoreError<Card>{
     fn from(e: DistributionError) -> Self {
         Self::Distribution(e)
     }

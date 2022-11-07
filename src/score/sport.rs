@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
-use karty::cards::Card2Sym;
-use karty::suits::{SuitStd};
+use karty::cards::Card2SymTrait;
+use karty::suits::{Suit};
 use crate::contract::{ContractMaintainer};
 use crate::error::{BridgeCoreError, ContractError};
 use crate::player::axis::Axis;
@@ -26,7 +26,7 @@ impl ScoreTableSport{
 }
 
 
-impl<Co: ContractMaintainer<Card = Crd>, Crd: Card2Sym<Suit = SuitStd>> ScoreTracker<Co, Crd>
+impl<Co: ContractMaintainer<Card = Crd>, Crd: Card2SymTrait<Suit =Suit>> ScoreTracker<Co, Crd>
 for ScoreTableSport{
 
     fn winner_axis(&self) -> Option<Axis> {
@@ -46,10 +46,10 @@ for ScoreTableSport{
     /// use brydz_core::player::side::Side::{East, North, South, West};
     /// use brydz_core::score::ScoreTracker;
     /// use brydz_core::score::sport::ScoreTableSport;
-    /// use karty::suits::SuitStd::{Diamonds, Hearts};
+    /// use karty::suits::Suit::{Diamonds, Hearts};
     /// use karty::cards::*;
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::SuitStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::Suit;
     /// let mut score = ScoreTableSport::new(false, false);
     /// let mut deal = ContractStd::new(ContractSpec::new(South, Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
     /// deal.insert_card(West, ACE_CLUBS).expect("Error inserting in deal 0.");
@@ -123,7 +123,7 @@ for ScoreTableSport{
     ///
     ///
     /// //60 + 40 + 50 zapis czesciowy
-    /// assert_eq!(<ScoreTableSport as ScoreTracker<ContractStd, CardStd>>::points(&score, &NorthSouth), 150);
+    /// assert_eq!(<ScoreTableSport as ScoreTracker<ContractStd, Card>>::points(&score, &NorthSouth), 150);
     /// //assert_eq!(score.points(&NorthSouth), 150);
     ///
     ///

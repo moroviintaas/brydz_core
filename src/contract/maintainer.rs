@@ -1,4 +1,4 @@
-use karty::cards::{ Card2Sym};
+use karty::cards::{Card2SymTrait};
 use crate::contract::trick::{Trick};
 use crate::player::side::Side;
 use crate::player::axis::Axis;
@@ -7,10 +7,10 @@ use crate::error::ContractError;
 
 
 pub trait ContractMaintainer{
-    type Card: Card2Sym;
+    type Card: Card2SymTrait;
     
     fn current_trick(&self) -> &Trick<Self::Card>;
-    fn contract_spec(&self) -> &ContractSpec<<Self::Card as Card2Sym>::Suit>;
+    fn contract_spec(&self) -> &ContractSpec<<Self::Card as Card2SymTrait>::Suit>;
     fn count_completed_tricks(&self) -> usize;
     fn insert_card(&mut self, side: Side, card: Self::Card) -> Result<Side, ContractError<Self::Card>>;
     fn is_completed(&self) -> bool;

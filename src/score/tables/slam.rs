@@ -1,4 +1,4 @@
-use karty::suits::{SuitStd};
+use karty::suits::{Suit};
 use crate::contract::ContractSpec;
 use crate::meta::QUARTER_SIZE;
 use crate::score::calculation::ScoreIngredient;
@@ -30,7 +30,7 @@ impl PointsSlam{
     /// use brydz_core::cards::trump::Trump;
     /// use brydz_core::cards::trump::Trump::NoTrump;
     /// use brydz_core::score::tables::POINTS_SLAM;
-    /// use karty::suits::SuitStd::Hearts;
+    /// use karty::suits::Suit::Hearts;
     /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_SLAM;
     /// assert_eq!(points_table.points(&contract, 13, false), 0);
@@ -44,7 +44,7 @@ impl PointsSlam{
     /// assert_eq!(points_table.points(&contract, 13, false), 1000 );
     ///
     /// ```
-    pub fn points(&self, contract: &ContractSpec<SuitStd>, taken: u8, vulnerable: bool) -> i32{
+    pub fn points(&self, contract: &ContractSpec<Suit>, taken: u8, vulnerable: bool) -> i32{
         let declared = contract.bid().number_normalised() as usize;
         match declared{
             n if n == QUARTER_SIZE => {
@@ -73,8 +73,8 @@ impl PointsSlam{
         }
     }
 }
-impl ScoreIngredient<SuitStd> for PointsSlam{
-    fn calculate(&self, contract: &ContractSpec<SuitStd>, taken: u8, vulnerability: bool) -> i32 {
+impl ScoreIngredient<Suit> for PointsSlam{
+    fn calculate(&self, contract: &ContractSpec<Suit>, taken: u8, vulnerability: bool) -> i32 {
         self.points(contract, taken, vulnerability)
     }
 }

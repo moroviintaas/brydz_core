@@ -1,6 +1,6 @@
 
 
-use karty::cards::Card2Sym;
+use karty::cards::Card2SymTrait;
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -16,7 +16,7 @@ pub enum FormatError{
 
 }
 
-impl<Card: Card2Sym>  From<FormatError> for BridgeCoreError<Card>{
+impl<Card: Card2SymTrait>  From<FormatError> for BridgeCoreError<Card>{
     fn from(e: FormatError) -> Self {
         Self::Format(e)
     }

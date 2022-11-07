@@ -1,8 +1,8 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::mem;
 use std::ops::Index;
-use karty::cards::{ Card2Sym, CardStd};
-use karty::register::{Register, RegisterCardStd};
+use karty::cards::{Card2SymTrait, Card};
+use karty::register::{Register, CardRegister};
 use crate::cards::trump::Trump;
 use crate::contract::collision::{SuitExhaustStd, TrickCollision};
 use crate::contract::spec::ContractSpec;
@@ -16,7 +16,7 @@ use crate::player::axis::Axis;
 use crate::player::side::Side;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-pub struct Contract<Crd: Card2Sym, Um: Register<Crd>, Se:Register<(Side, Crd::Suit)>>{
+pub struct Contract<Crd: Card2SymTrait, Um: Register<Crd>, Se:Register<(Side, Crd::Suit)>>{
     contract_spec: ContractSpec<Crd::Suit>,
     tricks: [Trick<Crd>; QUARTER_SIZE],
     completed_tricks_number: usize,
@@ -26,7 +26,7 @@ pub struct Contract<Crd: Card2Sym, Um: Register<Crd>, Se:Register<(Side, Crd::Su
 
 }
 
-impl<Crd: Card2Sym,
+impl<Crd: Card2SymTrait,
     Um: Register<Crd>,
     Se:Register<(Side, Crd::Suit)>> ContractMaintainer for Contract<Crd, Um, Se>{
 
@@ -60,12 +60,12 @@ impl<Crd: Card2Sym,
     /// use brydz_core::player::axis::Axis;
     /// use brydz_core::error::TrickError;
     /// use brydz_core::contract::collision::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::SuitStd;
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::Suit;
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     /// let mut contract = ContractStd::new(
-    ///     ContractSpec::new(Side::West, Bid::init(Trump::Colored(SuitStd::Hearts), 1).unwrap(),));
+    ///     ContractSpec::new(Side::West, Bid::init(Trump::Colored(Suit::Hearts), 1).unwrap(),));
     /// contract.insert_card(Side::North, KING_HEARTS).unwrap();
     /// contract.insert_card(Side::East, ACE_HEARTS).unwrap();
     /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
@@ -77,7 +77,7 @@ impl<Crd: Card2Sym,
     /// let r = contract.insert_card(Side::East, TEN_HEARTS);
     /// assert_eq!(r.unwrap(), Side::South);
     /// let r = contract.insert_card(Side::South, JACK_HEARTS);
-    /// assert_eq!(r, Err(ContractError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Hearts))));
+    /// assert_eq!(r, Err(ContractError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
     /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
     /// contract.insert_card(Side::West, SIX_HEARTS).unwrap();
     /// let r = contract.insert_card(Side::North, THREE_HEARTS);
@@ -136,9 +136,9 @@ impl<Crd: Card2Sym,
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling;
     /// use brydz_core::contract::collision::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
     /// let mut deal = ContractStd::new(ContractSpec::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap(),));
@@ -178,9 +178,9 @@ impl<Crd: Card2Sym,
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::contract::collision::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     /// let mut deal = ContractStd::new(ContractSpec::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap(),));
     /// deal.insert_card(North, JACK_SPADES).unwrap();
@@ -206,7 +206,7 @@ impl<Crd: Card2Sym,
 
 }
 
-impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contract<Card, Um, Se>{
+impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contract<Card, Um, Se>{
     pub fn new(contract: ContractSpec<Card::Suit>) -> Self{
         let first_player = contract.declarer().next();
         let mut tricks = <[Trick::<Card>; QUARTER_SIZE]>::default();
@@ -280,9 +280,9 @@ impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contr
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::contract::collision::{SuitExhaustStd};
-    /// use karty::figures::FigureStd;
-    /// use karty::suits::{SuitStd, SuitStd::*};
-    /// use karty::register::RegisterCardStd;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
     /// use karty::cards::*;
     /// let deck = Deck::new_sorted_by_figures();
     /// let mut deal_1 = ContractStd::new(ContractSpec::new_d(North, Bid::init(Trump::Colored(Diamonds), 1).unwrap(), Doubling::None));
@@ -325,7 +325,7 @@ impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contr
 
 }
 
-impl<Card: Card2Sym,
+impl<Card: Card2SymTrait,
     Um: Register<Card> + Debug,
     Se: Register<(Side,Card::Suit)> + std::fmt::Debug>  Display for Contract<Card, Um, Se>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -335,7 +335,7 @@ impl<Card: Card2Sym,
 
 
 
-impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Index<usize> for Contract<Card, Um, Se>{
+impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Index<usize> for Contract<Card, Um, Se>{
     type Output = Trick<Card>;
 
     fn index(&self, index: usize) -> &Self::Output {
@@ -343,13 +343,13 @@ impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Index
     }
 }
 
-pub type ContractStd = Contract<CardStd, RegisterCardStd,  SuitExhaustStd>;
+pub type ContractStd = Contract<Card, CardRegister,  SuitExhaustStd>;
 
 #[cfg(test)]
 mod tests{
     use karty::cards::{*};
-    use karty::register::RegisterCardStd;
-    use karty::suits::SuitStd::Diamonds;
+    use karty::register::CardRegister;
+    use karty::suits::Suit::Diamonds;
     use crate::cards::trump::Trump;
     use crate::contract::spec::{ContractSpec};
     use crate::bidding::Bid;
@@ -366,7 +366,7 @@ mod tests{
 
     #[test]
     fn deal_duplicate_card(){
-        let mut deal = Contract::<CardStd, RegisterCardStd, SuitExhaustStd>::new(ContractSpec::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
+        let mut deal = Contract::<Card, CardRegister, SuitExhaustStd>::new(ContractSpec::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
         //let deck = Deck::new_sorted_by_suits();
 
 
@@ -393,7 +393,7 @@ mod tests{
         let num_of_sides = 4usize;
         let deck = Deck::new_sorted_by_suits();
         //let mut contract = Deal::new(South, Trump::NoTrump);
-        let mut deal = Contract::<CardStd, RegisterCardStd, SuitExhaustStd>::new(ContractSpec::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
+        let mut deal = Contract::<Card, CardRegister, SuitExhaustStd>::new(ContractSpec::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
         for i in 0..QUARTER_SIZE{
 
             deal.insert_card(Side::North,deck[num_of_sides*i].clone()).unwrap();
@@ -412,7 +412,7 @@ mod tests{
 
     #[test]
     fn calculate_score_1(){
-        let mut deal = Contract::<CardStd, RegisterCardStd, SuitExhaustStd>::new(ContractSpec::new(
+        let mut deal = Contract::<Card, CardRegister, SuitExhaustStd>::new(ContractSpec::new(
             East,
             Bid::init(Trump::Colored(Diamonds), 3).unwrap(),
         ));

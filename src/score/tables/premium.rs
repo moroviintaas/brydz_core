@@ -1,5 +1,5 @@
 use std::marker::PhantomData;
-use karty::suits::{Suit, SuitStd};
+use karty::suits::{SuitTrait, Suit};
 use crate::bidding::Doubling;
 use crate::contract::ContractSpec;
 
@@ -33,14 +33,14 @@ impl PointsPremiumSport{
 }
 
 
-pub struct PointsPremiumContract<S: Suit>{
+pub struct PointsPremiumContract<S: SuitTrait>{
     pub on_doubled: i32,
     pub on_redoubled: i32,
     _phantom: PhantomData<S>
 }
-pub type PointsPremiumContractStd = PointsPremiumContract<SuitStd>;
+pub type PointsPremiumContractStd = PointsPremiumContract<Suit>;
 
-impl<S:Suit> PointsPremiumContract<S>{
+impl<S: SuitTrait> PointsPremiumContract<S>{
 
     pub fn points(&self, contract: &ContractSpec<S>, taken: u8) -> i32{
         if taken >= contract.bid().number_normalised(){

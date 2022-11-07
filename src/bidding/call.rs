@@ -1,5 +1,5 @@
 use std::fmt::{Display, Formatter};
-use karty::suits::{Suit, SuitStd};
+use karty::suits::{SuitTrait, Suit};
 use crate::bidding::bid::Bid;
 
 use crate::player::side::Side;
@@ -18,16 +18,16 @@ pub enum Doubling{
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum Call<S: Suit> {
+pub enum Call<S: SuitTrait> {
     Bid(Bid<S>),
     Double,
     ReDouble,
     Pass
 }
 
-pub type CallStd = Call<SuitStd>;
+pub type CallStd = Call<Suit>;
 
-impl<S: Suit+ Display> Display for Call<S>{
+impl<S: SuitTrait + Display> Display for Call<S>{
     fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {
         todo!();
         /*
@@ -47,13 +47,13 @@ impl<S: Suit+ Display> Display for Call<S>{
 }
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
-pub struct CallEntry<S: Suit>{
+pub struct CallEntry<S: SuitTrait>{
     player_side: Side,
     call: Call<S>
 }
 
 
-impl<S: Suit> CallEntry<S> {
+impl<S: SuitTrait> CallEntry<S> {
     pub fn new(player_side: Side, call: Call<S>) -> Self{
         Self{ player_side, call}
     }

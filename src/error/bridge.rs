@@ -1,6 +1,6 @@
 use std::fmt::{Display, Formatter};
-use karty::cards::{Card2Sym, CardStd};
-use karty::suits::{Suit};
+use karty::cards::{Card2SymTrait, Card};
+use karty::suits::{SuitTrait};
 use crate::error::bidding::BiddingError;
 
 
@@ -25,7 +25,7 @@ impl<T: Copy> Copy for Mismatch<T>{}
 
 
 
-impl<S:Suit> Display for BiddingError<S>{
+impl<S: SuitTrait> Display for BiddingError<S>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
@@ -33,7 +33,7 @@ impl<S:Suit> Display for BiddingError<S>{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum BridgeCoreError<Card: Card2Sym>{
+pub enum BridgeCoreError<Card: Card2SymTrait>{
     Deal(ContractError<Card>),
     Bidding(BiddingError<Card::Suit>),
     Score(ScoreError),
@@ -46,7 +46,7 @@ pub enum BridgeCoreError<Card: Card2Sym>{
 
 }
 
-impl<Card: Card2Sym> Display for BridgeCoreError<Card> {
+impl<Card: Card2SymTrait> Display for BridgeCoreError<Card> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self{
             BridgeCoreError::Deal(deal_error)=> match f.alternate(){
@@ -59,13 +59,13 @@ impl<Card: Card2Sym> Display for BridgeCoreError<Card> {
     }
 }
 
-impl<Card: Card2Sym> std::error::Error for BridgeCoreError<Card>{}
+impl<Card: Card2SymTrait> std::error::Error for BridgeCoreError<Card>{}
 
 
 
 
 
-pub type BridgeCoreErrorStd = BridgeCoreError<CardStd>;
+pub type BridgeCoreErrorStd = BridgeCoreError<Card>;
 /*
 impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
     fn from(e: std::io::Error) -> Self {

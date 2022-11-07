@@ -1,7 +1,7 @@
 use std::{collections::HashSet};
 use std::fmt::{Display, Formatter};
 
-use karty::{symbol::CardSymbol, cards::CardStd};
+use karty::{symbol::CardSymbol, cards::Card};
 
 use crate::{error::HandError};
 #[cfg(feature="speedy")]
@@ -58,7 +58,7 @@ impl<Crd: CardSymbol + Display> Hand for HandSet<Crd>{
 
 }
 
-pub type HandSetStd = HandSet<CardStd>;
+pub type HandSetStd = HandSet<Card>;
 
 
 impl<Crd: CardSymbol + Display> HandSet<Crd>{

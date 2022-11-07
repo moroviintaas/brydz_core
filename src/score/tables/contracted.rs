@@ -1,5 +1,5 @@
 
-use karty::suits::SuitStd;
+use karty::suits::Suit;
 use crate::bidding::Doubling;
 use crate::contract::ContractSpec;
 use crate::cards::trump::Trump;
@@ -28,7 +28,7 @@ impl PointsContractedTrick{
     /// use brydz_core::cards::trump::Trump;
     /// use brydz_core::cards::trump::Trump::NoTrump;
     /// use brydz_core::score::tables::POINTS_CONTRACTED_TRICK;
-    /// use karty::suits::SuitStd::Hearts;
+    /// use karty::suits::Suit::Hearts;
     /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_CONTRACTED_TRICK;
     /// assert_eq!(points_table.points(&contract, 7), 0 );
@@ -42,7 +42,7 @@ impl PointsContractedTrick{
     ///
     /// ```
 
-    pub fn points(&self, contract: &ContractSpec<SuitStd>, taken: u8) -> i32{
+    pub fn points(&self, contract: &ContractSpec<Suit>, taken: u8) -> i32{
         let multiplier = match contract.doubling(){
             Doubling::None => 1,
             Doubling::Double => self.doubling_multiplier,
@@ -57,10 +57,10 @@ impl PointsContractedTrick{
                     0
                 };
                 i32::from(number) * multiplier * match c{
-                    SuitStd::Spades => &self.spades,
-                    SuitStd::Hearts => &self.hearts,
-                    SuitStd::Diamonds => &self.diamonds,
-                    SuitStd::Clubs => &self.clubs
+                    Suit::Spades => &self.spades,
+                    Suit::Hearts => &self.hearts,
+                    Suit::Diamonds => &self.diamonds,
+                    Suit::Clubs => &self.clubs
                 }
             }
             Trump::NoTrump => {
@@ -82,8 +82,8 @@ impl PointsContractedTrick{
     }
 }
 
-impl ScoreIngredient<SuitStd> for PointsContractedTrick{
-    fn calculate(&self, contract: &ContractSpec<SuitStd>, taken: u8, _vulnerability: bool) -> i32 {
+impl ScoreIngredient<Suit> for PointsContractedTrick{
+    fn calculate(&self, contract: &ContractSpec<Suit>, taken: u8, _vulnerability: bool) -> i32 {
         self.points(contract, taken)
     }
 }
