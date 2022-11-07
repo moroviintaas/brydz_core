@@ -294,7 +294,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     }
     pub fn missing_card(&self) -> Option<Side>{
         for s in SIDES{
-            if self[s] == None{
+            if self[s].is_none(){
                 return Some(s)
             }
         }
