@@ -5,33 +5,33 @@ use crate::error::HandError;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
-use super::hand::Hand;
+use super::hand::HandTrait;
 
 const LARGEST_MASK:u64 = 1<<63;
 
 #[derive(Debug, Clone, PartialEq, Eq, Copy, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub struct StackHandStd{
+pub struct StackHand {
     pub(crate) cards: u64,
 }
 
 pub struct StackHandStdIterator{
-    hand: StackHandStd,
+    hand: StackHand,
     mask: u64,
     end: bool
 }
 impl StackHandStdIterator{
-    pub fn new(hand: StackHandStd) -> Self{
+    pub fn new(hand: StackHand) -> Self{
 
         Self{mask: 1, hand, end: false}
     }
 }
 /// ```
-/// use brydz_core::deal::hand::StackHandStd;
+/// use brydz_core::deal::hand::StackHand;
 /// use brydz_core::karty::cards::{ACE_CLUBS, JACK_SPADES, QUEEN_DIAMONDS, KING_HEARTS};
 /// use brydz_core::karty::cards::Card;
-/// use crate::brydz_core::deal::hand::Hand;
-/// let mut hand = StackHandStd::new_empty();
+/// use crate::brydz_core::deal::hand::HandTrait;
+/// let mut hand = StackHand::new_empty();
 /// hand.add_card(ACE_CLUBS);
 /// hand.add_card( KING_HEARTS);
 /// hand.add_card( QUEEN_DIAMONDS);
@@ -79,7 +79,7 @@ impl Iterator for StackHandStdIterator{
     }
 }
 
-impl IntoIterator for StackHandStd{
+impl IntoIterator for StackHand {
     type Item = Card;
 
     type IntoIter = StackHandStdIterator;
@@ -89,7 +89,7 @@ impl IntoIterator for StackHandStd{
     }
 }
 
-impl Hand for StackHandStd{
+impl HandTrait for StackHand {
     type CardType = Card;
 
     fn add_card(&mut self, card: Self::CardType) -> Result<(), crate::error::HandError> {
@@ -125,7 +125,7 @@ impl Hand for StackHandStd{
     }
 }
 
-impl Display for StackHandStd{
+impl Display for StackHand {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let v: Vec<Card> = self.into_iter().collect();
         write!(f,  "[")?;

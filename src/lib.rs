@@ -31,12 +31,12 @@ pub use karty;
 /// use karty::cards::*;
 /// use brydz_core::bidding::consts::BID_H3;
 /// use brydz_core::contract::*;
-/// use brydz_core::contract::{ContractSpec, ContractMaintainer, ContractStd};
+/// use brydz_core::contract::{ContractSpec, ContractMechanics, Contract};
 /// use brydz_core::player::side::Side::{East, North, South};
 /// use brydz_core::fill_deal;
 /// use brydz_core::player::axis::Axis::{EastWest, NorthSouth};
 /// let contract = ContractSpec::new(North, BID_H3);
-/// let mut dl = ContractStd::new(contract);
+/// let mut dl = Contract::new(contract);
 ///
 /// fill_deal!(dl, [ACE_SPADES, KING_SPADES, QUEEN_SPADES]);
 /// assert_eq!(dl.count_completed_tricks(), 0);

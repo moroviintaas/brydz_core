@@ -2,8 +2,8 @@ use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use karty::suits::{Suit, SuitTrait};
 use crate::cards::trump::Trump;
-use crate::error::BiddingError;
-use crate::error::BiddingError::IllegalBidNumber;
+use crate::error::BiddingErrorGen;
+use crate::error::BiddingErrorGen::IllegalBidNumber;
 use crate::meta::{HALF_TRICKS, MAX_BID_NUMBER, MIN_BID_NUMBER};
 
 #[cfg(feature="speedy")]
@@ -21,7 +21,7 @@ pub type BidStd = Bid<Suit>;
 impl <S: SuitTrait + Copy> Copy for Bid<S>{}
 
 impl<S: SuitTrait>  Bid<S> {
-    pub fn init(trump: Trump<S>, number: u8) -> Result<Self, BiddingError<S>>{
+    pub fn init(trump: Trump<S>, number: u8) -> Result<Self, BiddingErrorGen<S>>{
         match number{
             legit @MIN_BID_NUMBER..=MAX_BID_NUMBER => Ok(Self{trump, number: legit}),
             no_legit => Err(IllegalBidNumber(no_legit))

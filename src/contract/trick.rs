@@ -4,8 +4,8 @@ use karty::cards::{Card2SymTrait, Card};
 use karty::register::Register;
 use crate::cards::trump::Trump;
 
-use crate::error::TrickError::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
-use crate::error::{Mismatch, TrickError};
+use crate::error::TrickErrorGen::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
+use crate::error::{Mismatch, TrickErrorGen};
 
 use crate::player::side::Side::{North, South, East, West};
 use crate::player::side::{Side, SIDES};
@@ -15,7 +15,7 @@ use crate::player::side::{Side, SIDES};
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
-pub struct Trick<Card: Card2SymTrait>{
+pub struct TrickGen<Card: Card2SymTrait>{
     north_card: Option<Card>,
     west_card: Option<Card>,
     south_card: Option<Card>,
@@ -25,11 +25,11 @@ pub struct Trick<Card: Card2SymTrait>{
 
 }
 
-pub type TrickStd = Trick<Card>;
+pub type Trick = TrickGen<Card>;
 
-impl<Card: Card2SymTrait + Copy> Copy for Trick<Card>{}
+impl<Card: Card2SymTrait + Copy> Copy for TrickGen<Card>{}
 
-impl<Card: Card2SymTrait> Index<Side> for Trick<Card>{
+impl<Card: Card2SymTrait> Index<Side> for TrickGen<Card>{
     type Output = Option<Card>;
 
     fn index(&self, index: Side ) -> &Self::Output {
@@ -46,7 +46,7 @@ impl<Card: Card2SymTrait> Index<Side> for Trick<Card>{
 
 
 
-impl<Card: Card2SymTrait> IndexMut<Side> for Trick<Card>{
+impl<Card: Card2SymTrait> IndexMut<Side> for TrickGen<Card>{
     fn index_mut(&mut self, index: Side) -> &mut Self::Output {
         match index{
             Side::North => &mut self.north_card,
@@ -57,7 +57,7 @@ impl<Card: Card2SymTrait> IndexMut<Side> for Trick<Card>{
     }
 }
 
-impl<Card: Card2SymTrait> Trick<Card>{
+impl<Card: Card2SymTrait> TrickGen<Card>{
     pub fn new( first_player: Side) -> Self{
 
         Self{first_player, north_card: None, south_card: None, west_card: None, east_card: None, card_num: 0}
@@ -69,10 +69,10 @@ impl<Card: Card2SymTrait> Trick<Card>{
     /// `Some(Side)` if determined
     /// `None` if trick is completed
     /// ```
-    /// use brydz_core::contract::Trick;
+    /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side::{East, North, South, West};
     /// use karty::cards::{ACE_SPADES, KING_CLUBS, KING_DIAMONDS, KING_HEARTS};
-    /// let mut trick = Trick::new(North);
+    /// let mut trick = TrickGen::new(North);
     /// assert_eq!(trick.current_side(), Some(North));
     /// trick.add_card_no_register(North, ACE_SPADES).unwrap();
     /// assert_eq!(trick.current_side(), Some(East));
@@ -96,38 +96,38 @@ impl<Card: Card2SymTrait> Trick<Card>{
     /// Adds card to trick with support for checking and updating suit exhaust table
     /// # Examples
     /// ```
-    /// use brydz_core::contract::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaust;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::error::TrickError;
-    /// use brydz_core::contract::Trick;
+    /// use brydz_core::error::TrickErrorGen;
+    /// use brydz_core::contract::TrickGen;
     /// use std::str::FromStr;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::{CardRegister, Register};
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_table = SuitExhaustStd::default();
-    /// let mut trick1 = Trick::<Card>::new(Side::West);
+    /// let mut exhaust_table = SuitExhaust::default();
+    /// let mut trick1 = TrickGen::<Card>::new(Side::West);
     /// trick1.add_card(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
     /// let r1 = trick1.add_card(Side::North, TEN_CLUBS, &mut exhaust_table);
     /// assert_eq!(r1, Ok(2));
     /// let r2 = trick1.add_card(Side::East, NINE_HEARTS, &mut exhaust_table);
     /// assert_eq!(r2, Ok(3));
     /// assert!(exhaust_table.is_registered(&(Side::East, Suit::Clubs)));
-    /// let mut trick2 = Trick::new(Side::East);
+    /// let mut trick2 = TrickGen::new(Side::East);
     /// let r3 = trick2.add_card(Side::East, NINE_CLUBS, &mut exhaust_table);
-    /// assert_eq!(r3, Err(TrickError::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
+    /// assert_eq!(r3, Err(TrickErrorGen::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
     ///
     /// ```
-    pub fn add_card<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickError<Card>>{
+    pub fn add_card<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickErrorGen<Card>>{
         //if exhaust_register.is_exhausted(&side, card.suit()){
         if exhaust_register.is_registered(&(side, card.suit().to_owned())){
             // This suit was already exhausted for player, therefore possible cheating
-            return Err(TrickError::UsedPreviouslyExhaustedSuit(card.suit().to_owned()))
+            return Err(TrickErrorGen::UsedPreviouslyExhaustedSuit(card.suit().to_owned()))
         }
         let side_in_order = match self.current_side(){
             Some(s) => s,
-            None => { return Err(TrickError::TrickFull)}
+            None => { return Err(TrickErrorGen::TrickFull)}
         };
         //let side_in_order = self.first_player.next_i(self.card_num);
         match side == side_in_order{
@@ -143,7 +143,7 @@ impl<Card: Card2SymTrait> Trick<Card>{
                         self[side] = Some(card);
                         Ok(self.card_num)
                     }
-                    true => Err(TrickError::DuplicateCard(card))
+                    true => Err(TrickErrorGen::DuplicateCard(card))
                 }
 
                 Some(_) => Err(CardSlotAlreadyUsed(side))
@@ -152,10 +152,10 @@ impl<Card: Card2SymTrait> Trick<Card>{
         }
     }
 
-    pub fn add_card_no_register(&mut self, side: Side, card: Card) ->  Result<u8, TrickError<Card>>{
+    pub fn add_card_no_register(&mut self, side: Side, card: Card) ->  Result<u8, TrickErrorGen<Card>>{
         let side_in_order = match self.current_side(){
             Some(s) => s,
-            None => { return Err(TrickError::TrickFull)}
+            None => { return Err(TrickErrorGen::TrickFull)}
         };
         match side == side_in_order{
             true => match self[side]{
@@ -165,7 +165,7 @@ impl<Card: Card2SymTrait> Trick<Card>{
                         self[side] = Some(card);
                         Ok(self.card_num)
                     }
-                    true => Err(TrickError::DuplicateCard(card))
+                    true => Err(TrickErrorGen::DuplicateCard(card))
                 }
 
                 Some(_) => Err(CardSlotAlreadyUsed(side))
@@ -181,17 +181,17 @@ impl<Card: Card2SymTrait> Trick<Card>{
     /// Checks if trick contains a  specific card
     /// ```
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::contract::Trick;
+    /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::contract::collision::{SuitExhaustStd};
+    /// use brydz_core::contract::collision::{SuitExhaust};
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_register = SuitExhaustStd::default();
+    /// let mut exhaust_register = SuitExhaust::default();
     ///
-    /// let mut trick = Trick::new(Side::North);
+    /// let mut trick = TrickGen::new(Side::North);
     /// trick.add_card(Side::North, JACK_SPADES, &mut exhaust_register);
     /// assert!(trick.contains(&JACK_SPADES));
     /// assert!(!trick.contains(&ACE_SPADES));
@@ -207,7 +207,7 @@ impl<Card: Card2SymTrait> Trick<Card>{
 
 
     /// Checks if two tricks collide in some card
-    pub fn collides(&self, other: &Trick<Card>) -> bool{
+    pub fn collides(&self, other: &TrickGen<Card>) -> bool{
         self.collision(other).is_some()
     }
 
@@ -219,28 +219,28 @@ impl<Card: Card2SymTrait> Trick<Card>{
     /// `None` if there is no collision
     /// ```
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::contract::Trick;
+    /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::contract::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaust;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut trick1 = Trick::new(Side::North);
-    /// let mut exhaust_register = SuitExhaustStd::default();
+    /// let mut trick1 = TrickGen::new(Side::North);
+    /// let mut exhaust_register = SuitExhaust::default();
     /// trick1.add_card(Side::North, JACK_SPADES,&mut exhaust_register).unwrap();
     ///
     /// trick1.add_card(Side::East, ACE_SPADES, &mut exhaust_register).unwrap();
     /// trick1.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
-    /// let mut trick2 = Trick::new(Side::North, );
+    /// let mut trick2 = TrickGen::new(Side::North, );
     /// trick2.add_card(Side::North, JACK_HEARTS, &mut exhaust_register).unwrap();
     /// trick2.add_card(Side::East, ACE_DIAMONDS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.collision(&trick2), None);
     /// trick2.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.collision(&trick2), Some(ACE_HEARTS));
     /// ```
-    pub fn collision(&self, other: &Trick<Card>) -> Option<Card>{
+    pub fn collision(&self, other: &TrickGen<Card>) -> Option<Card>{
         for oc in [&other[North], &other[East], &other[South], &other[West]]{
             match oc {
                 Some(c) => match self.contains(c){
@@ -259,16 +259,16 @@ impl<Card: Card2SymTrait> Trick<Card>{
     ///
     /// ```
     /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::contract::Trick;
+    /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::contract::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaust;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_register = SuitExhaustStd::default();
-    /// let mut trick = Trick::new(Side::North);
+    /// let mut exhaust_register = SuitExhaust::default();
+    /// let mut trick = TrickGen::new(Side::North);
     /// trick.add_card(Side::North, JACK_SPADES, &mut exhaust_register);
     /// trick.add_card(Side::East, ACE_SPADES, &mut exhaust_register);
     /// trick.add_card(Side::South, ACE_HEARTS, &mut exhaust_register);
@@ -301,7 +301,7 @@ impl<Card: Card2SymTrait> Trick<Card>{
         None
     }
 
-    fn winner_of_2(&self, winner_so_far: Side, check_side: Side, trump: &Trump<Card::Suit>) -> Result<Side, TrickError<Card>>{
+    fn winner_of_2(&self, winner_so_far: Side, check_side: Side, trump: &Trump<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
         match self[check_side] {
             None => Err(MissingCard(check_side)),
             Some(_) => match trump.order_cards(self[check_side].as_ref().unwrap(), self[winner_so_far].as_ref().unwrap()) {
@@ -317,23 +317,23 @@ impl<Card: Card2SymTrait> Trick<Card>{
     /// use brydz_core::cards::trump::Trump::{Colored, NoTrump};
     /// use brydz_core::cards::deck::Deck;
     /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
-    /// use brydz_core::contract::Trick;
+    /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
-    /// use brydz_core::contract::collision::SuitExhaustStd;
+    /// use brydz_core::contract::collision::SuitExhaust;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_register = SuitExhaustStd::default();
-    /// let mut trick1 = Trick::new(North);
+    /// let mut exhaust_register = SuitExhaust::default();
+    /// let mut trick1 = TrickGen::new(North);
     /// trick1.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// trick1.add_card(East, TWO_CLUBS, &mut exhaust_register).unwrap();
     /// trick1.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
     /// trick1.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.taker(&Colored(Hearts)).unwrap(), North);
-    /// let mut trick2 = Trick::new(North);
+    /// let mut trick2 = TrickGen::new(North);
     ///
     /// trick2.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// trick2.add_card(East, TWO_CLUBS, &mut exhaust_register).unwrap();
@@ -341,14 +341,14 @@ impl<Card: Card2SymTrait> Trick<Card>{
     /// trick2.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// assert_eq!(trick2.taker(&Colored(Clubs)).unwrap(), East);
     ///
-    /// let mut trick3 = Trick::new(East);
+    /// let mut trick3 = TrickGen::new(East);
     /// trick3.add_card(East, ACE_CLUBS, &mut exhaust_register).unwrap();
     /// trick3.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
     /// trick3.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// trick3.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
     /// ```
-    pub fn taker(&self, trump: &Trump<Card::Suit>) -> Result<Side, TrickError<Card>>{
+    pub fn taker(&self, trump: &Trump<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
         let mut winner_so_far = match self.north_card {
             None => { return Err(MissingCard(North))},
             Some(_) => North
@@ -378,7 +378,7 @@ impl<Card: Card2SymTrait> Trick<Card>{
 
     }
     pub fn prepare_new(&self, trump: Trump<Card::Suit>) -> Option<Self>{
-        self.taker(&trump).ok().map(|s| Trick::new(s))
+        self.taker(&trump).ok().map(|s| TrickGen::new(s))
     }
     pub fn called_suit(&self) -> Option<&Card::Suit>{
         self[self.first_player].as_ref().map(|c| c.suit())
@@ -389,7 +389,7 @@ impl<Card: Card2SymTrait> Trick<Card>{
 
 }
 
-impl<Card: Card2SymTrait> Default for Trick<Card>{
+impl<Card: Card2SymTrait> Default for TrickGen<Card>{
     fn default() -> Self {
         Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
     }

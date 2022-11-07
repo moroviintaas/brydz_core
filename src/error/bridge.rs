@@ -1,11 +1,11 @@
 use std::fmt::{Display, Formatter};
 use karty::cards::{Card2SymTrait, Card};
 use karty::suits::{SuitTrait};
-use crate::error::bidding::BiddingError;
+use crate::error::bidding::BiddingErrorGen;
 
 
-use crate::error::contract::ContractError;
-use crate::error::{DistributionError, HandError, ScoreError, TrickError};
+use crate::error::contract::ContractErrorGen;
+use crate::error::{DistributionError, HandError, ScoreError, TrickErrorGen};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -25,7 +25,7 @@ impl<T: Copy> Copy for Mismatch<T>{}
 
 
 
-impl<S: SuitTrait> Display for BiddingError<S>{
+impl<S: SuitTrait> Display for BiddingErrorGen<S>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
@@ -33,11 +33,11 @@ impl<S: SuitTrait> Display for BiddingError<S>{
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum BridgeCoreError<Card: Card2SymTrait>{
-    Deal(ContractError<Card>),
-    Bidding(BiddingError<Card::Suit>),
+pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
+    Deal(ContractErrorGen<Card>),
+    Bidding(BiddingErrorGen<Card::Suit>),
     Score(ScoreError),
-    Trick(TrickError<Card>),
+    Trick(TrickErrorGen<Card>),
     Distribution(DistributionError),
     Hand(HandError),
     Format(FormatError),
@@ -46,10 +46,10 @@ pub enum BridgeCoreError<Card: Card2SymTrait>{
 
 }
 
-impl<Card: Card2SymTrait> Display for BridgeCoreError<Card> {
+impl<Card: Card2SymTrait> Display for BridgeCoreErrorGen<Card> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self{
-            BridgeCoreError::Deal(deal_error)=> match f.alternate(){
+            BridgeCoreErrorGen::Deal(deal_error)=> match f.alternate(){
                 true => write!(f, "BridgeError::DealError {{ {:#} }} ", deal_error ),
                 false => write!(f, "BridgeError::DealError {{ {} }} ", deal_error ),
             }
@@ -59,13 +59,13 @@ impl<Card: Card2SymTrait> Display for BridgeCoreError<Card> {
     }
 }
 
-impl<Card: Card2SymTrait> std::error::Error for BridgeCoreError<Card>{}
+impl<Card: Card2SymTrait> std::error::Error for BridgeCoreErrorGen<Card>{}
 
 
 
 
 
-pub type BridgeCoreErrorStd = BridgeCoreError<Card>;
+pub type BridgeCoreError = BridgeCoreErrorGen<Card>;
 /*
 impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
     fn from(e: std::io::Error) -> Self {

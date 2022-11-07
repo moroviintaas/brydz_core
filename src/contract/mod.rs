@@ -1,6 +1,6 @@
 
 mod trick;
-pub use trick::{TrickStd, Trick};
+pub use trick::{Trick, TrickGen};
 mod maintainer;
 pub use maintainer::*;
 pub mod collision;

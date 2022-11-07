@@ -1,31 +1,31 @@
 use std::fmt::{Display, Formatter};
 use karty::cards::{Card2SymTrait, Card};
-use crate::error::{BridgeCoreError, TrickError};
+use crate::error::{BridgeCoreErrorGen, TrickErrorGen};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-pub enum ContractError<Card: Card2SymTrait>{
+pub enum ContractErrorGen<Card: Card2SymTrait>{
     DealFull,
     DealIncomplete,
     DuplicateCard(Card),
-    TrickError(TrickError<Card>),
+    TrickError(TrickErrorGen<Card>),
     IndexedOverCurrentTrick(usize),
     DummyReplaceAttempt,
     DummyNotPlaced,
 
 }
-impl<Card: Card2SymTrait>Display for ContractError<Card>{
+impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-pub type DealErrorStd = ContractError<Card>;
+pub type DealError = ContractErrorGen<Card>;
 
-impl<Card: Card2SymTrait> From<ContractError<Card>> for BridgeCoreError<Card>{
-    fn from(e: ContractError<Card>) -> Self {
+impl<Card: Card2SymTrait> From<ContractErrorGen<Card>> for BridgeCoreErrorGen<Card>{
+    fn from(e: ContractErrorGen<Card>) -> Self {
         Self::Deal(e)
     }
 }

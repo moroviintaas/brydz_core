@@ -3,7 +3,7 @@ use rand::{prelude::SliceRandom, thread_rng};
 
 use crate::player::side::SideAssociated;
 
-use super::hand::Hand;
+use super::hand::HandTrait;
 
 pub struct HandDistribution{
 
@@ -16,7 +16,7 @@ pub struct HandDistribution{
 /// ```
 /// use brydz_core::deal::fair_bridge_deal;
 /// use brydz_core::deal::hand::HandSetStd;
-/// use brydz_core::deal::hand::Hand;
+/// use brydz_core::deal::hand::HandTrait;
 /// use karty::cards::STANDARD_DECK;
 /// let mut table = fair_bridge_deal::<HandSetStd>();
 /// assert_eq!(table.north.len(), 13);
@@ -26,14 +26,14 @@ pub struct HandDistribution{
 /// for c in &STANDARD_DECK{
 ///     assert!(table.or(|h| h.contains(c)));
 /// }
-/// 
+///
 /// ```
 /// ```
 /// use brydz_core::deal::fair_bridge_deal;
-/// use brydz_core::deal::hand::StackHandStd;
-/// use brydz_core::deal::hand::Hand;
+/// use brydz_core::deal::hand::StackHand;
+/// use brydz_core::deal::hand::HandTrait;
 /// use karty::cards::STANDARD_DECK;
-/// let mut table = fair_bridge_deal::<StackHandStd>();
+/// let mut table = fair_bridge_deal::<StackHand>();
 /// assert_eq!(table.north.len(), 13);
 /// assert_eq!(table.east.len(), 13);
 /// assert_eq!(table.west.len(), 13);
@@ -41,9 +41,9 @@ pub struct HandDistribution{
 /// for c in &STANDARD_DECK{
 ///     assert!(table.or(|h| h.contains(c)));
 /// }
-/// 
+///
 /// ```
-pub fn fair_bridge_deal<H:Hand>() -> SideAssociated<H>{
+pub fn fair_bridge_deal<H: HandTrait>() -> SideAssociated<H>{
     let mut result = SideAssociated::<H>{
         north: H::new_empty(),
         east: H::new_empty(),

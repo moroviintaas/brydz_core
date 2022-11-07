@@ -1,9 +1,9 @@
 use karty::suits::SuitTrait;
-use crate::error::BiddingError::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
+use crate::error::BiddingErrorGen::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::bidding::{Doubling};
 use crate::player::side::Side;
 use crate::bidding::Bid;
-use crate::error::BiddingError;
+use crate::error::BiddingErrorGen;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
@@ -30,7 +30,7 @@ impl<S: SuitTrait> ContractSpec<S> {
         self.declarer
     }
 
-    pub fn double(&mut self) -> Result<(), BiddingError<S>>{
+    pub fn double(&mut self) -> Result<(), BiddingErrorGen<S>>{
         match self.doubling{
             Doubling::None => {
                 self.doubling = Doubling::Double;
@@ -41,7 +41,7 @@ impl<S: SuitTrait> ContractSpec<S> {
         }
     }
 
-    pub fn redouble(&mut self) -> Result<(), BiddingError<S>>{
+    pub fn redouble(&mut self) -> Result<(), BiddingErrorGen<S>>{
         match self.doubling{
             Doubling::Double => {
                 self.doubling = Doubling::ReDouble;

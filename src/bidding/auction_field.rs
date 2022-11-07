@@ -1,12 +1,12 @@
 use std::cmp::Ordering;
 use karty::suits::SuitTrait;
-use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
+use crate::error::BiddingErrorGen::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, DoubleOnSameAxis, DoubleOnVoidCall, ReDoubleAfterReDouble, ReDoubleOnSameAxis, ReDoubleOnVoidCall, ReDoubleWithoutDouble, ViolatedOrder};
 use crate::bidding::call::{Call, CallEntry, Doubling};
 
 use crate::bidding::bid::{Bid};
 use crate::bidding::declaration_storage::DeclarationStorage;
 use crate::contract::ContractSpec;
-use crate::error::{BiddingError, Mismatch};
+use crate::error::{BiddingErrorGen, Mismatch};
 
 use crate::player::side::Side;
 
@@ -61,7 +61,7 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
         self.current_contract.as_ref().map(|c| c.bid())
     }
 
-    pub fn add_contract_bid(&mut self, player_side: Side, call: Call<S>) -> Result<AuctionStatus, BiddingError<S>>{
+    pub fn add_contract_bid(&mut self, player_side: Side, call: Call<S>) -> Result<AuctionStatus, BiddingErrorGen<S>>{
         match self.current_contract{
             None => {
                 // First bid, must not be double or redouble
@@ -179,8 +179,8 @@ mod tests{
     use karty::suits::Suit;
     use karty::suits::Suit::{Clubs, Diamonds};
     use crate::cards::trump::Trump::Colored;
-    use crate::error::{BiddingError, Mismatch};
-    use crate::error::BiddingError::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
+    use crate::error::{BiddingErrorGen, Mismatch};
+    use crate::error::BiddingErrorGen::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
     use crate::bidding::auction_field::{AuctionStack};
     use crate::bidding::Bid;
     use crate::player::side::Side::{East, North, South, West};
@@ -244,7 +244,7 @@ mod tests{
             Doubling::None)));
         let r = auction_stack.add_contract_bid(South, Call::Bid(
             Bid::init(Colored(Clubs), 1).unwrap()));
-        assert_eq!(r, Err(BiddingError::ViolatedOrder(Mismatch{ expected: North, found: South})));
+        assert_eq!(r, Err(BiddingErrorGen::ViolatedOrder(Mismatch{ expected: North, found: South})));
 
     }
 

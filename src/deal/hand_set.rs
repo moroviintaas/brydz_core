@@ -7,7 +7,7 @@ use crate::{error::HandError};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
-use super::hand::Hand;
+use super::hand::HandTrait;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
@@ -26,7 +26,7 @@ impl <Crd: CardSymbol + Display> IntoIterator for HandSet<Crd>{
     }
 }
 
-impl<Crd: CardSymbol + Display> Hand for HandSet<Crd>{
+impl<Crd: CardSymbol + Display> HandTrait for HandSet<Crd>{
     type CardType = Crd;
 
     fn add_card(&mut self, card: Crd) -> Result<(), crate::error::HandError> {

@@ -1,13 +1,13 @@
 use karty::cards::Card2SymTrait;
 
 use karty::suits::SuitTrait;
-use crate::contract::{ContractSpec, ContractMaintainer};
-use crate::error::BridgeCoreError;
+use crate::contract::{ContractSpec, ContractMechanics};
+use crate::error::BridgeCoreErrorGen;
 use crate::player::axis::Axis;
 
-pub trait ScoreTracker<Co: ContractMaintainer<Card = Crd>, Crd: Card2SymTrait>: Default{
+pub trait ScoreTracker<Co: ContractMechanics<Card = Crd>, Crd: Card2SymTrait>: Default{
     fn winner_axis(&self) -> Option<Axis>;
-    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreError<Crd>>;
+    fn update(&mut self, deal: &Co) -> Result<(), BridgeCoreErrorGen<Crd>>;
     fn points(&self, axis: &Axis) -> i32;
 }
 
