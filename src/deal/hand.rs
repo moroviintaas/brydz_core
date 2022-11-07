@@ -2,7 +2,6 @@ use std::fmt::{Debug, Display};
 
 use karty::symbol::CardSymbol;
 
-pub use crate::deal::hand_vector::*;
 pub use crate::deal::hand_set::*;
 pub use crate::deal::compact_hand::*;
 use crate::error::HandError;

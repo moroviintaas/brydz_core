@@ -18,7 +18,7 @@ karty = {path = "../karty", features = ["register", "parse", "speedy"]}
 parking_lot = {version = "0.12.1", optional = true}
 speedy = {version = "0.8.3", optional =true}
 tokio = {version = "1.21.1", features = ["net", "rt", "rt-multi-thread", "io-util", "sync"], optional = true}
-anyhow = "1.0.64"
+#anyhow = "1.0.64"
 postcard = {version = "1.0.2", optional = true}
 
 [features]

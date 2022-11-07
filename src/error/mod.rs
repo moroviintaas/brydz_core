@@ -1,7 +1,7 @@
 mod bridge;
 pub use bridge::*;
-mod deal;
-pub use deal::*;
+mod contract;
+pub use contract::*;
 mod bidding;
 pub use bidding::*;
 mod trick;

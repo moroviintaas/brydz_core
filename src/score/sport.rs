@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use karty::cards::Card2Sym;
 use karty::suits::{SuitStd};
 use crate::contract::{ContractMaintainer};
-use crate::error::{BridgeCoreError, DealError};
+use crate::error::{BridgeCoreError, ContractError};
 use crate::player::axis::Axis;
 use crate::score::calculation::ScoreIngredient;
 use crate::score::ScoreTracker;
@@ -170,7 +170,7 @@ for ScoreTableSport{
 
         }
         else{
-            Err(BridgeCoreError::Deal(DealError::DealIncomplete))
+            Err(BridgeCoreError::Deal(ContractError::DealIncomplete))
         }
     }
 

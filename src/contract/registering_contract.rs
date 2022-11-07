@@ -8,8 +8,8 @@ use crate::contract::collision::{SuitExhaustStd, TrickCollision};
 use crate::contract::spec::ContractSpec;
 use crate::contract::maintainer::ContractMaintainer;
 use crate::contract::Trick;
-use crate::error::DealError;
-use crate::error::DealError::IndexedOverCurrentTrick;
+use crate::error::ContractError;
+use crate::error::ContractError::IndexedOverCurrentTrick;
 use crate::error::TrickError::MissingCard;
 use crate::meta::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
 use crate::player::axis::Axis;
@@ -53,7 +53,7 @@ impl<Crd: Card2Sym,
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::contract::ContractStd;
-    /// use brydz_core::error::DealError;
+    /// use brydz_core::error::ContractError;
     /// use brydz_core::player::side::Side;
     /// use std::str::FromStr;
     /// use brydz_core::contract::ContractMaintainer;
@@ -77,17 +77,17 @@ impl<Crd: Card2Sym,
     /// let r = contract.insert_card(Side::East, TEN_HEARTS);
     /// assert_eq!(r.unwrap(), Side::South);
     /// let r = contract.insert_card(Side::South, JACK_HEARTS);
-    /// assert_eq!(r, Err(DealError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Hearts))));
+    /// assert_eq!(r, Err(ContractError::TrickError(TrickError::UsedPreviouslyExhaustedSuit(SuitStd::Hearts))));
     /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
     /// contract.insert_card(Side::West, SIX_HEARTS).unwrap();
     /// let r = contract.insert_card(Side::North, THREE_HEARTS);
     ///
-    /// assert_eq!(r, Err(DealError::DuplicateCard(TWO_CLUBS)));
+    /// assert_eq!(r, Err(ContractError::DuplicateCard(TWO_CLUBS)));
     ///
     /// ```
-    fn insert_card(&mut self, side: Side, card: Crd) -> Result<Side, DealError<Crd>>{
+    fn insert_card(&mut self, side: Side, card: Crd) -> Result<Side, ContractError<Crd>>{
         if self.completed_tricks_number >= QUARTER_SIZE{
-            return Err(DealError::DealFull);
+            return Err(ContractError::DealFull);
         }
         match self.current_trick.add_card(side, card, &mut self.exhaust_table){
             Ok(4) => {
@@ -100,11 +100,11 @@ impl<Crd: Card2Sym,
                         }
 
                     }
-                    Err(e) => Err(DealError::TrickError( e))
+                    Err(e) => Err(ContractError::TrickError( e))
                 }
             },
             Ok(_) => Ok(side.next()),
-            Err(e) => Err(DealError::TrickError( e))
+            Err(e) => Err(ContractError::TrickError( e))
 
         }
     }
@@ -217,13 +217,13 @@ impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contr
     }
 
 
-    fn complete_current_trick(&mut self) -> Result<(), DealError<Card>>{
+    fn complete_current_trick(&mut self) -> Result<(), ContractError<Card>>{
         match self.completed_tricks_number {
             n@0..=MAX_INDEX_IN_DEAL => match self.current_trick.missing_card(){
-                Some(s) => Err(DealError::TrickError( MissingCard(s))),
+                Some(s) => Err(ContractError::TrickError( MissingCard(s))),
                 None => {
                     if let Some(c) = self.used_cards_memory.trick_collision(&self.current_trick){
-                        return Err(DealError::DuplicateCard(c));
+                        return Err(ContractError::DuplicateCard(c));
                     }
 
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
@@ -238,7 +238,7 @@ impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contr
 
             }
             //full if full >= QUARTER_SIZE => Err(DealError::DealFull),
-            _ => Err(DealError::DealFull),
+            _ => Err(ContractError::DealFull),
         }
     }
 
@@ -307,10 +307,10 @@ impl<Card: Card2Sym, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> Contr
     /// //deal_2.insert_trick(trick_2_2).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(1), Ok(North));
     /// ```
-    pub fn side_winning_trick(&self, index: usize) -> Result<Side, DealError<Card>>{
+    pub fn side_winning_trick(&self, index: usize) -> Result<Side, ContractError<Card>>{
         match index < self.completed_tricks_number {
             true => self[index].taker(self.contract_spec.bid().trump())
-                .map_err(|trick_err| DealError::TrickError(trick_err)),
+                .map_err(|trick_err| ContractError::TrickError(trick_err)),
             false => Err(IndexedOverCurrentTrick(self.completed_tricks_number))
         }
     }
@@ -357,8 +357,8 @@ mod tests{
     use crate::contract::maintainer::{ContractMaintainer};
     use crate::cards::deck::{Deck};
     use crate::contract::Contract;
-    use crate::error::DealError;
-    use crate::error::DealError::DealFull;
+    use crate::error::ContractError;
+    use crate::error::ContractError::DealFull;
     use crate::meta::QUARTER_SIZE;
     use crate::player::side::Side;
     use crate::player::side::Side::{East, North, South, West};
@@ -383,7 +383,7 @@ mod tests{
         let r = deal.insert_card(Side::West, TEN_HEARTS.clone());
 
 
-        assert_eq!(r, Err(DealError::DuplicateCard(ACE_SPADES)));
+        assert_eq!(r, Err(ContractError::DuplicateCard(ACE_SPADES)));
 
     }
 

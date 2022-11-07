@@ -4,7 +4,7 @@ use karty::suits::{Suit};
 use crate::error::bidding::BiddingError;
 
 
-use crate::error::deal::DealError;
+use crate::error::contract::ContractError;
 use crate::error::{DistributionError, HandError, ScoreError, TrickError};
 
 #[cfg(feature="speedy")]
@@ -34,7 +34,7 @@ impl<S:Suit> Display for BiddingError<S>{
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BridgeCoreError<Card: Card2Sym>{
-    Deal(DealError<Card>),
+    Deal(ContractError<Card>),
     Bidding(BiddingError<Card::Suit>),
     Score(ScoreError),
     Trick(TrickError<Card>),
