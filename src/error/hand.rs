@@ -1,4 +1,4 @@
-
+/*
 use karty::cards::Card2SymTrait;
 
 use crate::error::BridgeCoreErrorGen;
@@ -14,6 +14,18 @@ pub enum HandError{
     CardDuplicated,
     HandNotInitialised,
 }
+
+impl<Card: Card2SymTrait> From<HandError> for BridgeCoreErrorGen<Card>{
+    fn from(e: HandError) -> Self {
+        Self::Hand(e)
+    }
+}
+
+ */
+
+use karty::cards::Card2SymTrait;
+use karty::error::HandError;
+use crate::error::BridgeCoreErrorGen;
 
 impl<Card: Card2SymTrait> From<HandError> for BridgeCoreErrorGen<Card>{
     fn from(e: HandError) -> Self {

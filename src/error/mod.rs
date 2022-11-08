@@ -15,7 +15,8 @@ pub use score::*;
 pub use trick::*;
 pub use distribution::*;
 pub use correctness::*;
-pub use hand::*;
+//pub use hand::*;
+pub use crate::karty::error::HandError;
 
 
 mod format;
