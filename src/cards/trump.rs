@@ -80,7 +80,8 @@ pub const TRUMPS: [Trump<Suit>; 5] = [Colored(Spades), Colored(Hearts), Colored(
 mod tests{
     use std::cmp::Ordering;
     use karty::cards::Card2SGen;
-    use karty::figures::{Ace, Numbered, NumberFigure, Queen};
+    use karty::figures::{Ace, NumberFigure, Queen};
+    use karty::figures::Figure::Numbered;
     use karty::suits::Suit::{Diamonds, Hearts, Spades};
 
     use crate::cards::trump::Trump;

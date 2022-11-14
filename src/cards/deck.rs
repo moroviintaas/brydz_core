@@ -28,15 +28,15 @@ impl Deck{
 
 
     pub fn new_sorted_by_suits() -> Self{
-        let v: ArrayVec<Card2SGen<Figure, Suit>, DECK_SIZE> = ArrayVec::from_iter(SUITS.into_iter()
-            .cartesian_product(FIGURES.into_iter())
+        let v: ArrayVec<Card2SGen<Figure, Suit>, DECK_SIZE> = ArrayVec::from_iter(SUITS.into_iter().rev()
+            .cartesian_product(FIGURES.into_iter().rev())
             .map(|(s,f)| Card2SGen::new(f, s)));
 
         Self{cards: v}
     }
     pub fn new_sorted_by_figures() -> Self{
-        let v: ArrayVec<Card2SGen<Figure, Suit>, DECK_SIZE> = ArrayVec::from_iter(FIGURES.into_iter()
-            .cartesian_product(SUITS.into_iter())
+        let v: ArrayVec<Card2SGen<Figure, Suit>, DECK_SIZE> = ArrayVec::from_iter(FIGURES.into_iter().rev()
+            .cartesian_product(SUITS.into_iter().rev())
             .map(|(s,f)| Card2SGen::new(s, f)));
 
         Self{cards: v}

@@ -1,3 +1,10 @@
+//! Module containing basic Symbol trait
+//! # Licence:
+//! MIT: [https://mit-license.org/](https://mit-license.org/)
+//! # Authors:
+//! [morovintaas](mailto:moroviintaas@gmail.com)
+//!
+//!
 pub mod player;
 pub mod contract;
 pub mod score;

@@ -393,7 +393,9 @@ mod tests{
         let num_of_sides = 4usize;
         let deck = Deck::new_sorted_by_suits();
         //let mut contract = Deal::new(South, Trump::NoTrump);
-        let mut deal = ContractGen::<Card, CardRegister, SuitExhaust>::new(ContractSpec::new(West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
+        let mut deal = ContractGen::<Card, CardRegister, SuitExhaust>::new(
+            ContractSpec::new(
+                West, Bid::init(Trump::NoTrump, 1).unwrap(), ));
         for i in 0..QUARTER_SIZE{
 
             deal.insert_card(Side::North,deck[num_of_sides*i].clone()).unwrap();
@@ -497,16 +499,6 @@ mod tests{
         assert_eq!(deal.total_tricks_taken_side(West), 3);
         assert_eq!(deal.total_tricks_taken_side(North), 1);
 
-
-
-
-
-
-
-
-
-
-        //trick.
 
     }
 
