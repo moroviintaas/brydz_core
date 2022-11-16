@@ -1,9 +1,10 @@
 use karty::symbol::CardSymbol;
 use rand::{prelude::SliceRandom, thread_rng};
+use karty::hand::HandTrait;
 
 use crate::player::side::SideAssociated;
 
-use super::hand::HandTrait;
+//use super::hand::HandTrait;
 
 pub struct HandDistribution{
 
@@ -15,9 +16,8 @@ pub struct HandDistribution{
 /// It uses `CardSymbol::iterator()` 
 /// ```
 /// use brydz_core::deal::fair_bridge_deal;
-/// use brydz_core::deal::hand::HandSetStd;
-/// use brydz_core::deal::hand::HandTrait;
 /// use karty::cards::STANDARD_DECK;
+/// use karty::hand::{HandSetStd, HandTrait};
 /// let mut table = fair_bridge_deal::<HandSetStd>();
 /// assert_eq!(table.north.len(), 13);
 /// assert_eq!(table.east.len(), 13);
@@ -30,9 +30,8 @@ pub struct HandDistribution{
 /// ```
 /// ```
 /// use brydz_core::deal::fair_bridge_deal;
-/// use brydz_core::deal::hand::StackHand;
-/// use brydz_core::deal::hand::HandTrait;
 /// use karty::cards::STANDARD_DECK;
+/// use karty::hand::{HandTrait, StackHand};
 /// let mut table = fair_bridge_deal::<StackHand>();
 /// assert_eq!(table.north.len(), 13);
 /// assert_eq!(table.east.len(), 13);
