@@ -233,8 +233,7 @@ impl<Crd: Card2SymTrait,
         match self.current_trick.is_empty(){
             true => {
                 self.completed_tricks_number -= 1;
-                //self.current_trick = self.tricks[self.completed_tricks_number].take();
-                self.current_trick = mem::replace(&mut self.tricks[self.completed_tricks_number], TrickGen::default());
+                self.current_trick = mem::take(&mut self.tricks[self.completed_tricks_number]);
                 self.current_trick.undo()
             },
             false => self.current_trick.undo()
@@ -261,19 +260,17 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
                     if let Some(c) = self.used_cards_memory.trick_collision(&self.current_trick){
                         return Err(ContractErrorGen::DuplicateCard(c));
                     }
-
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
 
                     self.used_cards_memory.mark_cards_of_trick(&self.current_trick);
                     self.tricks[n] = mem::replace(&mut self.current_trick, TrickGen::new(next_player));
 
-                    //self.current_trick = Trick::new(next_player);
                     self.completed_tricks_number = n+1;
                     Ok(())
                 }
 
             }
-            //full if full >= QUARTER_SIZE => Err(DealError::DealFull),
+
             _ => Err(ContractErrorGen::DealFull),
         }
     }
