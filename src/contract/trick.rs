@@ -74,13 +74,13 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::cards::{ACE_SPADES, KING_CLUBS, KING_DIAMONDS, KING_HEARTS};
     /// let mut trick = TrickGen::new(North);
     /// assert_eq!(trick.current_side(), Some(North));
-    /// trick.add_card_no_register(North, ACE_SPADES).unwrap();
+    /// trick.add_card_not_registered(North, ACE_SPADES).unwrap();
     /// assert_eq!(trick.current_side(), Some(East));
-    /// trick.add_card_no_register(East, KING_HEARTS).unwrap();
+    /// trick.add_card_not_registered(East, KING_HEARTS).unwrap();
     /// assert_eq!(trick.current_side(), Some(South));
-    /// trick.add_card_no_register(South, KING_DIAMONDS).unwrap();
+    /// trick.add_card_not_registered(South, KING_DIAMONDS).unwrap();
     /// assert_eq!(trick.current_side(), Some(West));
-    /// trick.add_card_no_register(West, KING_CLUBS).unwrap();
+    /// trick.add_card_not_registered(West, KING_CLUBS).unwrap();
     /// assert!(trick.current_side().is_none());
     /// ```
     pub fn current_side(&self) -> Option<Side>{
@@ -108,18 +108,18 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     ///
     /// let mut exhaust_table = SuitExhaust::default();
     /// let mut trick1 = TrickGen::<Card>::new(Side::West);
-    /// trick1.add_card(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
-    /// let r1 = trick1.add_card(Side::North, TEN_CLUBS, &mut exhaust_table);
+    /// trick1.add_card_registered(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
+    /// let r1 = trick1.add_card_registered(Side::North, TEN_CLUBS, &mut exhaust_table);
     /// assert_eq!(r1, Ok(2));
-    /// let r2 = trick1.add_card(Side::East, NINE_HEARTS, &mut exhaust_table);
+    /// let r2 = trick1.add_card_registered(Side::East, NINE_HEARTS, &mut exhaust_table);
     /// assert_eq!(r2, Ok(3));
     /// assert!(exhaust_table.is_registered(&(Side::East, Suit::Clubs)));
     /// let mut trick2 = TrickGen::new(Side::East);
-    /// let r3 = trick2.add_card(Side::East, NINE_CLUBS, &mut exhaust_table);
+    /// let r3 = trick2.add_card_registered(Side::East, NINE_CLUBS, &mut exhaust_table);
     /// assert_eq!(r3, Err(TrickErrorGen::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
     ///
     /// ```
-    pub fn add_card<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickErrorGen<Card>>{
+    pub fn add_card_registered<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickErrorGen<Card>>{
         //if exhaust_register.is_exhausted(&side, card.suit()){
         if exhaust_register.is_registered(&(side, card.suit().to_owned())){
             // This suit was already exhausted for player, therefore possible cheating
@@ -152,7 +152,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
         }
     }
 
-    pub fn add_card_no_register(&mut self, side: Side, card: Card) ->  Result<u8, TrickErrorGen<Card>>{
+    pub fn add_card_not_registered(&mut self, side: Side, card: Card) ->  Result<u8, TrickErrorGen<Card>>{
         let side_in_order = match self.current_side(){
             Some(s) => s,
             None => { return Err(TrickErrorGen::TrickFull)}
@@ -171,6 +171,42 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                 Some(_) => Err(CardSlotAlreadyUsed(side))
             },
             false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
+        }
+    }
+    /// ```
+    /// use brydz_core::contract::TrickGen;
+    /// use brydz_core::player::side::Side::{East, North, South, West};
+    /// use karty::cards::{ACE_SPADES, JACK_SPADES, KING_SPADES, QUEEN_SPADES};
+    /// let mut trick = TrickGen::new(North);
+    /// assert_eq!(trick.undo(), None);
+    /// trick.add_card_not_registered(North, ACE_SPADES).unwrap();
+    /// trick.add_card_not_registered(East, KING_SPADES).unwrap();
+    /// trick.add_card_not_registered(South, QUEEN_SPADES).unwrap();
+    /// trick.add_card_not_registered(West, JACK_SPADES).unwrap();
+    /// assert_eq!(trick.current_side(), None);
+    /// assert!(trick.is_complete());
+    /// assert_eq!(trick.undo(), Some(JACK_SPADES));
+    /// assert_eq!(trick.undo(), Some(QUEEN_SPADES));
+    /// assert_eq!(trick.undo(), Some(KING_SPADES));
+    /// assert_eq!(trick.undo(), Some(ACE_SPADES));
+    /// assert!(trick.is_empty());
+    /// ```
+    pub fn undo(&mut self) -> Option<Card>{
+        match self.is_empty(){
+            true => None,
+            false => match &self.current_side(){
+                    None => {
+                        self.card_num -= 1;
+                        let side = self.first_player.next_i(3);
+                        self[side].take()
+                    },
+                    Some(s) => {
+                        self.card_num -= 1;
+                        self[s.prev()].take()
+                    }
+
+
+            }
         }
     }
 
@@ -192,7 +228,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// let mut exhaust_register = SuitExhaust::default();
     ///
     /// let mut trick = TrickGen::new(Side::North);
-    /// trick.add_card(Side::North, JACK_SPADES, &mut exhaust_register);
+    /// trick.add_card_registered(Side::North, JACK_SPADES, &mut exhaust_register);
     /// assert!(trick.contains(&JACK_SPADES));
     /// assert!(!trick.contains(&ACE_SPADES));
     /// ```
@@ -229,15 +265,15 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     ///
     /// let mut trick1 = TrickGen::new(Side::North);
     /// let mut exhaust_register = SuitExhaust::default();
-    /// trick1.add_card(Side::North, JACK_SPADES,&mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(Side::North, JACK_SPADES,&mut exhaust_register).unwrap();
     ///
-    /// trick1.add_card(Side::East, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(Side::East, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
     /// let mut trick2 = TrickGen::new(Side::North, );
-    /// trick2.add_card(Side::North, JACK_HEARTS, &mut exhaust_register).unwrap();
-    /// trick2.add_card(Side::East, ACE_DIAMONDS, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(Side::North, JACK_HEARTS, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(Side::East, ACE_DIAMONDS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.collision(&trick2), None);
-    /// trick2.add_card(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.collision(&trick2), Some(ACE_HEARTS));
     /// ```
     pub fn collision(&self, other: &TrickGen<Card>) -> Option<Card>{
@@ -269,11 +305,11 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     ///
     /// let mut exhaust_register = SuitExhaust::default();
     /// let mut trick = TrickGen::new(Side::North);
-    /// trick.add_card(Side::North, JACK_SPADES, &mut exhaust_register);
-    /// trick.add_card(Side::East, ACE_SPADES, &mut exhaust_register);
-    /// trick.add_card(Side::South, ACE_HEARTS, &mut exhaust_register);
+    /// trick.add_card_registered(Side::North, JACK_SPADES, &mut exhaust_register);
+    /// trick.add_card_registered(Side::East, ACE_SPADES, &mut exhaust_register);
+    /// trick.add_card_registered(Side::South, ACE_HEARTS, &mut exhaust_register);
     /// assert!(!trick.is_complete());
-    /// trick.add_card(Side::West, JACK_HEARTS, &mut exhaust_register);
+    /// trick.add_card_registered(Side::West, JACK_HEARTS, &mut exhaust_register);
     /// assert!(trick.is_complete());
     ///
     /// ```
@@ -328,24 +364,24 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     ///
     /// let mut exhaust_register = SuitExhaust::default();
     /// let mut trick1 = TrickGen::new(North);
-    /// trick1.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick1.add_card(East, TWO_CLUBS, &mut exhaust_register).unwrap();
-    /// trick1.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(East, TWO_CLUBS, &mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.add_card_registered(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// assert_eq!(trick1.taker(&Colored(Hearts)).unwrap(), North);
     /// let mut trick2 = TrickGen::new(North);
     ///
-    /// trick2.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick2.add_card(East, TWO_CLUBS, &mut exhaust_register).unwrap();
-    /// trick2.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick2.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(East, TWO_CLUBS, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick2.add_card_registered(West, TEN_SPADES, &mut exhaust_register).unwrap();
     /// assert_eq!(trick2.taker(&Colored(Clubs)).unwrap(), East);
     ///
     /// let mut trick3 = TrickGen::new(East);
-    /// trick3.add_card(East, ACE_CLUBS, &mut exhaust_register).unwrap();
-    /// trick3.add_card(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick3.add_card(West, TEN_SPADES, &mut exhaust_register).unwrap();
-    /// trick3.add_card(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick3.add_card_registered(East, ACE_CLUBS, &mut exhaust_register).unwrap();
+    /// trick3.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
+    /// trick3.add_card_registered(West, TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick3.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
     /// ```
     pub fn taker(&self, trump: &Trump<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{

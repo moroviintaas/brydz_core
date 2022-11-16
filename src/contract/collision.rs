@@ -50,9 +50,9 @@ mod tests_card_memory{
         let mut exhaust_register = SuitExhaust::default();
 
         let mut trick = TrickGen::new(Side::South);
-        trick.add_card(Side::South, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-        trick.add_card(Side::West, TEN_CLUBS, &mut exhaust_register).unwrap();
-        trick.add_card(Side::North, EIGHT_DIAMONDS, &mut exhaust_register).unwrap();
+        trick.add_card_registered(Side::South, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+        trick.add_card_registered(Side::West, TEN_CLUBS, &mut exhaust_register).unwrap();
+        trick.add_card_registered(Side::North, EIGHT_DIAMONDS, &mut exhaust_register).unwrap();
         assert_eq!(register.trick_collision(&trick), None);
         register.register(QUEEN_HEARTS);
         assert_eq!(register.trick_collision(&trick), Some(QUEEN_HEARTS))

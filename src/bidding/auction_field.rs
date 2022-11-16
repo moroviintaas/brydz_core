@@ -71,7 +71,7 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                         //self.last_player = Some(player_side);
                         Ok(AuctionStatus::Running(player_side.next()))
                     },
-                    Call::Bid(ref bid) => {
+                    Call::NewBid(ref bid) => {
                         self.calls_entries.push(CallEntry::new(player_side, call.to_owned()));
 
                         match self.declaration_storage.get_declarer(player_side.axis(), bid.trump()){
@@ -108,7 +108,7 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                                 }
 
                             },
-                            Call::Bid(ref bid) => match bid.cmp( self.current_bid().unwrap()){
+                            Call::NewBid(ref bid) => match bid.cmp( self.current_bid().unwrap()){
                                 Ordering::Greater => {
 
                                     match self.declaration_storage.get_declarer(player_side.axis(), bid.trump()){
@@ -195,7 +195,7 @@ mod tests{
         auction_stack.add_contract_bid(East, Call::Pass).unwrap();
         auction_stack.add_contract_bid(South, Call::Pass).unwrap();
         assert_eq!(auction_stack.current_contract, None);
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
@@ -206,7 +206,7 @@ mod tests{
             bid: Bid::create_bid(Colored(Clubs), 1).unwrap(),
             doubling: Doubling::None
         }*/));
-        auction_stack.add_contract_bid(North, Call::Bid(
+        auction_stack.add_contract_bid(North, Call::NewBid(
             Bid::init(Colored(Diamonds), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
@@ -214,7 +214,7 @@ mod tests{
             Doubling::None)));
         auction_stack.add_contract_bid(East, Call::Pass).unwrap();
 
-        auction_stack.add_contract_bid(South, Call::Bid(
+        auction_stack.add_contract_bid(South, Call::NewBid(
             Bid::init(Colored(Diamonds), 2).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
@@ -236,13 +236,13 @@ mod tests{
     #[test]
     fn violate_auction_order(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
-        let r = auction_stack.add_contract_bid(South, Call::Bid(
+        let r = auction_stack.add_contract_bid(South, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap()));
         assert_eq!(r, Err(BiddingErrorGen::ViolatedOrder(Mismatch{ expected: North, found: South})));
 
@@ -251,7 +251,7 @@ mod tests{
     #[test]
     fn double_after_double(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
@@ -266,7 +266,7 @@ mod tests{
     #[test]
     fn redouble_after_redouble(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
@@ -282,7 +282,7 @@ mod tests{
     #[test]
     fn double_after_redouble(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
@@ -297,7 +297,7 @@ mod tests{
     #[test]
     fn redouble_without_double(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 1).unwrap())).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             West,
@@ -310,10 +310,10 @@ mod tests{
     #[test]
     fn bid_too_low(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(
+        auction_stack.add_contract_bid(West, Call::NewBid(
             Bid::init(Colored(Clubs), 2).unwrap())).unwrap();
 
-        let r = auction_stack.add_contract_bid(North, Call::Bid(
+        let r = auction_stack.add_contract_bid(North, Call::NewBid(
             Bid::init(Colored(Diamonds), 1).unwrap()));
         assert_eq!(r, Err(BidTooLow(Mismatch{
             expected: Bid::init(Colored(Clubs), 2).unwrap(),
@@ -323,9 +323,9 @@ mod tests{
     #[test]
     fn declarer_simple(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(BID_C1)).unwrap();
-        auction_stack.add_contract_bid(North, Call::Bid(BID_C2)).unwrap();
-        auction_stack.add_contract_bid(East, Call::Bid(BID_S2)).unwrap();
+        auction_stack.add_contract_bid(West, Call::NewBid(BID_C1)).unwrap();
+        auction_stack.add_contract_bid(North, Call::NewBid(BID_C2)).unwrap();
+        auction_stack.add_contract_bid(East, Call::NewBid(BID_S2)).unwrap();
 
         assert_eq!(auction_stack.current_contract().unwrap().declarer(), East);
 
@@ -334,9 +334,9 @@ mod tests{
     #[test]
     fn declarer_partner(){
         let mut auction_stack = AuctionStack::<Suit, GeneralDeclarationStorage<Suit>>::new();
-        auction_stack.add_contract_bid(West, Call::Bid(BID_C1)).unwrap();
-        auction_stack.add_contract_bid(North, Call::Bid(BID_C2)).unwrap();
-        auction_stack.add_contract_bid(East, Call::Bid(BID_C3)).unwrap();
+        auction_stack.add_contract_bid(West, Call::NewBid(BID_C1)).unwrap();
+        auction_stack.add_contract_bid(North, Call::NewBid(BID_C2)).unwrap();
+        auction_stack.add_contract_bid(East, Call::NewBid(BID_C3)).unwrap();
 
         assert_eq!(auction_stack.current_contract().unwrap().declarer(), West);
 

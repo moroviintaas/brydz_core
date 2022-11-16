@@ -7,6 +7,11 @@ use crate::player::side::Side::{East, North, South, West};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
+/// ```
+/// use brydz_core::player::side::{Side};
+/// use karty::cards::Card;
+/// assert_eq!(std::mem::size_of::<Side>(), 1)
+/// ```
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -73,8 +78,12 @@ impl Side{
         }
     }
 }
-
-#[derive(Debug, Clone)]
+/// ```
+/// use brydz_core::player::side::SideAssociated;
+/// use karty::cards::Card;
+/// assert_eq!(std::mem::size_of::<SideAssociated<Card>>(), 12)
+/// ```
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SideAssociated<T>{
     pub north: T,
     pub east: T,

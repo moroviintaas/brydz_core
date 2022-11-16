@@ -19,7 +19,7 @@ pub enum Doubling{
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum Call<S: SuitTrait> {
-    Bid(Bid<S>),
+    NewBid(Bid<S>),
     Double,
     ReDouble,
     Pass

@@ -89,7 +89,7 @@ impl<Crd: Card2SymTrait,
         if self.completed_tricks_number >= QUARTER_SIZE{
             return Err(ContractErrorGen::DealFull);
         }
-        match self.current_trick.add_card(side, card, &mut self.exhaust_table){
+        match self.current_trick.add_card_registered(side, card, &mut self.exhaust_table){
             Ok(4) => {
                 match self.current_trick.taker(self.trump()){
                     Ok(winner) => {
@@ -116,7 +116,6 @@ impl<Crd: Card2SymTrait,
             _ => panic!("Number of tricks in contract should never ever exceed {}.", QUARTER_SIZE)
         }
     }
-
     fn completed_tricks(&self) -> Vec<TrickGen<Crd>> {
         let mut r = Vec::new();
         for i in 0..self.completed_tricks_number{
@@ -204,6 +203,43 @@ impl<Crd: Card2SymTrait,
         self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract_spec.bid().trump()).unwrap().axis() == axis).count()
     }
 
+    /// ```
+    /// use brydz_core::bidding::Bid;
+    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::contract::{Contract, ContractMechanics, ContractSpec};
+    /// use brydz_core::player::side::Side::{East, North, South, West};
+    /// use karty::cards::{EIGHT_HEARTS, FIVE_DIAMONDS, FOUR_SPADES, JACK_SPADES, TEN_SPADES};
+    /// use karty::suits::Suit::Diamonds;
+    /// let mut contract = Contract::new(ContractSpec::new(West, Bid::init(Trump::Colored(Diamonds), 1).unwrap(),));
+    /// contract.insert_card(North, JACK_SPADES).unwrap();
+    /// contract.insert_card(East, TEN_SPADES).unwrap();
+    /// contract.insert_card(South, FOUR_SPADES).unwrap();
+    /// contract.insert_card(West, FIVE_DIAMONDS).unwrap(); //winner
+    ///
+    /// contract.insert_card(West, EIGHT_HEARTS).unwrap();
+    /// assert_eq!(contract.count_completed_tricks(), 1);
+    /// assert_eq!(contract.undo(), Some(EIGHT_HEARTS));
+    /// assert_eq!(contract.current_side(), Some(West));
+    /// assert_eq!(contract.undo(), Some(FIVE_DIAMONDS));
+    /// assert_eq!(contract.current_side(), Some(West));
+    /// assert_eq!(contract.undo(), Some(FOUR_SPADES));
+    /// assert_eq!(contract.current_side(), Some(South));
+    /// assert_eq!(contract.undo(), Some(TEN_SPADES));
+    /// assert_eq!(contract.current_side(), Some(East));
+    /// assert_eq!(contract.undo(), Some(JACK_SPADES));
+    /// assert_eq!(contract.current_side(), Some(North));
+    /// ```
+    fn undo(&mut self) -> Option<Self::Card>{
+        match self.current_trick.is_empty(){
+            true => {
+                self.completed_tricks_number -= 1;
+                //self.current_trick = self.tricks[self.completed_tricks_number].take();
+                self.current_trick = mem::replace(&mut self.tricks[self.completed_tricks_number], TrickGen::default());
+                self.current_trick.undo()
+            },
+            false => self.current_trick.undo()
+        }
+    }
 }
 
 impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> ContractGen<Card, Um, Se>{
