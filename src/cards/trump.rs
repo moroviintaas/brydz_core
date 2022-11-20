@@ -1,7 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
-use karty::cards::{Card2SymTrait};
 use karty::suits::{SuitTrait, Suit};
 use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
 
@@ -21,6 +20,7 @@ pub enum Trump<S: SuitTrait>{
 pub type TrumpStd = Trump<Suit>;
 
 impl<S: SuitTrait> Trump<S>{
+    /*
     pub fn order_cards<Card: Card2SymTrait<Suit = S>> (&self, card_one: &Card, card_two: &Card) -> Ordering{
         match self{
             Trump::NoTrump => {
@@ -40,7 +40,7 @@ impl<S: SuitTrait> Trump<S>{
                 }
             }
         }
-    }
+    }*/
 
 
 
@@ -78,6 +78,7 @@ pub const TRUMPS: [Trump<Suit>; 5] = [Colored(Spades), Colored(Hearts), Colored(
 
 #[cfg(test)]
 mod tests{
+    /*
     use std::cmp::Ordering;
     use karty::cards::Card2SGen;
     use karty::figures::{Ace, NumberFigure, Queen};
@@ -117,5 +118,6 @@ mod tests{
         assert_eq!(trump.order_cards(&c1, &c5), Ordering::Greater);
 
     }
+    */
 }
 

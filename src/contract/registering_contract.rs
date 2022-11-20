@@ -325,20 +325,26 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
     /// deal_1.insert_card(West, JACK_SPADES).unwrap();
     /// deal_1.insert_card(North, ACE_SPADES).unwrap();
     /// assert_eq!(deal_1.side_winning_trick(0), Ok(North));
+    /// deal_1.insert_card(North, ACE_HEARTS).unwrap();
+    /// deal_1.insert_card(East, KING_HEARTS).unwrap();
+    /// deal_1.insert_card(South, QUEEN_HEARTS).unwrap();
+    /// deal_1.insert_card(West, TWO_DIAMONDS).unwrap();
+    /// assert_eq!(deal_1.side_winning_trick(1), Ok(West));
     ///
     /// let mut deal_2 = Contract::new(ContractSpec::new_d(West, Bid::init(Trump::NoTrump, 1u8).unwrap(), Doubling::None));
     ///
     /// deal_2.insert_card(North, TWO_DIAMONDS).unwrap();
-    /// deal_2.insert_card(East, ACE_CLUBS).unwrap();
-    /// deal_2.insert_card(South, QUEEN_CLUBS).unwrap();
-    /// deal_2.insert_card(West, THREE_DIAMONDS).unwrap();
+    /// deal_2.insert_card(East, THREE_DIAMONDS).unwrap();
+    /// deal_2.insert_card(South, ACE_SPADES).unwrap();
+    /// deal_2.insert_card(West, SIX_DIAMONDS).unwrap();
     /// assert_eq!(deal_2.side_winning_trick(0), Ok(West));
     /// deal_2.insert_card(West, FOUR_DIAMONDS).unwrap();
-    /// deal_2.insert_card(North, JACK_DIAMONDS).unwrap();
-    /// deal_2.insert_card(East, KING_CLUBS).unwrap();
+    /// deal_2.insert_card(North, KING_CLUBS).unwrap();
+    /// deal_2.insert_card(East, FIVE_DIAMONDS).unwrap();
     /// deal_2.insert_card(South, NINE_SPADES).unwrap();
     /// //deal_2.insert_trick(trick_2_2).unwrap();
-    /// assert_eq!(deal_2.side_winning_trick(1), Ok(North));
+    /// assert_eq!(deal_2.side_winning_trick(1), Ok(East));
+    /// 
     /// ```
     pub fn side_winning_trick(&self, index: usize) -> Result<Side, ContractErrorGen<Card>>{
         match index < self.completed_tricks_number {
