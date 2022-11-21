@@ -27,14 +27,14 @@ impl PointsSlam{
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling::ReDouble;
-    /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::cards::trump::Trump::NoTrump;
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::POINTS_SLAM;
     /// use karty::suits::Suit::Hearts;
-    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_SLAM;
     /// assert_eq!(points_table.points(&contract, 13, false), 0);
-    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 6).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(TrumpGen::Colored(Hearts), 6).unwrap(),);
     /// assert_eq!(points_table.points(&contract, 12, false), 500);
     /// assert_eq!(points_table.points(&contract, 12, true), 750);
     /// assert_eq!(points_table.points(&contract, 13, true), 750);

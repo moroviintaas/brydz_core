@@ -40,7 +40,7 @@ for ScoreTableSport{
     /// # Example:
     /// ```
     /// use brydz_core::bidding::Bid;
-    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::{ContractSpec, ContractMechanics, Contract};
     /// use brydz_core::player::axis::Axis::NorthSouth;
     /// use brydz_core::player::side::Side::{East, North, South, West};
@@ -51,7 +51,7 @@ for ScoreTableSport{
     /// use karty::figures::Figure;
     /// use karty::suits::Suit;
     /// let mut score = ScoreTableSport::new(false, false);
-    /// let mut deal = Contract::new(ContractSpec::new(South, Bid::init(Trump::Colored(Diamonds), 3).unwrap()));
+    /// let mut deal = Contract::new(ContractSpec::new(South, Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap()));
     /// deal.insert_card(West, ACE_CLUBS).expect("Error inserting in deal 0.");
     /// deal.insert_card(North, THREE_CLUBS).expect("Error inserting card 1.");
     /// deal.insert_card(East, FOUR_CLUBS).expect("Error inserting card  2.");

@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 use std::ops::{Index, IndexMut};
 use karty::cards::{Card2SymTrait, Card};
 use karty::register::Register;
-use crate::cards::trump::Trump;
+use crate::cards::trump::TrumpGen;
 
 use crate::error::TrickErrorGen::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
 use crate::error::{Mismatch, TrickErrorGen};
@@ -216,7 +216,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
     /// Checks if trick contains a  specific card
     /// ```
-    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::contract::collision::{SuitExhaust};
@@ -254,7 +254,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// `Some(c: Card)` if there is a collision with card `c`
     /// `None` if there is no collision
     /// ```
-    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::contract::collision::SuitExhaust;
@@ -294,7 +294,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// Checks if trick is complete
     ///
     /// ```
-    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
     /// use brydz_core::contract::collision::SuitExhaust;
@@ -337,7 +337,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
         None
     }
 
-    fn winner_of_2(&self, side_one: Side, side_two: Side, trump: &Trump<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
+    fn winner_of_2(&self, side_one: Side, side_two: Side, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
         let leading_suit = match &self[self.first_player]{
             Some(c) => c.suit(),
             None => {return Err(MissingCard(self.first_player))},
@@ -357,7 +357,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                     }
                 } else{
                     match trump{
-                        Trump::Colored(s) => {
+                        TrumpGen::Colored(s) => {
                             if c1.suit() == s{
                                 return Ok(side_one);
                             }
@@ -374,7 +374,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
                             
                         },
-                        Trump::NoTrump => {
+                        TrumpGen::NoTrump => {
                             if c1.suit() == leading_suit{
                                 return Ok(side_one);
                             }
@@ -392,8 +392,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
     /// Tries to pick a winner of a trick
     /// ```
-    /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::cards::trump::Trump::{Colored, NoTrump};
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::cards::trump::TrumpGen::{Colored, NoTrump};
     /// use brydz_core::cards::deck::Deck;
     /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
     /// use brydz_core::contract::TrickGen;
@@ -427,24 +427,24 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// trick3.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
     /// ```
-    pub fn taker(&self, trump: &Trump<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
+    pub fn taker(&self, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
         let mut winner_so_far = match self[self.first_player] {
             None => { return Err(MissingCard(self.first_player))},
             Some(_) => self.first_player
         };
 
         match trump{
-            Trump::Colored(_) => {
+            TrumpGen::Colored(_) => {
                 winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(1), trump)?;
                 winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(2), trump)?;
                 winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(3), trump)?;
                 Ok(winner_so_far)
             },
-            Trump::NoTrump => {
+            TrumpGen::NoTrump => {
                 match &self[self.first_player]{
                     None => Err(MissingCard(self.first_player)),
                     Some(s) => {
-                        let tmp_trump = Trump::Colored(s.suit().clone());
+                        let tmp_trump = TrumpGen::Colored(s.suit().clone());
                         winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(1), &tmp_trump)?;
                         winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(2), &tmp_trump)?;
                         winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(3), &tmp_trump)?;
@@ -459,7 +459,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// ```
     /// use brydz_core::player::side::Side::*;
     /// use karty::suits::Suit::*;
-    /// use brydz_core::cards::trump::Trump::*;
+    /// use brydz_core::cards::trump::TrumpGen::*;
     /// use karty::cards::*;
     /// use brydz_core::contract::{TrickGen, collision::*};
     /// let mut exhaust_register = SuitExhaust::default();
@@ -491,7 +491,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// trick.add_card_registered(South, FIVE_CLUBS, &mut exhaust_register).unwrap();
     /// assert_eq!(trick.leading_side(&Trump::NoTrump), Some(North));
     /// ```
-    pub fn leading_side(&self, trump: &Trump<Card::Suit>) -> Option<Side>{
+    pub fn leading_side(&self, trump: &TrumpGen<Card::Suit>) -> Option<Side>{
         
         /*self[self.first_player_side()].as_ref().and_then(|_|{
             self.winner_of_2(self.first_player, self.first_player.next(), trump)
@@ -520,7 +520,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::cards::*;
     /// use brydz_core::player::side::Side::*;
     ///  use brydz_core::contract::collision::SuitExhaust;
-    /// use brydz_core::cards::trump::Trump;
+    /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::Trick;
     /// use karty::suits::Suit::*;
     /// let mut trick = Trick::new(North);
@@ -528,11 +528,11 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// trick.add_card_registered(North, NINE_HEARTS, &mut exhaust_register).unwrap();
     /// trick.add_card_registered(East, TEN_SPADES, &mut exhaust_register).unwrap();
     /// trick.add_card_registered(South, FIVE_CLUBS, &mut exhaust_register).unwrap();
-    /// assert!(!trick.is_winning_card(&FOUR_DIAMONDS, &Trump::NoTrump));
-    /// assert!(trick.is_winning_card(&FOUR_DIAMONDS, &Trump::Colored(Diamonds)));
-    /// assert!(trick.is_winning_card(&TEN_HEARTS, &Trump::NoTrump));
+    /// assert!(!trick.is_winning_card(&FOUR_DIAMONDS, &TrumpGen::NoTrump));
+    /// assert!(trick.is_winning_card(&FOUR_DIAMONDS, &TrumpGen::Colored(Diamonds)));
+    /// assert!(trick.is_winning_card(&TEN_HEARTS, &TrumpGen::NoTrump));
     /// ```
-    pub fn is_winning_card(&self, card: &Card, trump: &Trump<Card::Suit>) -> bool{
+    pub fn is_winning_card(&self, card: &Card, trump: &TrumpGen<Card::Suit>) -> bool{
         match self.leading_side(trump){
             None => true, //first card
             Some(s) =>{
@@ -542,18 +542,18 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                 }
                 // different suit as currently leading
                 match trump{
-                    Trump::Colored(trump_suit) => {
+                    TrumpGen::Colored(trump_suit) => {
                         card.suit() == trump_suit
                         //if card has trump color it is a winner
                     },
-                    Trump::NoTrump => false
+                    TrumpGen::NoTrump => false
                     //in no trump contract if card does not match first card it loses
                 }
             }
         }
     }
 
-    pub fn prepare_new(&self, trump: Trump<Card::Suit>) -> Option<Self>{
+    pub fn prepare_new(&self, trump: TrumpGen<Card::Suit>) -> Option<Self>{
         self.taker(&trump).ok().map(|s| TrickGen::new(s))
     }
     pub fn called_suit(&self) -> Option<&Card::Suit>{

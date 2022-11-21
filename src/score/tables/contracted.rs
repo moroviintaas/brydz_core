@@ -2,7 +2,7 @@
 use karty::suits::Suit;
 use crate::bidding::Doubling;
 use crate::contract::ContractSpec;
-use crate::cards::trump::Trump;
+use crate::cards::trump::TrumpGen;
 use crate::meta::HALF_TRICKS;
 use crate::score::calculation::ScoreIngredient;
 
@@ -25,11 +25,11 @@ impl PointsContractedTrick{
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling::ReDouble;
-    /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::cards::trump::Trump::NoTrump;
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::POINTS_CONTRACTED_TRICK;
     /// use karty::suits::Suit::Hearts;
-    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_CONTRACTED_TRICK;
     /// assert_eq!(points_table.points(&contract, 7), 0 );
     /// assert_eq!(points_table.points(&contract, 8), 60 );
@@ -49,7 +49,7 @@ impl PointsContractedTrick{
             Doubling::ReDouble => self.redoubling_multiplier,
         };
         match contract.bid().trump(){
-            Trump::Colored(c) => {
+            TrumpGen::Colored(c) => {
 
                 let number = if contract.bid().number_normalised() <= taken{
                     contract.bid().number()
@@ -63,7 +63,7 @@ impl PointsContractedTrick{
                     Suit::Clubs => &self.clubs
                 }
             }
-            Trump::NoTrump => {
+            TrumpGen::NoTrump => {
                 if taken <= HALF_TRICKS{
                     0
                 } else{

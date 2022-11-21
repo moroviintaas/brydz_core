@@ -1,7 +1,7 @@
 use karty::suits::{Suit};
 use crate::bidding::Doubling;
 use crate::contract::ContractSpec;
-use crate::cards::trump::Trump;
+use crate::cards::trump::TrumpGen;
 use crate::score::calculation::ScoreIngredient;
 
 pub struct PointsOverTrick{
@@ -24,19 +24,19 @@ impl PointsOverTrick{
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling::{ReDouble, Double};
-    /// use brydz_core::cards::trump::Trump;
-    /// use brydz_core::cards::trump::Trump::NoTrump;
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::{POINTS_OVER_TRICK};
     /// use karty::suits::Suit::Hearts;
-    /// let contract = ContractSpec::new(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(),);
+    /// let contract = ContractSpec::new(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_OVER_TRICK;
     /// assert_eq!(points_table.points(&contract, 8 ,false), 0);
     /// assert_eq!(points_table.points(&contract, 10 ,false), 60);
-    /// let contract = ContractSpec::new_d(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(), Double);
+    /// let contract = ContractSpec::new_d(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(), Double);
     /// assert_eq!(points_table.points(&contract, 7 ,false), 0);
     /// assert_eq!(points_table.points(&contract, 10 ,false), 200);
     /// assert_eq!(points_table.points(&contract, 11 ,true), 600);
-    /// let contract = ContractSpec::new_d(North, Bid::init(Trump::Colored(Hearts), 2).unwrap(), ReDouble);
+    /// let contract = ContractSpec::new_d(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(), ReDouble);
     /// assert_eq!(points_table.points(&contract, 12 ,true), 1600);
     ///
     /// ```
@@ -45,11 +45,11 @@ impl PointsOverTrick{
         let number_of_overtricks = taken.saturating_sub(contract.bid().number_normalised());
         (number_of_overtricks as i32) * match contract.doubling() {
             Doubling::None => match contract.bid().trump() {
-                Trump::Colored(Suit::Clubs) => self.not_doubled_clubs,
-                Trump::Colored(Suit::Diamonds) => self.not_doubled_diamonds,
-                Trump::Colored(Suit::Hearts) => self.not_doubled_hearts,
-                Trump::Colored(Suit::Spades) => self.not_doubled_spades,
-                Trump::NoTrump => self.not_doubled_nt
+                TrumpGen::Colored(Suit::Clubs) => self.not_doubled_clubs,
+                TrumpGen::Colored(Suit::Diamonds) => self.not_doubled_diamonds,
+                TrumpGen::Colored(Suit::Hearts) => self.not_doubled_hearts,
+                TrumpGen::Colored(Suit::Spades) => self.not_doubled_spades,
+                TrumpGen::NoTrump => self.not_doubled_nt
             }
             Doubling::Double => match vulnerable {
                 true => self.doubled_vulnerable,

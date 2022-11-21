@@ -178,7 +178,7 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> Default for AuctionStack<S, DS> {
 mod tests{
     use karty::suits::Suit;
     use karty::suits::Suit::{Clubs, Diamonds};
-    use crate::cards::trump::Trump::Colored;
+    use crate::cards::trump::TrumpGen::Colored;
     use crate::error::{BiddingErrorGen, Mismatch};
     use crate::error::BiddingErrorGen::{BidTooLow, DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
     use crate::bidding::auction_field::{AuctionStack};

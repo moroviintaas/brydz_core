@@ -7,19 +7,19 @@ use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
-use crate::cards::trump::Trump::{Colored, NoTrump};
+use crate::cards::trump::TrumpGen::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-pub enum Trump<S: SuitTrait>{
+pub enum TrumpGen<S: SuitTrait>{
     Colored(S),
     NoTrump
 }
 
-pub type TrumpStd = Trump<Suit>;
+pub type Trump = TrumpGen<Suit>;
 
-impl<S: SuitTrait> Trump<S>{
+impl<S: SuitTrait> TrumpGen<S>{
     /*
     pub fn order_cards<Card: Card2SymTrait<Suit = S>> (&self, card_one: &Card, card_two: &Card) -> Ordering{
         match self{
@@ -47,13 +47,13 @@ impl<S: SuitTrait> Trump<S>{
 }
 
 
-impl<S: SuitTrait> PartialOrd for Trump<S>{
+impl<S: SuitTrait> PartialOrd for TrumpGen<S>{
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
     }
 }
 
-impl<S: SuitTrait> Ord for Trump<S>{
+impl<S: SuitTrait> Ord for TrumpGen<S>{
     fn cmp(&self, other: &Self) -> Ordering {
         match self{
             NoTrump => match other{
@@ -68,13 +68,13 @@ impl<S: SuitTrait> Ord for Trump<S>{
     }
 }
 
-impl <S: SuitTrait + Display> Display for Trump<S>{
+impl <S: SuitTrait + Display> Display for TrumpGen<S>{
     fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {
         todo!()
     }
 }
 
-pub const TRUMPS: [Trump<Suit>; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamonds), Colored(Clubs), NoTrump];
+pub const TRUMPS: [TrumpGen<Suit>; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamonds), Colored(Clubs), NoTrump];
 
 #[cfg(test)]
 mod tests{
