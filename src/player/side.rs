@@ -1,5 +1,5 @@
 use std::fmt::Debug;
-use std::ops::{Index, IndexMut};
+use std::ops::{Index, IndexMut, Sub};
 use crate::player::axis::Axis;
 use crate::player::axis::Axis::{EastWest, NorthSouth};
 use crate::player::side::Side::{East, North, South, West};
@@ -69,6 +69,25 @@ impl Side{
         }
 
     }
+    /// ```
+    /// use brydz_core::player::side::Side;
+    /// use brydz_core::player::side::Side::{East, North, West};
+    /// assert_eq!(Side::difference(North, East), 1);
+    /// assert_eq!(Side::difference(East, North), 3);
+    /// assert_eq!(Side::difference(East, West), 2);
+    /// ```
+    pub fn difference(first: Self, second: Self) -> u8{
+        if first == second{
+            0
+        } else if first.next_i(1) == second{
+            1
+        } else if first.next_i(2) == second{
+            2
+        } else{
+            3
+        }
+    }
+
     pub fn index(&self) -> u8{
         match self{
             North => 0,
@@ -114,6 +133,18 @@ impl<T> SideAssociated<T>{
     }
     pub fn destruct(self) -> (T,T,T,T){
     (self.north, self.east, self.south, self.west)
+    }
+}
+
+impl Sub for Side{
+    type Output = u8;
+    /// ```
+    /// use brydz_core::player::side::Side::{East, North, South};
+    /// assert_eq!(North-East, 3);
+    /// assert_eq!(North-South, 2);
+    /// ```
+    fn sub(self, rhs: Self) -> Self::Output {
+        Self::difference(rhs, self)
     }
 }
 

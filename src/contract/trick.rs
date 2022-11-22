@@ -214,6 +214,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
 
 
+
     /// Checks if trick contains a  specific card
     /// ```
     /// use brydz_core::cards::trump::TrumpGen;
