@@ -10,7 +10,7 @@ pub enum ContractErrorGen<Card: Card2SymTrait>{
     DealFull,
     DealIncomplete,
     DuplicateCard(Card),
-    TrickError(TrickErrorGen<Card>),
+    BadTrick(TrickErrorGen<Card>),
     IndexedOverCurrentTrick(usize),
     DummyReplaceAttempt,
     DummyNotPlaced,

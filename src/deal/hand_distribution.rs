@@ -2,7 +2,7 @@ use karty::symbol::CardSymbol;
 use rand::{prelude::SliceRandom, thread_rng};
 use karty::hand::HandTrait;
 
-use crate::player::side::SideAssociated;
+use crate::player::side::SideMap;
 
 //use super::hand::HandTrait;
 
@@ -42,8 +42,8 @@ pub struct HandDistribution{
 /// }
 ///
 /// ```
-pub fn fair_bridge_deal<H: HandTrait>() -> SideAssociated<H>{
-    let mut result = SideAssociated::<H>{
+pub fn fair_bridge_deal<H: HandTrait>() -> SideMap<H>{
+    let mut result = SideMap::<H>{
         north: H::new_empty(),
         east: H::new_empty(),
         south: H::new_empty(),
@@ -61,16 +61,16 @@ pub fn fair_bridge_deal<H: HandTrait>() -> SideAssociated<H>{
     */
 
     for _ in 0..hand_size{
-        result.north.add_card(v.pop().unwrap()).unwrap();
+        result.north.insert_card(v.pop().unwrap()).unwrap();
     }
     for _ in 0..hand_size{
-        result.south.add_card(v.pop().unwrap()).unwrap();
+        result.south.insert_card(v.pop().unwrap()).unwrap();
     }
     for _ in 0..hand_size{
-        result.east.add_card(v.pop().unwrap()).unwrap();
+        result.east.insert_card(v.pop().unwrap()).unwrap();
     }
     for _ in 0..hand_size{
-        result.west.add_card(v.pop().unwrap()).unwrap();
+        result.west.insert_card(v.pop().unwrap()).unwrap();
     }
     result
 }

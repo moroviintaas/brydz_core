@@ -77,7 +77,7 @@ impl<Crd: Card2SymTrait,
     /// let r = contract.insert_card(Side::East, TEN_HEARTS);
     /// assert_eq!(r.unwrap(), Side::South);
     /// let r = contract.insert_card(Side::South, JACK_HEARTS);
-    /// assert_eq!(r, Err(ContractErrorGen::TrickError(TrickErrorGen::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
+    /// assert_eq!(r, Err(ContractErrorGen::BadTrick(TrickErrorGen::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
     /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
     /// contract.insert_card(Side::West, SIX_HEARTS).unwrap();
     /// let r = contract.insert_card(Side::North, THREE_HEARTS);
@@ -100,11 +100,11 @@ impl<Crd: Card2SymTrait,
                         }
 
                     }
-                    Err(e) => Err(ContractErrorGen::TrickError( e))
+                    Err(e) => Err(ContractErrorGen::BadTrick( e))
                 }
             },
             Ok(_) => Ok(side.next()),
-            Err(e) => Err(ContractErrorGen::TrickError( e))
+            Err(e) => Err(ContractErrorGen::BadTrick( e))
 
         }
     }
@@ -255,7 +255,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
     fn complete_current_trick(&mut self) -> Result<(), ContractErrorGen<Card>>{
         match self.completed_tricks_number {
             n@0..=MAX_INDEX_IN_DEAL => match self.current_trick.missing_card(){
-                Some(s) => Err(ContractErrorGen::TrickError( MissingCard(s))),
+                Some(s) => Err(ContractErrorGen::BadTrick( MissingCard(s))),
                 None => {
                     if let Some(c) = self.used_cards_memory.trick_collision(&self.current_trick){
                         return Err(ContractErrorGen::DuplicateCard(c));
@@ -349,7 +349,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
     pub fn side_winning_trick(&self, index: usize) -> Result<Side, ContractErrorGen<Card>>{
         match index < self.completed_tricks_number {
             true => self[index].taker(self.contract_spec.bid().trump())
-                .map_err(|trick_err| ContractErrorGen::TrickError(trick_err)),
+                .map_err(|trick_err| ContractErrorGen::BadTrick(trick_err)),
             false => Err(IndexedOverCurrentTrick(self.completed_tricks_number))
         }
     }

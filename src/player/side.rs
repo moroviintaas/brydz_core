@@ -3,6 +3,7 @@ use std::ops::{Index, IndexMut, Sub};
 use crate::player::axis::Axis;
 use crate::player::axis::Axis::{EastWest, NorthSouth};
 use crate::player::side::Side::{East, North, South, West};
+pub use super::side_map::*;
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -97,44 +98,6 @@ impl Side{
         }
     }
 }
-/// ```
-/// use brydz_core::player::side::SideAssociated;
-/// use karty::cards::Card;
-/// assert_eq!(std::mem::size_of::<SideAssociated<Card>>(), 12)
-/// ```
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct SideAssociated<T>{
-    pub north: T,
-    pub east: T,
-    pub south: T,
-    pub west: T
-}
-
-impl<T> SideAssociated<T>{
-    pub fn new(north: T, east: T, south: T, west:T) -> Self{
-        Self{north, east, south, west}
-    }
-    pub fn and<F: Fn(&T) -> bool >(&self, f:F) -> bool{
-        f(&self.north) && f(&self.east) && f(&self.south) && f(&self.west)
-    }
-    pub fn or<F: Fn(&T) -> bool + Copy>(&self, f:F) -> bool{
-        f(&self.north) || f(&self.east) || f(&self.south) || f(&self.west)
-    }
-    pub fn transform<D, F: FnOnce(&T) -> D + Copy>(&self, f: F) -> SideAssociated<D>{
-        SideAssociated{north: f(&self.north), south: f(&self.south), east: f(&self.east), west: f(&self.west)}
-    }
-    pub fn find<F: FnOnce(&T) -> bool + Copy>(&self, f: F) -> Option<Side>{
-        for s in SIDES{
-            if f(&self[&s]){
-                return Some(s)
-            }
-        }
-        None
-    }
-    pub fn destruct(self) -> (T,T,T,T){
-    (self.north, self.east, self.south, self.west)
-    }
-}
 
 impl Sub for Side{
     type Output = u8;
@@ -160,7 +123,7 @@ impl<'a, T> IntoIterator for SideAssociated<T>{
     }
 }*/
 
-impl<T: Clone> SideAssociated<T>{
+impl<T: Clone> SideMap<T>{
     pub fn clone_element(&self, side: &Side) -> T{
         self[side].clone()
     }
@@ -168,16 +131,16 @@ impl<T: Clone> SideAssociated<T>{
 
 
 
-impl<T1, T2> SideAssociated<(T1, T2)>{
-    pub fn split(self) -> (SideAssociated<T1>, SideAssociated<T2>){
-        (SideAssociated{north: self.north.0, east: self.east.0, west: self.west.0, south: self.south.0},
-         SideAssociated{north: self.north.1, east: self.east.1, west: self.west.1, south: self.south.1})
+impl<T1, T2> SideMap<(T1, T2)>{
+    pub fn split(self) -> (SideMap<T1>, SideMap<T2>){
+        (SideMap {north: self.north.0, east: self.east.0, west: self.west.0, south: self.south.0},
+         SideMap {north: self.north.1, east: self.east.1, west: self.west.1, south: self.south.1})
     }
 }
 
 
 
-impl<T> Index<&Side> for SideAssociated<T>{
+impl<T> Index<&Side> for SideMap<T>{
     type Output = T;
 
     fn index(&self, index: &Side) -> &Self::Output {
@@ -190,7 +153,7 @@ impl<T> Index<&Side> for SideAssociated<T>{
     }
 }
 
-impl<T> IndexMut<&Side> for SideAssociated<T>{
+impl<T> IndexMut<&Side> for SideMap<T>{
     fn index_mut(&mut self, index: &Side) -> &mut Self::Output {
         match index{
             East => &mut self.east,
@@ -201,14 +164,14 @@ impl<T> IndexMut<&Side> for SideAssociated<T>{
     }
 }
 
-impl<T:Copy> Copy for SideAssociated<T>{}
+impl<T:Copy> Copy for SideMap<T>{}
 /*
 impl<T> Default for SideAssociated<Option<T>>{
     fn default() -> Self {
         Self{east: None, south: None, west: None, north: None}
     }
 }*/
-impl<T:Default> Default for SideAssociated<T>{
+impl<T:Default> Default for SideMap<T>{
     fn default() -> Self {
         Self{east: T::default(), south: T::default(), west: T::default(), north: T::default()}
     }

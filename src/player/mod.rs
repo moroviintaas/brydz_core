@@ -2,6 +2,7 @@ pub mod role;
 pub mod player_instance;
 pub mod side;
 pub mod axis;
+mod side_map;
 //pub mod situation;
 
 
