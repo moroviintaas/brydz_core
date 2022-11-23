@@ -40,6 +40,7 @@ impl<T> SideMap<T>{
     pub fn destruct(self) -> (T,T,T,T){
     (self.north, self.east, self.south, self.west)
     }
+
 }
 
 impl<T: Eq> SideMap<T>{

@@ -47,11 +47,11 @@ pub use karty;
 ///
 /// fill_deal!(dl, [ACE_SPADES, KING_SPADES, QUEEN_SPADES]);
 /// assert_eq!(dl.count_completed_tricks(), 0);
-/// assert_eq!(dl.current_side(), Some(North));
+/// assert_eq!(dl.current_side(), North);
 /// fill_deal!(dl, [JACK_SPADES, THREE_SPADES, NINE_SPADES, EIGHT_SPADES, SEVEN_SPADES]);
 /// assert_eq!(dl.total_tricks_taken_axis(EastWest), 1);
 /// assert_eq!(dl.count_completed_tricks(), 2);
-/// assert_eq!(dl.current_side(), Some(South));
+/// assert_eq!(dl.current_side(), South);
 /// ```
 #[macro_export]
 macro_rules! fill_deal {

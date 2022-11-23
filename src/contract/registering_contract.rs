@@ -219,15 +219,15 @@ impl<Crd: Card2SymTrait,
     /// contract.insert_card(West, EIGHT_HEARTS).unwrap();
     /// assert_eq!(contract.count_completed_tricks(), 1);
     /// assert_eq!(contract.undo(), Some(EIGHT_HEARTS));
-    /// assert_eq!(contract.current_side(), Some(West));
+    /// assert_eq!(contract.current_side(), West);
     /// assert_eq!(contract.undo(), Some(FIVE_DIAMONDS));
-    /// assert_eq!(contract.current_side(), Some(West));
+    /// assert_eq!(contract.current_side(), West);
     /// assert_eq!(contract.undo(), Some(FOUR_SPADES));
-    /// assert_eq!(contract.current_side(), Some(South));
+    /// assert_eq!(contract.current_side(), South);
     /// assert_eq!(contract.undo(), Some(TEN_SPADES));
-    /// assert_eq!(contract.current_side(), Some(East));
+    /// assert_eq!(contract.current_side(), East);
     /// assert_eq!(contract.undo(), Some(JACK_SPADES));
-    /// assert_eq!(contract.current_side(), Some(North));
+    /// assert_eq!(contract.current_side(), North);
     /// ```
     fn undo(&mut self) -> Option<Self::Card>{
         match self.current_trick.is_empty(){

@@ -17,8 +17,8 @@ pub trait ContractMechanics {
     fn completed_tricks(&self) -> Vec<TrickGen<Self::Card>>;
     fn total_tricks_taken_side(&self, side: Side) -> usize;
     fn total_tricks_taken_axis(&self, axis: Axis) -> usize;
-    fn current_side(&self) -> Option<Side>{
-        self.current_trick().current_side()
+    fn current_side(&self) -> Side{
+        self.current_trick().current_side().unwrap()
     }
     fn declarer(&self) -> Side{
         self.contract_spec().declarer()
