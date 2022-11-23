@@ -87,7 +87,7 @@ impl<Crd: Card2SymTrait,
     /// ```
     fn insert_card(&mut self, side: Side, card: Crd) -> Result<Side, ContractErrorGen<Crd>>{
         if self.completed_tricks_number >= QUARTER_SIZE{
-            return Err(ContractErrorGen::DealFull);
+            return Err(ContractErrorGen::ContractFull);
         }
         match self.current_trick.add_card_registered(side, card, &mut self.exhaust_table){
             Ok(4) => {
@@ -271,7 +271,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
 
             }
 
-            _ => Err(ContractErrorGen::DealFull),
+            _ => Err(ContractErrorGen::ContractFull),
         }
     }
 
@@ -397,7 +397,7 @@ mod tests{
     use crate::cards::deck::{Deck};
     use crate::contract::ContractGen;
     use crate::error::ContractErrorGen;
-    use crate::error::ContractErrorGen::DealFull;
+    use crate::error::ContractErrorGen::ContractFull;
     use crate::meta::QUARTER_SIZE;
     use crate::player::side::Side;
     use crate::player::side::Side::{East, North, South, West};
@@ -445,7 +445,7 @@ mod tests{
         }
 
         let r = deal.insert_card(Side::North, deck[0]);
-        assert_eq!(r, Err(DealFull));
+        assert_eq!(r, Err(ContractFull));
 
 
 

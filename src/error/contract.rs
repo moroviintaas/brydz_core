@@ -1,19 +1,21 @@
 use std::fmt::{Display, Formatter};
 use karty::cards::{Card2SymTrait, Card};
 use crate::error::{BridgeCoreErrorGen, TrickErrorGen};
+use crate::player::side::Side;
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum ContractErrorGen<Card: Card2SymTrait>{
-    DealFull,
+    ContractFull,
     DealIncomplete,
     DuplicateCard(Card),
     BadTrick(TrickErrorGen<Card>),
     IndexedOverCurrentTrick(usize),
     DummyReplaceAttempt,
     DummyNotPlaced,
+    CurrentSidePresume(Side, Side)
 
 }
 impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{
@@ -22,7 +24,7 @@ impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{
     }
 }
 
-pub type DealError = ContractErrorGen<Card>;
+pub type ContractError = ContractErrorGen<Card>;
 
 impl<Card: Card2SymTrait> From<ContractErrorGen<Card>> for BridgeCoreErrorGen<Card>{
     fn from(e: ContractErrorGen<Card>) -> Self {

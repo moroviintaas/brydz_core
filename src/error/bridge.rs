@@ -5,7 +5,7 @@ use crate::error::bidding::BiddingErrorGen;
 
 
 use crate::error::contract::ContractErrorGen;
-use crate::error::{DistributionError, HandError, ScoreError, TrickErrorGen};
+use crate::error::{DistributionError, HandErrorGen, ScoreError, TrickErrorGen};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -39,7 +39,7 @@ pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
     Score(ScoreError),
     Trick(TrickErrorGen<Card>),
     Distribution(DistributionError),
-    Hand(HandError),
+    Hand(HandErrorGen<Card>),
     Format(FormatError),
     Custom(String),
 
