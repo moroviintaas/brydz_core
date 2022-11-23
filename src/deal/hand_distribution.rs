@@ -2,7 +2,8 @@ use karty::symbol::CardSymbol;
 use rand::{prelude::SliceRandom, thread_rng};
 use karty::hand::HandTrait;
 
-use crate::player::side::SideMap;
+use crate::player::side::{Side, SideMap};
+use crate::player::side::Side::{East, North, South, West};
 
 //use super::hand::HandTrait;
 
@@ -71,6 +72,78 @@ pub fn fair_bridge_deal<H: HandTrait>() -> SideMap<H>{
     }
     for _ in 0..hand_size{
         result.west.insert_card(v.pop().unwrap()).unwrap();
+    }
+    result
+}
+
+
+/// ```
+/// use brydz_core::deal::fair_bridge_partial_deal;
+/// use brydz_core::player::side::Side::{North, West};
+/// use karty::cards::{Card, Card2SymTrait};
+/// use karty::figures::{Ace, Jack, King, Queen, F10};
+/// use karty::hand::{HandTrait, StackHand};
+/// use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
+/// let card_supply: Vec<Card> = Card::card_subset(vec![Ace, King, Queen], vec![Spades, Hearts, Diamonds, Clubs]).collect();
+/// let hands = fair_bridge_partial_deal::<StackHand>(card_supply, North);
+/// assert_eq!(hands[&North].len(), 3);
+/// assert_eq!(hands[&West].len(), 3);
+/// ```
+/// ```
+/// use brydz_core::deal::fair_bridge_partial_deal;
+/// use brydz_core::player::side::Side::{East, North, South, West};
+/// use karty::cards::{Card, Card2SymTrait};
+/// use karty::figures::{Ace, Jack, King, Queen, F10};
+/// use karty::hand::{HandTrait, StackHand};
+/// use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
+/// let mut card_supply: Vec<Card> = Card::card_subset(vec![Ace, King, Queen], vec![Spades, Hearts, Diamonds, Clubs]).collect();
+/// card_supply.pop();
+/// card_supply.pop();
+/// let hands = fair_bridge_partial_deal::<StackHand>(card_supply.clone(), North);
+/// assert_eq!(hands[&North].len(), 2);
+/// assert_eq!(hands[&West].len(), 3);
+/// assert_eq!(hands[&South].len(), 3);
+/// assert_eq!(hands[&East].len(), 2);
+/// card_supply.pop();
+/// let hands = fair_bridge_partial_deal::<StackHand>(card_supply, North);
+/// assert_eq!(hands[&West].len(), 3);
+/// assert_eq!(hands[&South].len(), 2);
+/// ```
+pub fn fair_bridge_partial_deal<H: HandTrait>(mut card_supply: Vec<H::CardType>, first_side: Side ) -> SideMap<H> {
+    let mut result = SideMap::<H>{
+        north: H::empty(),
+        east: H::empty(),
+        south: H::empty(),
+        west: H::empty(),
+    };
+    let min_hands = card_supply.len()/4;
+    let rest = card_supply.len() - (4 * min_hands);
+    let hand_sizes = match rest as u8{
+        0 =>{
+            SideMap::new(min_hands, min_hands, min_hands, min_hands)
+        }
+        r =>{
+            let mut tmp = SideMap::new(min_hands, min_hands, min_hands, min_hands);
+            for i in 0..r{
+                tmp[&first_side.next_i(3-i)]+=1;
+            }
+            tmp
+        }
+    };
+    let mut rng = thread_rng();
+    card_supply.shuffle(&mut rng);
+
+    for _ in 0..hand_sizes[&North]{
+        result.north.insert_card(card_supply.pop().unwrap()).unwrap();
+    }
+    for _ in 0..hand_sizes[&South]{
+        result.south.insert_card(card_supply.pop().unwrap()).unwrap();
+    }
+    for _ in 0..hand_sizes[&East]{
+        result.east.insert_card(card_supply.pop().unwrap()).unwrap();
+    }
+    for _ in 0..hand_sizes[&West]{
+        result.west.insert_card(card_supply.pop().unwrap()).unwrap();
     }
     result
 }
