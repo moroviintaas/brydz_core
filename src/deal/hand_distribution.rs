@@ -44,10 +44,10 @@ pub struct HandDistribution{
 /// ```
 pub fn fair_bridge_deal<H: HandTrait>() -> SideMap<H>{
     let mut result = SideMap::<H>{
-        north: H::new_empty(),
-        east: H::new_empty(),
-        south: H::new_empty(),
-        west: H::new_empty(),
+        north: H::empty(),
+        east: H::empty(),
+        south: H::empty(),
+        west: H::empty(),
     };
     let mut rng = thread_rng();
     let mut v  = Vec::from_iter(H::CardType::iterator()); 
