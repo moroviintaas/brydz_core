@@ -15,7 +15,8 @@ pub enum ContractErrorGen<Card: Card2SymTrait>{
     IndexedOverCurrentTrick(usize),
     DummyReplaceAttempt,
     DummyNotPlaced,
-    CurrentSidePresume(Side, Side)
+    CurrentSidePresume(Side, Side),
+    UndoOnEmptyContract,
 
 }
 impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{
