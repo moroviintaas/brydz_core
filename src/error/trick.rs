@@ -11,8 +11,8 @@ pub enum TrickErrorGen<Card: Card2SymTrait>{
     MissingCard(Side),
     CardSlotAlreadyUsed(Side),
     DuplicateCard(Card),
+    ImposibleUndo,
     ViolatedOrder(Mismatch<Side>),
-
     UsedPreviouslyExhaustedSuit(Card::Suit),
     TrickFull,
 }

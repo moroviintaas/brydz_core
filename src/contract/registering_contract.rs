@@ -8,7 +8,7 @@ use crate::contract::collision::{SuitExhaust, TrickCollision};
 use crate::contract::spec::ContractSpec;
 use crate::contract::maintainer::ContractMechanics;
 use crate::contract::TrickGen;
-use crate::error::ContractErrorGen;
+use crate::error::{ContractErrorGen, TrickErrorGen};
 use crate::error::ContractErrorGen::IndexedOverCurrentTrick;
 use crate::error::TrickErrorGen::MissingCard;
 use crate::meta::{MAX_INDEX_IN_DEAL, QUARTER_SIZE};
@@ -64,11 +64,14 @@ impl<Crd: Card2SymTrait,
     /// use karty::suits::Suit;
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
+    /// use karty::register::Register;
     /// let mut contract = Contract::new(
     ///     ContractSpec::new(Side::West, Bid::init(TrumpGen::Colored(Suit::Hearts), 1).unwrap(),));
     /// contract.insert_card(Side::North, KING_HEARTS).unwrap();
+    /// assert_eq!(contract.current_trick().called_suit(), Some(&Suit::Hearts));
     /// contract.insert_card(Side::East, ACE_HEARTS).unwrap();
     /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
+    /// assert_eq!(contract.suits_exhausted().is_registered(&(Side::South, Suit::Hearts)),true );
     /// assert_eq!(contract.count_completed_tricks(), 0);
     /// let r = contract.insert_card(Side::West, SEVEN_HEARTS);
     /// assert_eq!(r.unwrap(), Side::East);
@@ -77,10 +80,8 @@ impl<Crd: Card2SymTrait,
     /// let r = contract.insert_card(Side::East, TEN_HEARTS);
     /// assert_eq!(r.unwrap(), Side::South);
     /// let r = contract.insert_card(Side::South, JACK_HEARTS);
-    /// assert_eq!(r, Err(ContractErrorGen::BadTrick(TrickErrorGen::UsedPreviouslyExhaustedSuit(Suit::Hearts))));
-    /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
-    /// contract.insert_card(Side::West, SIX_HEARTS).unwrap();
-    /// let r = contract.insert_card(Side::North, THREE_HEARTS);
+    /// assert_eq!(r, Err(ContractErrorGen::UsedExhaustedSuit(Side::South, Suit::Hearts)));
+    /// let r = contract.insert_card(Side::South, TWO_CLUBS);
     ///
     /// assert_eq!(r, Err(ContractErrorGen::DuplicateCard(TWO_CLUBS)));
     ///
@@ -89,25 +90,45 @@ impl<Crd: Card2SymTrait,
         if self.completed_tricks_number >= QUARTER_SIZE{
             return Err(ContractErrorGen::ContractFull);
         }
-        match self.current_trick.add_card_registered(side, card, &mut self.exhaust_table){
-            Ok(4) => {
-                match self.current_trick.taker(self.trump()){
-                    Ok(winner) => {
-                        match self.complete_current_trick(){
-                            Ok(()) => Ok(winner),
-                            Err(e) => Err(e)
 
+        if self.used_cards_memory.is_registered(&card){
+            Err(ContractErrorGen::DuplicateCard(card))
+        } else {
+            if self.exhaust_table.is_registered(&(side, card.suit().to_owned())){
+                Err(ContractErrorGen::UsedExhaustedSuit(side, card.suit().to_owned()))
+            } else {
+                if let Some(called) = self.current_trick.called_suit(){
+                    if card.suit() != called{
+                        self.exhaust_table.register((side, called.to_owned()));
+                    }
+
+                }
+                match self.current_trick.insert_card(side, card.clone()){
+                    Ok(4) => {
+                        self.used_cards_memory.register(card);
+                        match self.current_trick.taker(self.trump()){
+                            Ok(winner) => {
+                                match self.complete_current_trick(){
+                                    Ok(()) => Ok(winner),
+                                    Err(e) => Err(e)
+                                }
+        
+                            }
+                            Err(e) => Err(ContractErrorGen::BadTrick( e))
                         }
-
+                    },
+                    Ok(_) => {
+                        self.used_cards_memory.register(card);
+                        Ok(side.next())
                     }
                     Err(e) => Err(ContractErrorGen::BadTrick( e))
                 }
-            },
-            Ok(_) => Ok(side.next()),
-            Err(e) => Err(ContractErrorGen::BadTrick( e))
-
+            }
         }
+    
+        
     }
+    
     fn is_completed(&self) -> bool{
         match self.completed_tricks_number {
             n if n < QUARTER_SIZE => false,
@@ -211,37 +232,65 @@ impl<Crd: Card2SymTrait,
     /// use karty::cards::{ACE_SPADES,EIGHT_HEARTS, FIVE_DIAMONDS, FOUR_SPADES, JACK_SPADES, TEN_SPADES};
     /// use karty::suits::Suit::Diamonds;
     /// let mut contract = Contract::new(ContractSpec::new(West, Bid::init(TrumpGen::Colored(Diamonds), 1).unwrap(),));
+    /// assert_eq!(contract.count_completed_tricks(), 0);
     /// contract.insert_card(North, JACK_SPADES).unwrap();
     /// contract.insert_card(East, TEN_SPADES).unwrap();
     /// contract.insert_card(South, FOUR_SPADES).unwrap();
+    /// //assert_eq!(!contract.count_completed_tricks(), 0);
     /// contract.insert_card(West, FIVE_DIAMONDS).unwrap(); //winner
-    ///
+    /// assert!(contract.current_trick().is_empty());
     /// contract.insert_card(West, EIGHT_HEARTS).unwrap();
     /// assert_eq!(contract.count_completed_tricks(), 1);
-    /// assert_eq!(contract.undo(), Some(EIGHT_HEARTS));
+    /// assert!(!contract.current_trick().is_empty());
+    /// assert_eq!(contract.undo(), Ok(EIGHT_HEARTS));
     /// assert_eq!(contract.current_side(), West);
-    /// assert_eq!(contract.undo(), Some(FIVE_DIAMONDS));
+    /// assert!(contract.current_trick().is_empty());
+    /// assert_eq!(contract.undo(), Ok(FIVE_DIAMONDS));
     /// assert_eq!(contract.current_side(), West);
-    /// assert_eq!(contract.undo(), Some(FOUR_SPADES));
+    /// assert_eq!(contract.undo(), Ok(FOUR_SPADES));
     /// assert_eq!(contract.current_side(), South);
-    /// assert_eq!(contract.undo(), Some(TEN_SPADES));
+    /// assert_eq!(contract.undo(), Ok(TEN_SPADES));
     /// assert_eq!(contract.current_side(), East);
-    /// assert_eq!(contract.undo(), Some(JACK_SPADES));
+    /// assert_eq!(contract.undo(), Ok(JACK_SPADES));
     /// assert_eq!(contract.current_side(), North);
     /// contract.insert_card(North, JACK_SPADES).unwrap();
     /// contract.insert_card(East, TEN_SPADES).unwrap();
     /// contract.insert_card(South, ACE_SPADES).unwrap();
-    /// assert_eq!(contract.undo(), Some(ACE_SPADES));
+    /// assert_eq!(contract.undo(), Ok(ACE_SPADES));
     /// contract.insert_card(South, ACE_SPADES).unwrap();
     /// ```
-    fn undo(&mut self) -> Option<Self::Card>{
+    fn undo(&mut self) -> Result<Self::Card, ContractErrorGen<Self::Card>>{
         match self.current_trick.is_empty(){
             true => {
-                self.completed_tricks_number -= 1;
-                self.current_trick = mem::take(&mut self.tricks[self.completed_tricks_number]);
-                self.current_trick.undo()
+                match self.completed_tricks_number{
+                    0 => Err(ContractErrorGen::UndoOnEmptyContract),
+                    n => {
+                        self.current_trick = mem::take(&mut self.tricks[n-1]);
+                        match self.current_trick.undo(){
+                            Some(card) => {
+                                
+                                self.used_cards_memory.unregister(&card);
+                                self.exhaust_table.unregister(&(self.current_side(), card.suit().to_owned()));
+                                self.completed_tricks_number -= 1;
+                                Ok(card)
+                            },
+                            None => Err(ContractErrorGen::UndoOnEmptyContract),
+                        }
+                    }
+                }
+                
+                
+                
+               
             },
-            false => self.current_trick.undo()
+            false => match self.current_trick.undo(){
+                Some(card) => {
+                    self.used_cards_memory.unregister(&card);
+                    self.exhaust_table.unregister(&(self.current_side(), card.suit().to_owned()));
+                    Ok(card)
+                },
+                None => Err(ContractErrorGen::BadTrick(TrickErrorGen::ImposibleUndo))
+            }
         }
     }
 }
@@ -256,15 +305,23 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
             exhaust_table: Se::default(), current_trick: TrickGen::new(first_player), used_cards_memory: Um::default()}
     }
 
+    pub fn card_used(&self) -> &Um{
+        &self.used_cards_memory
+    }
+
+    pub fn suits_exhausted(&self) -> &Se{
+        &self.exhaust_table
+    }
+
 
     fn complete_current_trick(&mut self) -> Result<(), ContractErrorGen<Card>>{
         match self.completed_tricks_number {
             n@0..=MAX_INDEX_IN_DEAL => match self.current_trick.missing_card(){
                 Some(s) => Err(ContractErrorGen::BadTrick( MissingCard(s))),
-                None => {
+                None => {/* 
                     if let Some(c) = self.used_cards_memory.trick_collision(&self.current_trick){
                         return Err(ContractErrorGen::DuplicateCard(c));
-                    }
+                    }*/
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
 
                     self.used_cards_memory.mark_cards_of_trick(&self.current_trick);
@@ -420,12 +477,7 @@ mod tests{
         deal.insert_card(Side::South, KING_SPADES).unwrap();
         deal.insert_card(Side::West, JACK_SPADES).unwrap();
 
-        deal.insert_card(Side::North, ACE_SPADES).unwrap();
-        deal.insert_card(Side::East, KING_CLUBS).unwrap();
-        deal.insert_card(Side::South, JACK_CLUBS.clone()).unwrap();
-
-        let r = deal.insert_card(Side::West, TEN_HEARTS.clone());
-
+        let r = deal.insert_card(Side::North, ACE_SPADES);
 
         assert_eq!(r, Err(ContractErrorGen::DuplicateCard(ACE_SPADES)));
 

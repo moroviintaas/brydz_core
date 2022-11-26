@@ -122,13 +122,13 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::cards::{ACE_SPADES, KING_CLUBS, KING_DIAMONDS, KING_HEARTS};
     /// let mut trick = TrickGen::new(North);
     /// assert_eq!(trick.current_side(), Some(North));
-    /// trick.add_card_not_registered(North, ACE_SPADES).unwrap();
+    /// trick.insert_card(North, ACE_SPADES).unwrap();
     /// assert_eq!(trick.current_side(), Some(East));
-    /// trick.add_card_not_registered(East, KING_HEARTS).unwrap();
+    /// trick.insert_card(East, KING_HEARTS).unwrap();
     /// assert_eq!(trick.current_side(), Some(South));
-    /// trick.add_card_not_registered(South, KING_DIAMONDS).unwrap();
+    /// trick.insert_card(South, KING_DIAMONDS).unwrap();
     /// assert_eq!(trick.current_side(), Some(West));
-    /// trick.add_card_not_registered(West, KING_CLUBS).unwrap();
+    /// trick.insert_card(West, KING_CLUBS).unwrap();
     /// assert!(trick.current_side().is_none());
     /// ```
     pub fn current_side(&self) -> Option<Side>{
@@ -139,7 +139,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     }
 
 
-
+/*
 
     /// Adds card to trick with support for checking and updating suit exhaust table
     /// # Examples
@@ -199,8 +199,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
         }
     }
-
-    pub fn add_card_not_registered(&mut self, side: Side, card: Card) ->  Result<u8, TrickErrorGen<Card>>{
+*/
+    pub fn insert_card(&mut self, side: Side, card: Card) ->  Result<u8, TrickErrorGen<Card>>{
         let side_in_order = match self.current_side(){
             Some(s) => s,
             None => { return Err(TrickErrorGen::TrickFull)}
@@ -221,16 +221,18 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
         }
     }
+
+
     /// ```
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side::{East, North, South, West};
     /// use karty::cards::{ACE_SPADES, JACK_SPADES, KING_SPADES, QUEEN_SPADES};
     /// let mut trick = TrickGen::new(North);
     /// assert_eq!(trick.undo(), None);
-    /// trick.add_card_not_registered(North, ACE_SPADES).unwrap();
-    /// trick.add_card_not_registered(East, KING_SPADES).unwrap();
-    /// trick.add_card_not_registered(South, QUEEN_SPADES).unwrap();
-    /// trick.add_card_not_registered(West, JACK_SPADES).unwrap();
+    /// trick.insert_card(North, ACE_SPADES).unwrap();
+    /// trick.insert_card(East, KING_SPADES).unwrap();
+    /// trick.insert_card(South, QUEEN_SPADES).unwrap();
+    /// trick.insert_card(West, JACK_SPADES).unwrap();
     /// assert_eq!(trick.current_side(), None);
     /// assert!(trick.is_complete());
     /// assert_eq!(trick.undo(), Some(JACK_SPADES));
@@ -274,10 +276,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_register = SuitExhaust::default();
-    ///
     /// let mut trick = TrickGen::new(Side::North);
-    /// trick.add_card_registered(Side::North, JACK_SPADES, &mut exhaust_register);
+    /// trick.insert_card(Side::North, JACK_SPADES);
     /// assert!(trick.contains(&JACK_SPADES));
     /// assert!(!trick.contains(&ACE_SPADES));
     /// ```
@@ -317,16 +317,15 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::cards::*;
     ///
     /// let mut trick1 = TrickGen::new(Side::North);
-    /// let mut exhaust_register = SuitExhaust::default();
-    /// trick1.add_card_registered(Side::North, JACK_SPADES,&mut exhaust_register).unwrap();
+    /// trick1.insert_card(Side::North, JACK_SPADES).unwrap();
     ///
-    /// trick1.add_card_registered(Side::East, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card_registered(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// trick1.insert_card(Side::East, ACE_SPADES).unwrap();
+    /// trick1.insert_card(Side::South, ACE_HEARTS).unwrap();
     /// let mut trick2 = TrickGen::new(Side::North, );
-    /// trick2.add_card_registered(Side::North, JACK_HEARTS, &mut exhaust_register).unwrap();
-    /// trick2.add_card_registered(Side::East, ACE_DIAMONDS, &mut exhaust_register).unwrap();
+    /// trick2.insert_card(Side::North, JACK_HEARTS).unwrap();
+    /// trick2.insert_card(Side::East, ACE_DIAMONDS).unwrap();
     /// assert_eq!(trick1.collision(&trick2), None);
-    /// trick2.add_card_registered(Side::South, ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// trick2.insert_card(Side::South, ACE_HEARTS).unwrap();
     /// assert_eq!(trick1.collision(&trick2), Some(ACE_HEARTS));
     /// ```
     pub fn collision(&self, other: &TrickGen<Card>) -> Option<Card>{
@@ -356,13 +355,12 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_register = SuitExhaust::default();
     /// let mut trick = TrickGen::new(Side::North);
-    /// trick.add_card_registered(Side::North, JACK_SPADES, &mut exhaust_register);
-    /// trick.add_card_registered(Side::East, ACE_SPADES, &mut exhaust_register);
-    /// trick.add_card_registered(Side::South, ACE_HEARTS, &mut exhaust_register);
+    /// trick.insert_card(Side::North, JACK_SPADES);
+    /// trick.insert_card(Side::East, ACE_SPADES);
+    /// trick.insert_card(Side::South, ACE_HEARTS);
     /// assert!(!trick.is_complete());
-    /// trick.add_card_registered(Side::West, JACK_HEARTS, &mut exhaust_register);
+    /// trick.insert_card(Side::West, JACK_HEARTS);
     /// assert!(trick.is_complete());
     ///
     /// ```
@@ -458,26 +456,25 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::register::CardRegister;
     /// use karty::cards::*;
     ///
-    /// let mut exhaust_register = SuitExhaust::default();
     /// let mut trick1 = TrickGen::new(North);
-    /// trick1.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick1.add_card_registered(East, TWO_CLUBS, &mut exhaust_register).unwrap();
-    /// trick1.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card_registered(West, TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// trick1.insert_card(East, TWO_CLUBS).unwrap();
+    /// trick1.insert_card(South, ACE_SPADES).unwrap();
+    /// trick1.insert_card(West, TEN_SPADES).unwrap();
     /// assert_eq!(trick1.taker(&Colored(Hearts)).unwrap(), North);
     /// let mut trick2 = TrickGen::new(North);
     ///
-    /// trick2.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick2.add_card_registered(East, TWO_CLUBS, &mut exhaust_register).unwrap();
-    /// trick2.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick2.add_card_registered(West, TEN_SPADES, &mut exhaust_register).unwrap();
+    /// trick2.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// trick2.insert_card(East, TWO_CLUBS).unwrap();
+    /// trick2.insert_card(South, ACE_SPADES).unwrap();
+    /// trick2.insert_card(West, TEN_SPADES).unwrap();
     /// assert_eq!(trick2.taker(&Colored(Clubs)).unwrap(), East);
     ///
     /// let mut trick3 = TrickGen::new(East);
-    /// trick3.add_card_registered(East, ACE_CLUBS, &mut exhaust_register).unwrap();
-    /// trick3.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick3.add_card_registered(West, TEN_SPADES, &mut exhaust_register).unwrap();
-    /// trick3.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
+    /// trick3.insert_card(East, ACE_CLUBS).unwrap();
+    /// trick3.insert_card(South, ACE_SPADES).unwrap();
+    /// trick3.insert_card(West, TEN_SPADES).unwrap();
+    /// trick3.insert_card(North, QUEEN_HEARTS).unwrap();
     /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
     /// ```
     pub fn taker(&self, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
@@ -515,17 +512,16 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::TrumpGen::*;
     /// use karty::cards::*;
     /// use brydz_core::contract::{TrickGen, collision::*};
-    /// let mut exhaust_register = SuitExhaust::default();
     /// let mut trick1 = TrickGen::new(North);
-    /// trick1.add_card_registered(North, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-    /// trick1.add_card_registered(East, ACE_CLUBS, &mut exhaust_register).unwrap();
+    /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// trick1.insert_card(East, ACE_CLUBS).unwrap();
 
     /// assert_eq!(trick1.leading_side(&Colored(Hearts)).unwrap(), North);
     /// //assert_eq!(trick1.leading_side(&NoTrump).unwrap(), North);
     /// //assert_eq!(trick1.leading_side(&Colored(Clubs)).unwrap(), East);
     /// 
-    /// trick1.add_card_registered(South, ACE_SPADES, &mut exhaust_register).unwrap();
-    /// trick1.add_card_registered(West, ACE_HEARTS, &mut exhaust_register).unwrap();
+    /// trick1.insert_card(South, ACE_SPADES).unwrap();
+    /// trick1.insert_card(West, ACE_HEARTS).unwrap();
     /// //assert_eq!(trick1.leading_side(&Colored(Hearts)).unwrap(), West);
     /// //assert_eq!(trick1.leading_side(&NoTrump).unwrap(), West);
     /// //assert_eq!(trick1.leading_side(&Colored(Spades)).unwrap(), South);
@@ -538,10 +534,9 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::Trump;
     /// use brydz_core::contract::Trick;
     /// let mut trick = Trick::new(North);
-    /// let mut exhaust_register = SuitExhaust::default();
-    /// trick.add_card_registered(North, NINE_HEARTS, &mut exhaust_register).unwrap();
-    /// trick.add_card_registered(East, TEN_SPADES, &mut exhaust_register).unwrap();
-    /// trick.add_card_registered(South, FIVE_CLUBS, &mut exhaust_register).unwrap();
+    /// trick.insert_card(North, NINE_HEARTS).unwrap();
+    /// trick.insert_card(East, TEN_SPADES).unwrap();
+    /// trick.insert_card(South, FIVE_CLUBS).unwrap();
     /// assert_eq!(trick.leading_side(&Trump::NoTrump), Some(North));
     /// ```
     pub fn leading_side(&self, trump: &TrumpGen<Card::Suit>) -> Option<Side>{
@@ -578,9 +573,9 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::suits::Suit::*;
     /// let mut trick = Trick::new(North);
     /// let mut exhaust_register = SuitExhaust::default();
-    /// trick.add_card_registered(North, NINE_HEARTS, &mut exhaust_register).unwrap();
-    /// trick.add_card_registered(East, TEN_SPADES, &mut exhaust_register).unwrap();
-    /// trick.add_card_registered(South, FIVE_CLUBS, &mut exhaust_register).unwrap();
+    /// trick.insert_card(North, NINE_HEARTS).unwrap();
+    /// trick.insert_card(East, TEN_SPADES).unwrap();
+    /// trick.insert_card(South, FIVE_CLUBS).unwrap();
     /// assert!(!trick.is_winning_card(&FOUR_DIAMONDS, &TrumpGen::NoTrump));
     /// assert!(trick.is_winning_card(&FOUR_DIAMONDS, &TrumpGen::Colored(Diamonds)));
     /// assert!(trick.is_winning_card(&TEN_HEARTS, &TrumpGen::NoTrump));

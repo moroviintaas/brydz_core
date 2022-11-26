@@ -26,6 +26,6 @@ pub trait ContractMechanics {
     fn dummy(&self) -> Side{
         self.contract_spec().declarer().partner()
     }
-    fn undo(&mut self) -> Option<Self::Card>;
+    fn undo(&mut self) -> Result<Self::Card, ContractErrorGen<Self::Card>>;
 }
 

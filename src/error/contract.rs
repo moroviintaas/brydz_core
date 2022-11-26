@@ -17,6 +17,7 @@ pub enum ContractErrorGen<Card: Card2SymTrait>{
     DummyNotPlaced,
     CurrentSidePresume(Side, Side),
     UndoOnEmptyContract,
+    UsedExhaustedSuit(Side, Card::Suit)
 
 }
 impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{

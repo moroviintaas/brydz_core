@@ -47,12 +47,12 @@ mod tests_card_memory{
     fn trick_collision_std_1(){
 
         let mut register = CardRegister::default();
-        let mut exhaust_register = SuitExhaust::default();
+        //let mut exhaust_register = SuitExhaust::default();
 
         let mut trick = TrickGen::new(Side::South);
-        trick.add_card_registered(Side::South, QUEEN_HEARTS, &mut exhaust_register).unwrap();
-        trick.add_card_registered(Side::West, TEN_CLUBS, &mut exhaust_register).unwrap();
-        trick.add_card_registered(Side::North, EIGHT_DIAMONDS, &mut exhaust_register).unwrap();
+        trick.insert_card(Side::South, QUEEN_HEARTS).unwrap();
+        trick.insert_card(Side::West, TEN_CLUBS).unwrap();
+        trick.insert_card(Side::North, EIGHT_DIAMONDS).unwrap();
         assert_eq!(register.trick_collision(&trick), None);
         register.register(QUEEN_HEARTS);
         assert_eq!(register.trick_collision(&trick), Some(QUEEN_HEARTS))
