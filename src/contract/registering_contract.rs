@@ -208,7 +208,7 @@ impl<Crd: Card2SymTrait,
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::{Contract, ContractMechanics, ContractSpec};
     /// use brydz_core::player::side::Side::{East, North, South, West};
-    /// use karty::cards::{EIGHT_HEARTS, FIVE_DIAMONDS, FOUR_SPADES, JACK_SPADES, TEN_SPADES};
+    /// use karty::cards::{ACE_SPADES,EIGHT_HEARTS, FIVE_DIAMONDS, FOUR_SPADES, JACK_SPADES, TEN_SPADES};
     /// use karty::suits::Suit::Diamonds;
     /// let mut contract = Contract::new(ContractSpec::new(West, Bid::init(TrumpGen::Colored(Diamonds), 1).unwrap(),));
     /// contract.insert_card(North, JACK_SPADES).unwrap();
@@ -228,6 +228,11 @@ impl<Crd: Card2SymTrait,
     /// assert_eq!(contract.current_side(), East);
     /// assert_eq!(contract.undo(), Some(JACK_SPADES));
     /// assert_eq!(contract.current_side(), North);
+    /// contract.insert_card(North, JACK_SPADES).unwrap();
+    /// contract.insert_card(East, TEN_SPADES).unwrap();
+    /// contract.insert_card(South, ACE_SPADES).unwrap();
+    /// assert_eq!(contract.undo(), Some(ACE_SPADES));
+    /// contract.insert_card(South, ACE_SPADES).unwrap();
     /// ```
     fn undo(&mut self) -> Option<Self::Card>{
         match self.current_trick.is_empty(){

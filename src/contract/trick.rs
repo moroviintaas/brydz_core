@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt::{Display, write};
 use std::ops::{Index, IndexMut};
 use karty::cards::{Card2SymTrait, Card};
 use karty::register::Register;
@@ -44,7 +45,54 @@ impl<Card: Card2SymTrait> Index<Side> for TrickGen<Card>{
 
 }
 
+impl Display for Trick{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        /*match f.alternate(){
+            true => write!(f, "{{{:?}:{:#}, {:?}:{:#}, {:?}:{:#}, {:?}:{:#}}}",
+                self.first_player_side(), match &self[self.first_player_side()]{
+                    Some(c) => format!("{:#}", c),
+                    None => "-".to_owned()
+                }),
 
+        }*/
+        
+        match f.alternate(){
+            true => {
+                write!(f,"{{ ")?;
+                for i in 0..3{
+                    write!(f, "{:?}: {}, ",self.first_player.next_i(i),
+                    match self[self.first_player.next_i(i)]{
+                        Some(c) => format!("{:#}", c),
+                        None => "-".to_owned()
+                    })?;
+                }
+                write!(f, "{:?}: {:#} }}", self.first_player.next_i(3),
+                match self[self.first_player.next_i(3)]{
+                    Some(c) => format!("{:#}", c),
+                    None => "-".to_owned()
+                })
+                
+            },
+            false => {
+                write!(f,"{{ ")?;
+                for i in 0..3{
+                    write!(f, "{:?}: {}, ",self.first_player.next_i(i),
+                    match self[self.first_player.next_i(i)]{
+                        Some(c) => format!("{:#}", c),
+                        None => "-".to_owned()
+                    })?;
+                }
+                write! (f, "{:?}: {:#} }}", self.first_player.next_i(3),
+                match self[self.first_player.next_i(3)]{
+                    Some(c) => format!("{}", c),
+                    None => "-".to_owned()
+                })
+                
+            }
+        }
+        
+    }
+}
 
 impl<Card: Card2SymTrait> IndexMut<Side> for TrickGen<Card>{
     fn index_mut(&mut self, index: Side) -> &mut Self::Output {
@@ -246,6 +294,10 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// Checks if two tricks collide in some card
     pub fn collides(&self, other: &TrickGen<Card>) -> bool{
         self.collision(other).is_some()
+    }
+
+    pub fn count_cards(&self) -> u8{
+        self.card_num
     }
 
 
