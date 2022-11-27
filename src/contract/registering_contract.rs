@@ -4,7 +4,7 @@ use std::ops::Index;
 use karty::cards::{Card2SymTrait, Card};
 use karty::register::{Register, CardRegister};
 use crate::cards::trump::TrumpGen;
-use crate::contract::collision::{SuitExhaust};
+use crate::contract::suit_exhaust::{SuitExhaust};
 use crate::contract::spec::ContractSpec;
 use crate::contract::maintainer::ContractMechanics;
 use crate::contract::TrickGen;
@@ -59,7 +59,7 @@ impl<Crd: Card2SymTrait,
     /// use brydz_core::contract::ContractMechanics;
     /// use brydz_core::player::axis::Axis;
     /// use brydz_core::error::TrickErrorGen;
-    /// use brydz_core::contract::collision::{SuitExhaust};
+    /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
     /// use karty::figures::Figure;
     /// use karty::suits::Suit;
     /// use karty::register::CardRegister;
@@ -153,7 +153,7 @@ impl<Crd: Card2SymTrait,
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling;
-    /// use brydz_core::contract::collision::{SuitExhaust};
+    /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -195,7 +195,7 @@ impl<Crd: Card2SymTrait,
     /// use brydz_core::bidding::Doubling;
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
-    /// use brydz_core::contract::collision::{SuitExhaust};
+    /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -372,7 +372,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
     /// use brydz_core::bidding::Doubling;
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
-    /// use brydz_core::contract::collision::{SuitExhaust};
+    /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -452,7 +452,7 @@ mod tests{
     use crate::cards::trump::TrumpGen;
     use crate::contract::spec::{ContractSpec};
     use crate::bidding::Bid;
-    use crate::contract::collision::SuitExhaust;
+    use crate::contract::suit_exhaust::SuitExhaust;
     use crate::cards::deck::{Deck};
     use crate::contract::{ContractGen, ContractMechanics};
     use crate::error::ContractErrorGen;

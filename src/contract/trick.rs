@@ -269,7 +269,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::contract::collision::{SuitExhaust};
+    /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -309,7 +309,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::contract::collision::SuitExhaust;
+    /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -348,7 +348,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side;
-    /// use brydz_core::contract::collision::SuitExhaust;
+    /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -449,7 +449,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::player::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
-    /// use brydz_core::contract::collision::SuitExhaust;
+    /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -510,7 +510,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use karty::suits::Suit::*;
     /// use brydz_core::cards::trump::TrumpGen::*;
     /// use karty::cards::*;
-    /// use brydz_core::contract::{TrickGen, collision::*};
+    /// use brydz_core::contract::{TrickGen, suit_exhaust::*};
     /// let mut trick1 = TrickGen::new(North);
     /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
     /// trick1.insert_card(East, ACE_CLUBS).unwrap();
@@ -529,7 +529,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// ```
     /// use karty::cards::*;
     /// use brydz_core::player::side::Side::*;
-    /// use brydz_core::contract::collision::SuitExhaust;
+    /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use brydz_core::cards::trump::Trump;
     /// use brydz_core::contract::Trick;
     /// let mut trick = Trick::new(North);
@@ -539,16 +539,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// assert_eq!(trick.leading_side(&Trump::NoTrump), Some(North));
     /// ```
     pub fn leading_side(&self, trump: &TrumpGen<Card::Suit>) -> Option<Side>{
-        
-        /*self[self.first_player_side()].as_ref().and_then(|_|{
-            self.winner_of_2(self.first_player, self.first_player.next(), trump)
-            .or(Ok(self.first_player)).and_then(|winner1|{
-                self.winner_of_2(winner1, self.first_player.next_i(2), trump)
-                .or(Ok(winner1)).and_then(|winner2|{
-                    self.winner_of_2(winner2, self.first_player.next_i(3), trump)
-                })
-            }).ok()
-        })*/
+
         self[self.first_player_side()].as_ref().map(|_|{
             match self.winner_of_2(self.first_player, self.first_player.next(), trump){
                 Ok(winner1) => match self.winner_of_2(winner1, self.first_player.next_i(2), trump){
@@ -566,7 +557,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// ```
     /// use karty::cards::*;
     /// use brydz_core::player::side::Side::*;
-    ///  use brydz_core::contract::collision::SuitExhaust;
+    ///  use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::Trick;
     /// use karty::suits::Suit::*;
