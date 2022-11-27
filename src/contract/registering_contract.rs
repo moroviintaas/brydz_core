@@ -4,7 +4,7 @@ use std::ops::Index;
 use karty::cards::{Card2SymTrait, Card};
 use karty::register::{Register, CardRegister};
 use crate::cards::trump::TrumpGen;
-use crate::contract::collision::{SuitExhaust, TrickCollision};
+use crate::contract::collision::{SuitExhaust};
 use crate::contract::spec::ContractSpec;
 use crate::contract::maintainer::ContractMechanics;
 use crate::contract::TrickGen;
@@ -93,36 +93,34 @@ impl<Crd: Card2SymTrait,
 
         if self.used_cards_memory.is_registered(&card){
             Err(ContractErrorGen::DuplicateCard(card))
+        } else if self.exhaust_table.is_registered(&(side, card.suit().to_owned())){
+            Err(ContractErrorGen::UsedExhaustedSuit(side, card.suit().to_owned()))
         } else {
-            if self.exhaust_table.is_registered(&(side, card.suit().to_owned())){
-                Err(ContractErrorGen::UsedExhaustedSuit(side, card.suit().to_owned()))
-            } else {
-                if let Some(called) = self.current_trick.called_suit(){
-                    if card.suit() != called{
-                        self.exhaust_table.register((side, called.to_owned()));
-                    }
+            if let Some(called) = self.current_trick.called_suit(){
+                if card.suit() != called{
+                    self.exhaust_table.register((side, called.to_owned()));
+                }
 
-                }
-                match self.current_trick.insert_card(side, card.clone()){
-                    Ok(4) => {
-                        self.used_cards_memory.register(card);
-                        match self.current_trick.taker(self.trump()){
-                            Ok(winner) => {
-                                match self.complete_current_trick(){
-                                    Ok(()) => Ok(winner),
-                                    Err(e) => Err(e)
-                                }
-        
+            }
+            match self.current_trick.insert_card(side, card.clone()){
+                Ok(4) => {
+                    self.used_cards_memory.register(card);
+                    match self.current_trick.taker(self.trump()){
+                        Ok(winner) => {
+                            match self.complete_current_trick(){
+                                Ok(()) => Ok(winner),
+                                Err(e) => Err(e)
                             }
-                            Err(e) => Err(ContractErrorGen::BadTrick( e))
+    
                         }
-                    },
-                    Ok(_) => {
-                        self.used_cards_memory.register(card);
-                        Ok(side.next())
+                        Err(e) => Err(ContractErrorGen::BadTrick( e))
                     }
-                    Err(e) => Err(ContractErrorGen::BadTrick( e))
+                },
+                Ok(_) => {
+                    self.used_cards_memory.register(card);
+                    Ok(side.next())
                 }
+                Err(e) => Err(ContractErrorGen::BadTrick( e))
             }
         }
     
@@ -324,7 +322,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
                     }*/
                     let next_player = self.current_trick.taker(self.trump()).unwrap();
 
-                    self.used_cards_memory.mark_cards_of_trick(&self.current_trick);
+                    //self.used_cards_memory.mark_cards_of_trick(&self.current_trick);
                     self.tricks[n] = mem::replace(&mut self.current_trick, TrickGen::new(next_player));
 
                     self.completed_tricks_number = n+1;
@@ -455,9 +453,8 @@ mod tests{
     use crate::contract::spec::{ContractSpec};
     use crate::bidding::Bid;
     use crate::contract::collision::SuitExhaust;
-    use crate::contract::maintainer::{ContractMechanics};
     use crate::cards::deck::{Deck};
-    use crate::contract::ContractGen;
+    use crate::contract::{ContractGen, ContractMechanics};
     use crate::error::ContractErrorGen;
     use crate::error::ContractErrorGen::ContractFull;
     use crate::meta::QUARTER_SIZE;

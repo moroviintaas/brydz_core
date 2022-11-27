@@ -1,8 +1,7 @@
 use std::cmp::Ordering;
-use std::fmt::{Display, write};
+use std::fmt::{Display};
 use std::ops::{Index, IndexMut};
 use karty::cards::{Card2SymTrait, Card};
-use karty::register::Register;
 use crate::cards::trump::TrumpGen;
 
 use crate::error::TrickErrorGen::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};

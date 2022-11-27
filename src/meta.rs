@@ -14,3 +14,9 @@ pub const HALF_TRICKS: u8 = (QUARTER_SIZE / 2) as u8;
 pub const MAX_BID_NUMBER: u8 = QUARTER_SIZE as u8 - HALF_TRICKS;
 pub const MAX_INDEX_IN_DEAL: usize = QUARTER_SIZE -1;
 
+pub const PLAYER_NUM: usize = 4;
+
+
+// As currently SmallVec can't be parametrized <[Self::Action; Self::ActionSpaceBound]>
+pub const CONTRACT_ACTION_SPACE_BOUND: usize = 13;
+pub const CONTRACT_ACTION_STACK_SIZE_BOUND: usize = 64;

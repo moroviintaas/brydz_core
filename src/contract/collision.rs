@@ -1,11 +1,11 @@
 use std::fmt::Debug;
 use karty::symbol::CardSymbol;
-use karty::cards::{Card2SymTrait};
+//use karty::cards::{Card2SymTrait};
 use karty::register::{Register};
 use karty::suits::{Suit};
-use crate::contract::trick::TrickGen;
+//use crate::contract::trick::TrickGen;
 use crate::player::side::{Side};
-
+/*
 pub trait TrickCollision<Card: Card2SymTrait>{
     fn trick_collision(&self, trick: &TrickGen<Card>) ->Option<Card>;
     fn mark_cards_of_trick(&mut self, trick: &TrickGen<Card>);
@@ -39,7 +39,7 @@ mod tests_card_memory{
     use karty::cards::{EIGHT_DIAMONDS, QUEEN_HEARTS, TEN_CLUBS};
     use karty::register::{Register};
     use karty::register::CardRegister;
-    use crate::contract::collision::{SuitExhaust, TrickCollision};
+    use crate::contract::collision::{TrickCollision};
     use crate::contract::trick::TrickGen;
     use crate::player::side::Side;
 
@@ -59,7 +59,7 @@ mod tests_card_memory{
 
     }
 }
-
+*/
 
 
 #[derive(Debug, Default, Clone, Copy)]
