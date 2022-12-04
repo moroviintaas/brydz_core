@@ -401,17 +401,17 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             }*/
             (Some(c1), Some(c2)) => {
                 if c1.suit() == c2.suit(){
-                    match c1.figure().cmp(c2.figure()){
+                    match c1.figure().cmp(&c2.figure()){
                         Ordering::Less => Ok(side_two),
                         _ => Ok(side_one)
                     }
                 } else{
                     match trump{
                         TrumpGen::Colored(s) => {
-                            if c1.suit() == s{
+                            if &c1.suit() == s{
                                 return Ok(side_one);
                             }
-                            if c2.suit() == s{
+                            if &c2.suit() == s{
                                 return Ok(side_two);
                             }
                             if c1.suit() == leading_suit{
@@ -581,7 +581,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                 // different suit as currently leading
                 match trump{
                     TrumpGen::Colored(trump_suit) => {
-                        card.suit() == trump_suit
+                        &card.suit() == trump_suit
                         //if card has trump color it is a winner
                     },
                     TrumpGen::NoTrump => false
@@ -594,7 +594,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     pub fn prepare_new(&self, trump: TrumpGen<Card::Suit>) -> Option<Self>{
         self.taker(&trump).ok().map(|s| TrickGen::new(s))
     }
-    pub fn called_suit(&self) -> Option<&Card::Suit>{
+    pub fn called_suit(&self) -> Option<Card::Suit>{
         self[self.first_player].as_ref().map(|c| c.suit())
     }
     pub fn first_player_side(&self) -> Side{

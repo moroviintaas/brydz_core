@@ -68,7 +68,7 @@ impl<Crd: Card2SymTrait,
     /// let mut contract = Contract::new(
     ///     ContractSpec::new(Side::West, Bid::init(TrumpGen::Colored(Suit::Hearts), 1).unwrap(),));
     /// contract.insert_card(Side::North, KING_HEARTS).unwrap();
-    /// assert_eq!(contract.current_trick().called_suit(), Some(&Suit::Hearts));
+    /// assert_eq!(contract.current_trick().called_suit(), Some(Suit::Hearts));
     /// contract.insert_card(Side::East, ACE_HEARTS).unwrap();
     /// contract.insert_card(Side::South, TWO_CLUBS).unwrap();
     /// assert_eq!(contract.suits_exhausted().is_registered(&(Side::South, Suit::Hearts)),true );
