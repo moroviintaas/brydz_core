@@ -20,6 +20,9 @@ impl<T> SideMap<T>{
     pub fn new(north: T, east: T, south: T, west:T) -> Self{
         Self{north, east, south, west}
     }
+    pub fn new_symmetric(sym: T)  -> Self where T: Clone{
+        Self{north: sym.clone(), east: sym.clone(), south: sym.clone(), west: sym }
+    }
     pub fn and<F: Fn(&T) -> bool >(&self, f:F) -> bool{
         f(&self.north) && f(&self.east) && f(&self.south) && f(&self.west)
     }
