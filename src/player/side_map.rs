@@ -1,4 +1,5 @@
 use crate::player::side::{Side, SIDES};
+use crate::player::side::Side::{East, North, South, West};
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
@@ -19,6 +20,14 @@ pub struct SideMap<T>{
 impl<T> SideMap<T>{
     pub fn new(north: T, east: T, south: T, west:T) -> Self{
         Self{north, east, south, west}
+    }
+    pub fn new_with_fn<F>(f: F) -> Self where F: Fn(Side) -> T{
+        Self{
+            north: f(North),
+            east: f(East),
+            south: f(South),
+            west: f(West),
+        }
     }
     pub fn new_symmetric(sym: T)  -> Self where T: Clone{
         Self{north: sym.clone(), east: sym.clone(), south: sym.clone(), west: sym }
