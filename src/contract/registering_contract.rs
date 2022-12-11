@@ -284,7 +284,7 @@ impl<Crd: Card2SymTrait,
             false => match self.current_trick.undo(){
                 Some(card) => {
                     self.used_cards_memory.unregister(&card);
-                    self.exhaust_table.unregister(&(self.current_side(), card.suit().to_owned()));
+                    self.exhaust_table.unregister(&(self.current_side(), card.suit()));
                     Ok(card)
                 },
                 None => Err(ContractErrorGen::BadTrick(TrickErrorGen::ImposibleUndo))
