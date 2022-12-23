@@ -52,6 +52,18 @@ impl<T> SideMap<T>{
     pub fn destruct(self) -> (T,T,T,T){
     (self.north, self.east, self.south, self.west)
     }
+    pub fn select_best_fit<C: Ord, F: Fn(&T) -> C>(&self, fit: F) -> Side{
+        let mut max = fit(&self.north);
+        let mut best = North;
+        for side in &SIDES[0..]{
+            let tmp = fit(&self[side]);
+            if  &tmp > &max{
+                best = *side;
+                max = tmp;
+            }
+        }
+        best
+    }
 
 }
 
