@@ -57,7 +57,7 @@ impl<T> SideMap<T>{
         let mut best = North;
         for side in &SIDES[0..]{
             let tmp = fit(&self[side]);
-            if  &tmp > &max{
+            if  tmp > max{
                 best = *side;
                 max = tmp;
             }

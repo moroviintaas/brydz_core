@@ -93,12 +93,12 @@ impl<Crd: Card2SymTrait,
 
         if self.used_cards_memory.is_registered(&card){
             Err(ContractErrorGen::DuplicateCard(card))
-        } else if self.exhaust_table.is_registered(&(side, card.suit().to_owned())){
-            Err(ContractErrorGen::UsedExhaustedSuit(side, card.suit().to_owned()))
+        } else if self.exhaust_table.is_registered(&(side, card.suit())){
+            Err(ContractErrorGen::UsedExhaustedSuit(side, card.suit()))
         } else {
             if let Some(called) = self.current_trick.called_suit(){
                 if card.suit() != called{
-                    self.exhaust_table.register((side, called.to_owned()));
+                    self.exhaust_table.register((side, called));
                 }
 
             }
@@ -268,7 +268,7 @@ impl<Crd: Card2SymTrait,
                             Some(card) => {
                                 
                                 self.used_cards_memory.unregister(&card);
-                                self.exhaust_table.unregister(&(self.current_side(), card.suit().to_owned()));
+                                self.exhaust_table.unregister(&(self.current_side(), card.suit()));
                                 self.completed_tricks_number -= 1;
                                 Ok(card)
                             },

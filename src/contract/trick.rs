@@ -493,7 +493,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                 match &self[self.first_player]{
                     None => Err(MissingCard(self.first_player)),
                     Some(s) => {
-                        let tmp_trump = TrumpGen::Colored(s.suit().clone());
+                        let tmp_trump = TrumpGen::Colored(s.suit());
                         winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(1), &tmp_trump)?;
                         winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(2), &tmp_trump)?;
                         winner_so_far = self.winner_of_2(winner_so_far, self.first_player.next_i(3), &tmp_trump)?;
