@@ -49,6 +49,13 @@ impl<T> SideMap<T>{
         }
         None
     }
+
+    pub fn merge<F: Fn(&T, &T) -> T> (&self, f:F) -> T{
+        let ns = f(&self.north, &self.south);
+        let we = f(&self.west, &self.east);
+        f(&ns, &we)
+    }
+
     pub fn destruct(self) -> (T,T,T,T){
     (self.north, self.east, self.south, self.west)
     }
