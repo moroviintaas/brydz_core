@@ -23,4 +23,5 @@ pub const CONTRACT_ACTION_GROUPING_ESTIMATE: usize = 4;
 
 // As currently SmallVec can't be parametrized <[Self::Action; Self::ActionSpaceBound]>
 pub const CONTRACT_ACTION_SPACE_BOUND: usize = 13;
+pub const CONTRACT_ACTION_ESTIMATED_SUIT_MAP_BOUND: usize = 8;
 pub const CONTRACT_ACTION_STACK_SIZE_BOUND: usize = 64;
