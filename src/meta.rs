@@ -18,7 +18,7 @@ pub const MAX_INDEX_IN_DEAL: usize = QUARTER_SIZE -1;
 
 pub const PLAYER_NUM: usize = 4;
 
-pub const CONTRACT_ACTION_GROUPING_ESTIMATE: usize = 4;
+pub const CONTRACT_ACTION_GROUPING_ESTIMATE: usize = 8;
 
 
 // As currently SmallVec can't be parametrized <[Self::Action; Self::ActionSpaceBound]>
