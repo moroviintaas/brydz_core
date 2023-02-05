@@ -1,6 +1,7 @@
 use std::cmp::Ordering;
 use std::fmt::{Display};
 use std::ops::{Index, IndexMut};
+use arrayvec::ArrayVec;
 use karty::cards::{Card2SymTrait, Card};
 use crate::cards::trump::TrumpGen;
 
@@ -10,16 +11,47 @@ use crate::error::{Mismatch, TrickErrorGen};
 use crate::player::side::Side::{North, South, East, West};
 use crate::player::side::{Side, SIDES};
 
+pub const TRICK_CAPACITY:usize = 4usize;
+/*
+pub trait TrickTrait<Crd>: Clone + PartialEq + Eq + Index<Side, Output=Option<Crd>>{
+    fn empty(first_side: Side) -> Self;
+    fn current_side(&self) -> Option<Side>;
+    fn insert_card(&mut self, side: Side)
 
+}
+#[derive(Debug, Eq, PartialEq, Clone)]
+pub struct TrumpTrickGen<Card: Card2SymTrait> {
+    cards: ArrayVec<Card, 4>,
+    first_player: Side,
+}
 
+/// ```
+///
+/// ```
+impl<Card: Card2SymTrait> Index<Side> for TrumpTrickGen<Card>{
+    type Output = Option<Card>;
+
+    fn index(&self, index: Side) -> &Self::Output {
+        let uindex = (index - self.first_player) as usize;
+        &self.cards.get(uindex)
+    }
+}
+
+impl<Card: Card2SymTrait> TrickTrait<Card> for TrumpTrickGen<Card>{
+
+}
+*/
 
 
 #[derive(Debug, Eq, PartialEq, Clone)]
 pub struct TrickGen<Card: Card2SymTrait>{
+    /*
     north_card: Option<Card>,
     west_card: Option<Card>,
     south_card: Option<Card>,
     east_card: Option<Card>,
+     */
+    cards: [Option<Card>; TRICK_CAPACITY],
     first_player: Side,
     card_num: u8,
 
@@ -33,12 +65,19 @@ impl<Card: Card2SymTrait> Index<Side> for TrickGen<Card>{
     type Output = Option<Card>;
 
     fn index(&self, index: Side ) -> &Self::Output {
+        /*
         match index{
+
             North => &self.north_card,
             South => &self.south_card,
             West => &self.west_card,
             East => &self.east_card
-        }
+
+
+
+        }*/
+        let uindex = (index - self.first_player) as usize;
+        &self.cards[uindex]
     }
 
 
@@ -92,7 +131,7 @@ impl Display for Trick{
         
     }
 }
-
+/*
 impl<Card: Card2SymTrait> IndexMut<Side> for TrickGen<Card>{
     fn index_mut(&mut self, index: Side) -> &mut Self::Output {
         match index{
@@ -102,12 +141,13 @@ impl<Card: Card2SymTrait> IndexMut<Side> for TrickGen<Card>{
             Side::East => &mut self.east_card
         }
     }
-}
+}*/
 
 impl<Card: Card2SymTrait> TrickGen<Card>{
     pub fn new( first_player: Side) -> Self{
 
-        Self{first_player, north_card: None, south_card: None, west_card: None, east_card: None, card_num: 0}
+        //Self{first_player, north_card: None, south_card: None, west_card: None, east_card: None, card_num: 0}
+         Self{first_player, cards: [None , None, None, None], card_num: 0}
     }
 
     /// # Returns:
@@ -135,6 +175,10 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             x@ 0..=3 => Some(self.first_player.next_i(x)),
             _ => None
         }
+        /*match self.cards.len(){
+            i @ 0..=3 => Some(self.first_player.next_i(i as u8)),
+            _ => None
+        }*/
     }
 
 
@@ -204,7 +248,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             Some(s) => s,
             None => { return Err(TrickErrorGen::TrickFull)}
         };
-        match side == side_in_order{
+        /*match side == side_in_order{
             true => match self[side]{
                 None => match self.contains(&card){
                     false => {
@@ -216,6 +260,14 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                 }
 
                 Some(_) => Err(CardSlotAlreadyUsed(side))
+            },
+            false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
+        }*/
+        match side == side_in_order{
+            true =>{
+                self.cards[self.card_num as usize] = Some(card);
+                self.card_num +=1;
+                Ok(self.card_num)
             },
             false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
         }
@@ -241,7 +293,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// assert!(trick.is_empty());
     /// ```
     pub fn undo(&mut self) -> Option<Card>{
-        match self.is_empty(){
+        /*match self.is_empty(){
             true => None,
             false => match &self.current_side(){
                     None => {
@@ -252,6 +304,22 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                     Some(s) => {
                         self.card_num -= 1;
                         self[s.prev()].take()
+                    }
+
+
+            }
+        }*/
+        match self.is_empty(){
+            true => None,
+            false => match &self.current_side(){
+                    None => {
+                        self.card_num -= 1;
+                        //let side = self.first_player.next_i(3);
+                        self.cards[self.card_num as usize].take()
+                    },
+                    Some(s) => {
+                        self.card_num -= 1;
+                        self.cards[self.card_num as usize].take()
                     }
 
 
@@ -281,10 +349,21 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// assert!(!trick.contains(&ACE_SPADES));
     /// ```
     pub fn contains(&self, card: &Card) -> bool{
-        for side in [North, East, South, West]{
+        /*for side in [North, East, South, West]{
             if self[side].as_ref().map_or(false, |c| c == card){
                 return true;
             }
+        }
+        false
+
+         */
+        for c in &self.cards[0..self.card_num as usize]{
+            if let  Some( uc) =c{
+                if uc == card{
+                    return true
+                }
+            }
+
         }
         false
     }
@@ -296,7 +375,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     }
 
     pub fn count_cards(&self) -> u8{
-        self.card_num
+        self.cards.len() as u8
     }
 
 
@@ -338,6 +417,14 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             }
         }
         None
+        /*for sc in &self.cards{
+            for oc in &other.cards{
+                if oc == sc{
+                    return Some(oc.to_owned())
+                }
+            }
+        }
+        None*/
     }
 
 
@@ -365,18 +452,21 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// ```
     pub fn is_complete(&self) -> bool{
 
-        self[North].as_ref()
+        /*self[North].as_ref()
             .and(self[East].as_ref())
             .and(self[South].as_ref())
             .and(self[West].as_ref())
-            .is_some()
+            .is_some()*/
+        self.card_num == TRICK_CAPACITY as u8
     }
     pub fn is_empty(&self) -> bool {
-        self[North].as_ref()
+        /*self[North].as_ref()
             .or(self[East].as_ref())
             .or(self[South].as_ref())
             .or(self[West].as_ref())
-            .is_none()
+            .is_none()*/
+        //self.cards.is_empty()
+        self.card_num == 0
     }
     pub fn missing_card(&self) -> Option<Side>{
         for s in SIDES{
@@ -605,6 +695,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
 impl<Card: Card2SymTrait> Default for TrickGen<Card>{
     fn default() -> Self {
-        Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
+        //Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
+        Self{card_num:0, first_player: North, cards: [None, None, None, None]}
+
     }
 }
