@@ -66,7 +66,7 @@ impl Side{
                 West => East
             },
             3 => self.prev(),
-            i => {panic!("Next_i {} shouldn't happen", i)}
+            i => {panic!("Next_i {i} shouldn't happen")}
         }
 
     }

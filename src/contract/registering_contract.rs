@@ -132,7 +132,7 @@ impl<Crd: Card2SymTrait,
             n if n < QUARTER_SIZE => false,
             QUARTER_SIZE => true,
             //Infallible, I guess
-            _ => panic!("Number of tricks in contract should never ever exceed {}.", QUARTER_SIZE)
+            _ => panic!("Number of tricks in contract should never ever exceed {QUARTER_SIZE}.")
         }
     }
     fn completed_tricks(&self) -> Vec<TrickGen<Crd>> {

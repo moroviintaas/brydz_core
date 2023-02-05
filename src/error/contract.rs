@@ -22,7 +22,7 @@ pub enum ContractErrorGen<Card: Card2SymTrait>{
 }
 impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 

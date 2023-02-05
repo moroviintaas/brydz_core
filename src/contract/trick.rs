@@ -61,13 +61,13 @@ impl Display for Trick{
                 for i in 0..3{
                     write!(f, "{:?}: {}, ",self.first_player.next_i(i),
                     match self[self.first_player.next_i(i)]{
-                        Some(c) => format!("{:#}", c),
+                        Some(c) => format!("{c:#}"),
                         None => "-".to_owned()
                     })?;
                 }
                 write!(f, "{:?}: {:#} }}", self.first_player.next_i(3),
                 match self[self.first_player.next_i(3)]{
-                    Some(c) => format!("{:#}", c),
+                    Some(c) => format!("{c:#}"),
                     None => "-".to_owned()
                 })
                 
@@ -77,13 +77,13 @@ impl Display for Trick{
                 for i in 0..3{
                     write!(f, "{:?}: {}, ",self.first_player.next_i(i),
                     match self[self.first_player.next_i(i)]{
-                        Some(c) => format!("{:#}", c),
+                        Some(c) => format!("{c:#}"),
                         None => "-".to_owned()
                     })?;
                 }
                 write! (f, "{:?}: {:#} }}", self.first_player.next_i(3),
                 match self[self.first_player.next_i(3)]{
-                    Some(c) => format!("{}", c),
+                    Some(c) => format!("{c}"),
                     None => "-".to_owned()
                 })
                 
@@ -387,6 +387,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
         None
     }
 
+
+
     fn winner_of_2(&self, side_one: Side, side_two: Side, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
         let leading_suit = match &self[self.first_player]{
             Some(c) => c.suit(),
@@ -552,6 +554,38 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
                 Err(_) => self.first_player,
             }
         })
+    }
+    /// ```
+    /// use brydz_core::player::side::Side::*;
+    /// use karty::suits::Suit::*;
+    /// use brydz_core::cards::trump::TrumpGen::*;
+    /// use karty::cards::*;
+    /// use brydz_core::contract::{TrickGen, suit_exhaust::*};
+    /// let mut trick1 = TrickGen::new(North);
+    /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// trick1.insert_card(East, ACE_CLUBS).unwrap();
+    /// trick1.insert_card(South, KING_HEARTS).unwrap();
+    /// trick1.insert_card(West, TEN_SPADES).unwrap();
+    /// assert_eq!(trick1.leader_in_suit(&Hearts), Some(South));
+    /// assert_eq!(trick1.leader_in_suit(&Clubs), Some(East));
+    /// assert_eq!(trick1.leader_in_suit(&Spades), Some(West));
+    /// assert_eq!(trick1.leader_in_suit(&Diamonds), None);
+    /// ```
+    pub fn leader_in_suit(&self, suit: &Card::Suit) -> Option<Side>{
+        SIDES.iter()
+            .map(|s| (s, &self[*s]))
+            .filter_map(|(s, oc)| {
+                match oc{
+                    None => None,
+                    Some(c) => match suit == &c.suit() {
+                        true => Some((s, c.figure())),
+                        false => None
+                    }
+                }
+            } ).max_by_key(|(_s, f) | f.to_owned())
+            .map(|(s, _)| *s)
+
+
     }
 
     /// ```

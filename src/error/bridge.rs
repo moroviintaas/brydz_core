@@ -27,7 +27,7 @@ impl<T: Copy> Copy for Mismatch<T>{}
 
 impl<S: SuitTrait> Display for BiddingErrorGen<S>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{:?}", self)
+        write!(f, "{self:?}")
     }
 }
 
@@ -50,8 +50,8 @@ impl<Card: Card2SymTrait> Display for BridgeCoreErrorGen<Card> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self{
             BridgeCoreErrorGen::Deal(deal_error)=> match f.alternate(){
-                true => write!(f, "BridgeError::DealError {{ {:#} }} ", deal_error ),
-                false => write!(f, "BridgeError::DealError {{ {} }} ", deal_error ),
+                true => write!(f, "BridgeError::DealError {{ {deal_error:#} }} " ),
+                false => write!(f, "BridgeError::DealError {{ {deal_error} }} " ),
             }
             _ => {todo!()}
         }
