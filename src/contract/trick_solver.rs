@@ -6,7 +6,7 @@ use crate::error::TrickErrorGen;
 use crate::error::TrickErrorGen::MissingCard;
 use crate::player::side::Side;
 
-pub trait TrickSolver: Debug + Clone{
+pub trait TrickSolver: Debug{
     type CardType: Card2SymTrait;
     fn taker(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>>;
     fn leader(&self, trick: &TrickGen<Self::CardType>) -> Option<Side>;
@@ -185,5 +185,27 @@ impl <Crd: Card2SymTrait> TrickSolver for NoTrumpTrickSolver<Crd> {
             None => true,
             Some((_s,c)) => c.suit() == card.suit() && c.figure() < card.figure()
         }
+    }
+}
+
+impl<Crd: Card2SymTrait + 'static> Clone for Box<dyn TrickSolver<CardType=Crd>> {
+    fn clone(&self) -> Self {
+        Box::new(self.to_owned())
+    }
+}
+
+impl <Crd: Card2SymTrait> TrickSolver for Box<dyn TrickSolver<CardType=Crd>>{
+    type CardType = Crd;
+
+    fn taker(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>> {
+        self.as_ref().taker(trick)
+    }
+
+    fn leader(&self, trick: &TrickGen<Self::CardType>) -> Option<Side> {
+        self.as_ref().leader(trick)
+    }
+
+    fn does_beat_leader(&self, trick: &TrickGen<Self::CardType>, card: &Self::CardType) -> bool {
+        self.as_ref().does_beat_leader(trick, card)
     }
 }

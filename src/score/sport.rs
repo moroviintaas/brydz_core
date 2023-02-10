@@ -41,7 +41,7 @@ for ScoreTableSport{
     /// ```
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::cards::trump::TrumpGen;
-    /// use brydz_core::contract::{ContractSpec, ContractMechanics, Contract};
+    /// use brydz_core::contract::{ContractSpec, ContractMechanics, ContractT};
     /// use brydz_core::player::axis::Axis::NorthSouth;
     /// use brydz_core::player::side::Side::{East, North, South, West};
     /// use brydz_core::score::ScoreTracker;
@@ -51,7 +51,7 @@ for ScoreTableSport{
     /// use karty::figures::Figure;
     /// use karty::suits::Suit;
     /// let mut score = ScoreTableSport::new(false, false);
-    /// let mut deal = Contract::new(ContractSpec::new(South, Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap()));
+    /// let mut deal = ContractT::try_new(ContractSpec::new(South, Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap())).unwrap();
     /// deal.insert_card(West, ACE_CLUBS).expect("Error inserting in deal 0.");
     /// deal.insert_card(North, THREE_CLUBS).expect("Error inserting card 1.");
     /// deal.insert_card(East, FOUR_CLUBS).expect("Error inserting card  2.");
@@ -123,7 +123,7 @@ for ScoreTableSport{
     ///
     ///
     /// //60 + 40 + 50 zapis czesciowy
-    /// assert_eq!(<ScoreTableSport as ScoreTracker<Contract, Card>>::points(&score, &NorthSouth), 150);
+    /// assert_eq!(<ScoreTableSport as ScoreTracker<ContractT, Card>>::points(&score, &NorthSouth), 150);
     /// //assert_eq!(score.points(&NorthSouth), 150);
     ///
     ///
