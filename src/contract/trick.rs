@@ -1,10 +1,10 @@
-use std::cmp::Ordering;
 use std::fmt::{Display};
-use std::ops::{Index, IndexMut};
+use std::ops::{Index};
 use karty::cards::{Card2SymTrait, Card};
 use crate::cards::trump::TrumpGen;
+use crate::contract::{NoTrumpTrickSolver, TrickSolver, TrumpTrickSolver};
 
-use crate::error::TrickErrorGen::{CardSlotAlreadyUsed, MissingCard, ViolatedOrder};
+use crate::error::TrickErrorGen::{CardSlotAlreadyUsed, ViolatedOrder};
 use crate::error::{Mismatch, TrickErrorGen};
 
 use crate::player::side::Side::{North, South, East, West};
@@ -46,14 +46,7 @@ impl<Card: Card2SymTrait> Index<Side> for TrickGen<Card>{
 
 impl Display for Trick{
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        /*match f.alternate(){
-            true => write!(f, "{{{:?}:{:#}, {:?}:{:#}, {:?}:{:#}, {:?}:{:#}}}",
-                self.first_player_side(), match &self[self.first_player_side()]{
-                    Some(c) => format!("{:#}", c),
-                    None => "-".to_owned()
-                }),
 
-        }*/
         
         match f.alternate(){
             true => {
@@ -93,17 +86,6 @@ impl Display for Trick{
     }
 }
 
-impl<Card: Card2SymTrait> IndexMut<Side> for TrickGen<Card>{
-    fn index_mut(&mut self, index: Side) -> &mut Self::Output {
-        match index{
-            Side::North => &mut self.north_card,
-            Side::South => &mut self.south_card,
-            Side::West => &mut self.west_card,
-            Side::East => &mut self.east_card
-        }
-    }
-}
-
 impl<Card: Card2SymTrait> TrickGen<Card>{
     pub fn new( first_player: Side) -> Self{
 
@@ -138,67 +120,35 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     }
 
 
-/*
 
-    /// Adds card to trick with support for checking and updating suit exhaust table
-    /// # Examples
-    /// ```
-    /// use brydz_core::contract::collision::SuitExhaust;
-    /// use brydz_core::player::side::Side;
-    /// use brydz_core::error::TrickErrorGen;
-    /// use brydz_core::contract::TrickGen;
-    /// use std::str::FromStr;
-    /// use karty::figures::Figure;
-    /// use karty::suits::{Suit, Suit::*};
-    /// use karty::register::{CardRegister, Register};
-    /// use karty::cards::*;
-    ///
-    /// let mut exhaust_table = SuitExhaust::default();
-    /// let mut trick1 = TrickGen::<Card>::new(Side::West);
-    /// trick1.add_card_registered(Side::West, JACK_CLUBS, &mut exhaust_table).unwrap();
-    /// let r1 = trick1.add_card_registered(Side::North, TEN_CLUBS, &mut exhaust_table);
-    /// assert_eq!(r1, Ok(2));
-    /// let r2 = trick1.add_card_registered(Side::East, NINE_HEARTS, &mut exhaust_table);
-    /// assert_eq!(r2, Ok(3));
-    /// assert!(exhaust_table.is_registered(&(Side::East, Suit::Clubs)));
-    /// let mut trick2 = TrickGen::new(Side::East);
-    /// let r3 = trick2.add_card_registered(Side::East, NINE_CLUBS, &mut exhaust_table);
-    /// assert_eq!(r3, Err(TrickErrorGen::UsedPreviouslyExhaustedSuit(Suit::Clubs)));
-    ///
-    /// ```
-    pub fn add_card_registered<Se: Register<(Side, Card::Suit)>>(&mut self, side: Side, card: Card, exhaust_register: &mut Se) -> Result<u8, TrickErrorGen<Card>>{
-        //if exhaust_register.is_exhausted(&side, card.suit()){
-        if exhaust_register.is_registered(&(side, card.suit().to_owned())){
-            // This suit was already exhausted for player, therefore possible cheating
-            return Err(TrickErrorGen::UsedPreviouslyExhaustedSuit(card.suit().to_owned()))
-        }
-        let side_in_order = match self.current_side(){
-            Some(s) => s,
-            None => { return Err(TrickErrorGen::TrickFull)}
+    fn set_card(&mut self, side: Side, card: Card){
+        match self.index(side){
+            None => self.card_num += 1,
+            Some(_) => {}
         };
-        //let side_in_order = self.first_player.next_i(self.card_num);
-        match side == side_in_order{
-            true => match self[side]{
-                None => match self.contains(&card){
-                    false => {
-                        if side != self.first_player && card.suit() != self[self.first_player].as_ref().unwrap().suit() {
-                            // mark suit of first card in trick as exhausted for the player
-                            //exhaust_register.mark_exhausted(&side, self[self.first_player].as_ref().unwrap().suit())
-                            exhaust_register.register((side, self[self.first_player].as_ref().unwrap().suit().to_owned()))
-                        }
-                        self.card_num += 1;
-                        self[side] = Some(card);
-                        Ok(self.card_num)
-                    }
-                    true => Err(TrickErrorGen::DuplicateCard(card))
-                }
-
-                Some(_) => Err(CardSlotAlreadyUsed(side))
-            },
-            false => Err(ViolatedOrder(Mismatch{expected:side_in_order, found: side}))
+        match side{
+            East => self.east_card = Some(card),
+            South => self.south_card = Some(card),
+            West => self.west_card = Some(card),
+            North => self.north_card = Some(card),
         }
     }
-*/
+    fn unset_card(&mut self, side: Side) -> Option<Card>{
+        match self.index(side){
+            None => {}
+            Some(_s) => {
+                self.card_num -=1
+            }
+        };
+
+        match side{
+            East => self.east_card.take(),
+            South => self.south_card.take(),
+            West => self.west_card.take(),
+            North => self.north_card.take(),
+        }
+    }
+
     pub fn insert_card(&mut self, side: Side, card: Card) ->  Result<u8, TrickErrorGen<Card>>{
         let side_in_order = match self.current_side(){
             Some(s) => s,
@@ -208,8 +158,9 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             true => match self[side]{
                 None => match self.contains(&card){
                     false => {
-                        self.card_num += 1;
-                        self[side] = Some(card);
+                        //self.card_num += 1;
+                        //self[side] = Some(card);
+                        self.set_card(side, card);
                         Ok(self.card_num)
                     }
                     true => Err(TrickErrorGen::DuplicateCard(card))
@@ -245,13 +196,15 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
             true => None,
             false => match &self.current_side(){
                     None => {
-                        self.card_num -= 1;
+                        //self.card_num -= 1;
                         let side = self.first_player.next_i(3);
-                        self[side].take()
+                        //self[side].take()
+                        self.unset_card(side)
                     },
                     Some(s) => {
-                        self.card_num -= 1;
-                        self[s.prev()].take()
+                        //self.card_num -= 1;
+                        //self[s.prev()].take()
+                        self.unset_card(s.prev())
                     }
 
 
@@ -388,7 +341,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     }
 
 
-
+/*
     fn winner_of_2(&self, side_one: Side, side_two: Side, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
         let leading_suit = match &self[self.first_player]{
             Some(c) => c.suit(),
@@ -442,6 +395,51 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
         }
     }
 
+ */
+
+    /// Tries to pick a winner of a trick
+    /// ```
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::cards::trump::TrumpGen::{Colored, NoTrump};
+    /// use brydz_core::cards::deck::Deck;
+    /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
+    /// use brydz_core::contract::TrickGen;
+    /// use brydz_core::player::side::Side::{North, South, East, West};
+    /// use brydz_core::contract::suit_exhaust::SuitExhaust;
+    /// use karty::figures::Figure;
+    /// use karty::suits::{Suit, Suit::*};
+    /// use karty::register::CardRegister;
+    /// use karty::cards::*;
+    ///
+    /// let mut trick1 = TrickGen::new(North);
+    /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// trick1.insert_card(East, TWO_CLUBS).unwrap();
+    /// trick1.insert_card(South, ACE_SPADES).unwrap();
+    /// trick1.insert_card(West, TEN_SPADES).unwrap();
+    /// assert_eq!(trick1.taker(&Colored(Hearts)).unwrap(), North);
+    /// let mut trick2 = TrickGen::new(North);
+    ///
+    /// trick2.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// trick2.insert_card(East, TWO_CLUBS).unwrap();
+    /// trick2.insert_card(South, ACE_SPADES).unwrap();
+    /// trick2.insert_card(West, TEN_SPADES).unwrap();
+    /// assert_eq!(trick2.taker(&Colored(Clubs)).unwrap(), East);
+    ///
+    /// let mut trick3 = TrickGen::new(East);
+    /// trick3.insert_card(East, ACE_CLUBS).unwrap();
+    /// trick3.insert_card(South, ACE_SPADES).unwrap();
+    /// trick3.insert_card(West, TEN_SPADES).unwrap();
+    /// trick3.insert_card(North, QUEEN_HEARTS).unwrap();
+    /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
+    /// ```
+    pub fn taker(&self, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
+        match trump{
+            TrumpGen::Colored(s) => TrumpTrickSolver::new(s.to_owned()).taker(self),
+            TrumpGen::NoTrump => NoTrumpTrickSolver::new().taker(self)
+        }
+
+    }
+/*
     /// Tries to pick a winner of a trick
     /// ```
     /// use brydz_core::cards::trump::TrumpGen;
@@ -571,6 +569,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// assert_eq!(trick1.leader_in_suit(&Spades), Some(West));
     /// assert_eq!(trick1.leader_in_suit(&Diamonds), None);
     /// ```
+
+ */
     pub fn leader_in_suit(&self, suit: &Card::Suit) -> Option<Side>{
         SIDES.iter()
             .map(|s| (s, &self[*s]))
@@ -587,7 +587,28 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
 
     }
+    pub fn leader_in_called_suit(&self) -> Option<Side>{
+        self.called_suit().and_then(|s|self.leader_in_suit(&s))
+    }
 
+    pub fn leader_in_suit_with_card(&self, suit: &Card::Suit) -> Option<(Side, &Card)>{
+        SIDES.iter()
+            .map(|s| (s, &self[*s]))
+            .filter_map(|(s, oc)| {
+                match oc{
+                    None => None,
+                    Some(c) => match suit == &c.suit() {
+                        true => Some((s, c)),
+                        false => None
+                    }
+                }
+            } ).max_by_key (|(_s, c) | c.figure())
+            .map(|(s, c)| (*s,c))
+    }
+    pub fn leader_in_called_suit_with_card(&self) -> Option<(Side, &Card)>{
+        self.called_suit().and_then(|s| self.leader_in_suit_with_card(&s))
+    }
+/*
     /// ```
     /// use karty::cards::*;
     /// use brydz_core::player::side::Side::*;
@@ -628,6 +649,8 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     pub fn prepare_new(&self, trump: TrumpGen<Card::Suit>) -> Option<Self>{
         self.taker(&trump).ok().map(|s| TrickGen::new(s))
     }
+
+ */
     pub fn called_suit(&self) -> Option<Card::Suit>{
         self[self.first_player].as_ref().map(|c| c.suit())
     }
@@ -642,3 +665,5 @@ impl<Card: Card2SymTrait> Default for TrickGen<Card>{
         Self{card_num:0, first_player: North, north_card: None, east_card: None, south_card: None, west_card:None}
     }
 }
+
+

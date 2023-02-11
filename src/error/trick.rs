@@ -15,7 +15,8 @@ pub enum TrickErrorGen<Card: Card2SymTrait>{
     ViolatedOrder(Mismatch<Side>),
     UsedPreviouslyExhaustedSuit(Card::Suit),
     TrickFull,
-    TrickNotEmpty
+    TrickNotEmpty,
+    TrickEmpty
 }
 impl<Card: Card2SymTrait> Display for TrickErrorGen<Card> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {

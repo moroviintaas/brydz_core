@@ -1,4 +1,4 @@
-use std::fmt::{Debug, format};
+use std::fmt::{Debug};
 use std::marker::PhantomData;
 use karty::cards::Card2SymTrait;
 use crate::contract::TrickGen;
@@ -109,7 +109,7 @@ impl <Crd: Card2SymTrait> TrickSolver for TrumpTrickSolver<Crd>{
     }
 }
 
-#[derive(Debug,  Clone, PartialEq, Eq)]
+#[derive(Debug,  Clone, PartialEq, Eq, Default)]
 pub struct NoTrumpTrickSolver<Crd: Card2SymTrait>{
     _phantom: PhantomData<Crd>,
 }
@@ -186,4 +186,10 @@ impl <Crd: Card2SymTrait> TrickSolver for NoTrumpTrickSolver<Crd> {
             Some((_s,c)) => c.suit() == card.suit() && c.figure() < card.figure()
         }
     }
+}
+
+#[derive(Debug,  Clone, PartialEq, Eq)]
+pub enum SmartTrickSolver<Crd: Card2SymTrait>{
+    Trump(TrumpTrickSolver<Crd>),
+    NoTrump(TrumpTrickSolver<Crd>)
 }

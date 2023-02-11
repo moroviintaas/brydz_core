@@ -353,7 +353,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
         match self.last_completed_trick(){
             None => Some(TrickGen::new(self.contract_spec.declarer().prev())),
 
-            Some(t) => t.prepare_new(self.trump().to_owned())
+            Some(t) => t.taker(self.trump()).ok().map(|s| TrickGen::new(s))
         }
 
     }
