@@ -7,7 +7,7 @@ use crate::cards::trump::TrumpGen;
 use crate::contract::suit_exhaust::{SuitExhaust};
 use crate::contract::spec::ContractSpec;
 use crate::contract::maintainer::ContractMechanics;
-use crate::contract::TrickGen;
+use crate::contract::{SmartTrickSolver, TrickGen, TrickSolver};
 use crate::error::{ContractErrorGen, TrickErrorGen};
 use crate::error::ContractErrorGen::IndexedOverCurrentTrick;
 use crate::error::TrickErrorGen::MissingCard;
@@ -22,7 +22,8 @@ pub struct ContractGen<Crd: Card2SymTrait, Um: Register<Crd>, Se:Register<(Side,
     completed_tricks_number: usize,
     exhaust_table: Se,
     current_trick: TrickGen<Crd>,
-    used_cards_memory: Um
+    used_cards_memory: Um,
+    solver: SmartTrickSolver<Crd>
 
 }
 
@@ -105,7 +106,8 @@ impl<Crd: Card2SymTrait,
             match self.current_trick.insert_card(side, card.clone()){
                 Ok(4) => {
                     self.used_cards_memory.register(card);
-                    match self.current_trick.taker(self.trump()){
+                    //match self.current_trick.taker(&self.solver){
+                    match self.solver.winner(&self.current_trick){
                         Ok(winner) => {
                             match self.complete_current_trick(){
                                 Ok(()) => Ok(winner),
@@ -181,7 +183,8 @@ impl<Crd: Card2SymTrait,
     /// assert_eq!(deal.total_tricks_taken_side(East), 0);
     /// ```
     fn total_tricks_taken_side(&self, side: Side) -> usize{
-        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract_spec.bid().trump()).unwrap() == side).count()
+        self.tricks[0..self.completed_tricks_number].iter()
+            .filter(|t| self.solver.winner(t).unwrap() == side).count()
     }
     /// Counts tricks taken by `Side` (one player)
     /// # Examples:
@@ -219,7 +222,10 @@ impl<Crd: Card2SymTrait,
     /// assert_eq!(deal.total_tricks_taken_axis(Axis::EastWest), 1);
     /// ```
     fn total_tricks_taken_axis(&self, axis: Axis) -> usize{
-        self.tricks[0..self.completed_tricks_number].iter().filter(|t| t.taker(self.contract_spec.bid().trump()).unwrap().axis() == axis).count()
+        self.tricks[0..self.completed_tricks_number].iter()
+            .filter(|t| self.solver.winner(t).unwrap().axis() == axis).count()
+            //.filter(|t| t.taker(&self.solver).unwrap().axis() == axis).count()
+
     }
 
     /// ```
@@ -296,11 +302,13 @@ impl<Crd: Card2SymTrait,
 impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> ContractGen<Card, Um, Se>{
     pub fn new(contract: ContractSpec<Card::Suit>) -> Self{
         let first_player = contract.declarer().next();
+        let trump = contract.bid().trump().to_owned();
         let mut tricks = <[TrickGen::<Card>; QUARTER_SIZE]>::default();
         tricks[0] = TrickGen::new(first_player);
         Self{
             contract_spec: contract, tricks, completed_tricks_number: 0,
-            exhaust_table: Se::default(), current_trick: TrickGen::new(first_player), used_cards_memory: Um::default()}
+            exhaust_table: Se::default(), current_trick: TrickGen::new(first_player), used_cards_memory: Um::default(),
+            solver: SmartTrickSolver::new(trump)}
     }
 
     pub fn card_used(&self) -> &Um{
@@ -320,7 +328,8 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
                     if let Some(c) = self.used_cards_memory.trick_collision(&self.current_trick){
                         return Err(ContractErrorGen::DuplicateCard(c));
                     }*/
-                    let next_player = self.current_trick.taker(self.trump()).unwrap();
+                    //let next_player = self.current_trick.taker(self.trump()).unwrap();
+                    let next_player = self.solver.winner(&self.current_trick).unwrap();
 
                     //self.used_cards_memory.mark_cards_of_trick(&self.current_trick);
                     self.tricks[n] = mem::replace(&mut self.current_trick, TrickGen::new(next_player));
@@ -353,7 +362,9 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
         match self.last_completed_trick(){
             None => Some(TrickGen::new(self.contract_spec.declarer().prev())),
 
-            Some(t) => t.taker(self.trump()).ok().map(|s| TrickGen::new(s))
+            //Some(t) => t.taker(self.trump()).ok().map(|s| TrickGen::new(s))
+            Some(t) => self.solver.winner(&t).ok()
+                .map(|s| TrickGen::new(s))
         }
 
     }
@@ -408,7 +419,11 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
     /// ```
     pub fn side_winning_trick(&self, index: usize) -> Result<Side, ContractErrorGen<Card>>{
         match index < self.completed_tricks_number {
-            true => self[index].taker(self.contract_spec.bid().trump())
+            /*true => self[index].taker(self.contract_spec.bid().trump())
+                .map_err(|trick_err| ContractErrorGen::BadTrick(trick_err)),
+
+             */
+            true => self.solver.winner(&self[index])
                 .map_err(|trick_err| ContractErrorGen::BadTrick(trick_err)),
             false => Err(IndexedOverCurrentTrick(self.completed_tricks_number))
         }

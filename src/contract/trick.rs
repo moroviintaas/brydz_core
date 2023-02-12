@@ -1,8 +1,7 @@
 use std::fmt::{Display};
 use std::ops::{Index};
 use karty::cards::{Card2SymTrait, Card};
-use crate::cards::trump::TrumpGen;
-use crate::contract::{NoTrumpTrickSolver, TrickSolver, TrumpTrickSolver};
+use crate::contract::{SmartTrickSolver, TrickSolver};
 
 use crate::error::TrickErrorGen::{CardSlotAlreadyUsed, ViolatedOrder};
 use crate::error::{Mismatch, TrickErrorGen};
@@ -399,11 +398,11 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
     /// Tries to pick a winner of a trick
     /// ```
-    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::cards::trump::{Trump, TrumpGen};
     /// use brydz_core::cards::trump::TrumpGen::{Colored, NoTrump};
     /// use brydz_core::cards::deck::Deck;
     /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
-    /// use brydz_core::contract::TrickGen;
+    /// use brydz_core::contract::{NoTrumpTrickSolver, SmartTrickSolver, SOLVE_CLUBS, SOLVE_HEARTS, SOLVE_NT, TrickGen, TrickSolver, TrumpTrickSolver};
     /// use brydz_core::player::side::Side::{North, South, East, West};
     /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use karty::figures::Figure;
@@ -416,27 +415,30 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// trick1.insert_card(East, TWO_CLUBS).unwrap();
     /// trick1.insert_card(South, ACE_SPADES).unwrap();
     /// trick1.insert_card(West, TEN_SPADES).unwrap();
-    /// assert_eq!(trick1.taker(&Colored(Hearts)).unwrap(), North);
+    /// assert_eq!(trick1.taker(&SOLVE_HEARTS).unwrap(), North);
+    /// //assert_eq!(TrumpTrickSolver::new(Hearts).taker(&trick1), North);
     /// let mut trick2 = TrickGen::new(North);
     ///
     /// trick2.insert_card(North, QUEEN_HEARTS).unwrap();
     /// trick2.insert_card(East, TWO_CLUBS).unwrap();
     /// trick2.insert_card(South, ACE_SPADES).unwrap();
     /// trick2.insert_card(West, TEN_SPADES).unwrap();
-    /// assert_eq!(trick2.taker(&Colored(Clubs)).unwrap(), East);
+    /// //assert_eq!(TrumpTrickSolver::new(Clubs).taker(&trick2), East);
+    /// assert_eq!(trick1.taker(&SOLVE_CLUBS).unwrap(), East);
     ///
     /// let mut trick3 = TrickGen::new(East);
     /// trick3.insert_card(East, ACE_CLUBS).unwrap();
     /// trick3.insert_card(South, ACE_SPADES).unwrap();
     /// trick3.insert_card(West, TEN_SPADES).unwrap();
     /// trick3.insert_card(North, QUEEN_HEARTS).unwrap();
-    /// assert_eq!(trick3.taker(&NoTrump).unwrap(), East);
+    /// assert_eq!(trick3.taker(&SOLVE_NT).unwrap(), East);
     /// ```
-    pub fn taker(&self, trump: &TrumpGen<Card::Suit>) -> Result<Side, TrickErrorGen<Card>>{
-        match trump{
+    pub fn taker(&self, solver: &SmartTrickSolver<Card>) -> Result<Side, TrickErrorGen<Card>>{
+        /*match trump{
             TrumpGen::Colored(s) => TrumpTrickSolver::new(s.to_owned()).taker(self),
             TrumpGen::NoTrump => NoTrumpTrickSolver::new().taker(self)
-        }
+        }*/
+        solver.winner(self)
 
     }
 /*

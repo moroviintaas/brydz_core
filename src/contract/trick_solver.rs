@@ -1,6 +1,8 @@
 use std::fmt::{Debug};
 use std::marker::PhantomData;
-use karty::cards::Card2SymTrait;
+use karty::cards::{Card, Card2SymTrait};
+use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
+use crate::cards::trump::{TrumpGen};
 use crate::contract::TrickGen;
 use crate::error::TrickErrorGen;
 use crate::error::TrickErrorGen::MissingCard;
@@ -8,7 +10,7 @@ use crate::player::side::Side;
 
 pub trait TrickSolver: Debug + Clone{
     type CardType: Card2SymTrait;
-    fn taker(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>>;
+    fn winner(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>>;
     fn leader(&self, trick: &TrickGen<Self::CardType>) -> Option<Side>;
     fn does_beat_leader(&self, trick: &TrickGen<Self::CardType>, card: &Self::CardType) -> bool;
 }
@@ -40,12 +42,12 @@ impl <Crd: Card2SymTrait> TrickSolver for TrumpTrickSolver<Crd>{
     /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
     /// trick1.insert_card(East, TWO_CLUBS).unwrap();
     /// trick1.insert_card(South, ACE_SPADES).unwrap();
-    /// assert_eq!(TrumpTrickSolver::new(Hearts).taker(&trick1), Err(MissingCard(West)));
+    /// assert_eq!(TrumpTrickSolver::new(Hearts).winner(&trick1), Err(MissingCard(West)));
     /// trick1.insert_card(West, TEN_SPADES).unwrap();
-    /// assert_eq!(TrumpTrickSolver::new(Hearts).taker(&trick1), Ok(North));
-    /// assert_eq!(TrumpTrickSolver::new(Spades).taker(&trick1), Ok(South));
+    /// assert_eq!(TrumpTrickSolver::new(Hearts).winner(&trick1), Ok(North));
+    /// assert_eq!(TrumpTrickSolver::new(Spades).winner(&trick1), Ok(South));
     /// ```
-    fn taker(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>> {
+    fn winner(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>> {
         match trick.is_complete(){
             false => Err(MissingCard(trick.first_player_side().next_i(trick.count_cards()))),
             true => {
@@ -133,13 +135,13 @@ impl <Crd: Card2SymTrait> TrickSolver for NoTrumpTrickSolver<Crd> {
     /// trick1.insert_card(North, QUEEN_HEARTS).unwrap();
     /// trick1.insert_card(East, TWO_CLUBS).unwrap();
     /// trick1.insert_card(South, ACE_SPADES).unwrap();
-    /// assert_eq!(NoTrumpTrickSolver::new().taker(&trick1), Err(MissingCard(West)));
+    /// assert_eq!(NoTrumpTrickSolver::new().winner(&trick1), Err(MissingCard(West)));
     /// trick1.insert_card(West, TEN_SPADES).unwrap();
-    /// assert_eq!(NoTrumpTrickSolver::new().taker(&trick1), Ok(North));
+    /// assert_eq!(NoTrumpTrickSolver::new().winner(&trick1), Ok(North));
     /// trick1.undo().unwrap();
     /// trick1.insert_card(West, KING_HEARTS).unwrap();
-    /// assert_eq!(NoTrumpTrickSolver::new().taker(&trick1), Ok(West));
-    fn taker(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>> {
+    /// assert_eq!(NoTrumpTrickSolver::new().winner(&trick1), Ok(West));
+    fn winner(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>> {
         match trick.is_complete(){
             false => Err(MissingCard(trick.first_player_side().next_i(trick.count_cards()))),
             true => {
@@ -191,5 +193,45 @@ impl <Crd: Card2SymTrait> TrickSolver for NoTrumpTrickSolver<Crd> {
 #[derive(Debug,  Clone, PartialEq, Eq)]
 pub enum SmartTrickSolver<Crd: Card2SymTrait>{
     Trump(TrumpTrickSolver<Crd>),
-    NoTrump(TrumpTrickSolver<Crd>)
+    NoTrump(NoTrumpTrickSolver<Crd>)
 }
+
+impl <Crd: Card2SymTrait> SmartTrickSolver<Crd>{
+    pub fn new(trump: TrumpGen<Crd::Suit>) -> Self{
+        match trump{
+            TrumpGen::Colored(s) => Self::Trump(TrumpTrickSolver::new(s)),
+            TrumpGen::NoTrump => Self::NoTrump(NoTrumpTrickSolver::new())
+        }
+    }
+}
+
+impl <Crd: Card2SymTrait> TrickSolver for SmartTrickSolver<Crd>{
+    type CardType = Crd;
+
+    fn winner(&self, trick: &TrickGen<Self::CardType>) -> Result<Side, TrickErrorGen<Self::CardType>> {
+        match self{
+            SmartTrickSolver::Trump(t) => t.winner(trick),
+            SmartTrickSolver::NoTrump(nt) => nt.winner(trick)
+        }
+    }
+
+    fn leader(&self, trick: &TrickGen<Self::CardType>) -> Option<Side> {
+        match self{
+            SmartTrickSolver::Trump(t) => t.leader(trick),
+            SmartTrickSolver::NoTrump(nt) => nt.leader(trick)
+        }
+    }
+
+    fn does_beat_leader(&self, trick: &TrickGen<Self::CardType>, card: &Self::CardType) -> bool {
+        match self{
+            SmartTrickSolver::Trump(t) => t.does_beat_leader(trick,card),
+            SmartTrickSolver::NoTrump(nt) => nt.does_beat_leader(trick, card)
+        }
+    }
+}
+
+pub const SOLVE_CLUBS : SmartTrickSolver<Card> = SmartTrickSolver::Trump(TrumpTrickSolver{trump_suit: Clubs});
+pub const SOLVE_DIAMONDS : SmartTrickSolver<Card> = SmartTrickSolver::Trump(TrumpTrickSolver{trump_suit: Diamonds});
+pub const SOLVE_HEARTS : SmartTrickSolver<Card> = SmartTrickSolver::Trump(TrumpTrickSolver{trump_suit: Hearts});
+pub const SOLVE_SPADES : SmartTrickSolver<Card> = SmartTrickSolver::Trump(TrumpTrickSolver{trump_suit: Spades});
+pub const SOLVE_NT : SmartTrickSolver<Card> = SmartTrickSolver::NoTrump(NoTrumpTrickSolver{ _phantom: PhantomData{}});
