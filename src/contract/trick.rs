@@ -447,9 +447,9 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::cards::trump::TrumpGen::{Colored, NoTrump};
     /// use brydz_core::cards::deck::Deck;
-    /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
+    /// use brydz_core::agent::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
     /// use brydz_core::contract::TrickGen;
-    /// use brydz_core::player::side::Side::{North, South, East, West};
+    /// use brydz_core::agent::side::Side::{North, South, East, West};
     /// use std::str::FromStr;
     /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use karty::figures::Figure;
@@ -508,7 +508,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 
     }
     /// ```
-    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::agent::side::Side::*;
     /// use karty::suits::Suit::*;
     /// use brydz_core::cards::trump::TrumpGen::*;
     /// use karty::cards::*;
@@ -530,7 +530,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// ```
     /// ```
     /// use karty::cards::*;
-    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::agent::side::Side::*;
     /// use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use brydz_core::cards::trump::Trump;
     /// use brydz_core::contract::Trick;
@@ -556,7 +556,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
         })
     }
     /// ```
-    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::agent::side::Side::*;
     /// use karty::suits::Suit::*;
     /// use brydz_core::cards::trump::TrumpGen::*;
     /// use karty::cards::*;
@@ -613,7 +613,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
 /*
     /// ```
     /// use karty::cards::*;
-    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::agent::side::Side::*;
     ///  use brydz_core::contract::suit_exhaust::SuitExhaust;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::Trick;

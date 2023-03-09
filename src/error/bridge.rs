@@ -1,7 +1,13 @@
 use std::fmt::{Display, Formatter};
 use karty::cards::{Card2SymTrait, Card};
 use karty::suits::{SuitTrait};
+
 use crate::error::bidding::BiddingErrorGen;
+
+#[cfg(feature="tur")]
+use tur::error::{InternalGameError, TurError};
+#[cfg(feature="tur")]
+use crate::tur::spec::ContractProtocolSpec;
 
 
 use crate::error::contract::ContractErrorGen;
@@ -11,7 +17,6 @@ use crate::error::{DistributionError, HandErrorGen, ScoreError, TrickErrorGen};
 use crate::speedy::{Readable, Writable};
 
 use crate::error::FormatError;
-
 
 
 
@@ -73,3 +78,20 @@ impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
     }
 }
 */
+/*#[cfg_attr(feature = "tur", derive(Writable, Readable))]
+impl Into<TurError<ContractProtocolSpec>> for BridgeCoreError {
+    fn into(self) -> TurError<ContractProtocolSpec> {
+        TurError::GameError()
+    }
+}*/
+#[cfg(feature = "tur")]
+impl From<BridgeCoreError> for TurError<ContractProtocolSpec>{
+    fn from(value: BridgeCoreError) -> Self {
+        Self::GameError(value)
+    }
+}
+
+#[cfg(feature = "tur")]
+impl  InternalGameError<ContractProtocolSpec> for BridgeCoreError{
+
+}

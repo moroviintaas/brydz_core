@@ -77,6 +77,7 @@ pub fn fair_bridge_deal<H: HandTrait>() -> SideMap<H>{
 }
 
 
+
 /// ```
 /// use brydz_core::deal::fair_bridge_partial_deal;
 /// use brydz_core::player::side::Side::{North, West};

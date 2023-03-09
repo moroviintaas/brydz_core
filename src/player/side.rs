@@ -1,4 +1,4 @@
-use std::fmt::Debug;
+use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Index, IndexMut, Sub};
 use crate::player::axis::Axis;
 use crate::player::axis::Axis::{EastWest, NorthSouth};
@@ -13,7 +13,7 @@ use crate::speedy::{Readable, Writable};
 /// use karty::cards::Card;
 /// assert_eq!(std::mem::size_of::<Side>(), 1)
 /// ```
-#[derive(Debug, Clone, Copy, Eq, PartialEq)]
+#[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Side{
@@ -108,6 +108,17 @@ impl Sub for Side{
     /// ```
     fn sub(self, rhs: Self) -> Self::Output {
         Self::difference(rhs, self)
+    }
+}
+
+impl Display for Side{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self{
+            East => "East",
+            South => "South",
+            West => "West",
+            North => "North"
+        })
     }
 }
 

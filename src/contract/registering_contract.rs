@@ -144,10 +144,10 @@ impl<Crd: Card2SymTrait,
         }
         r
     }
-    /// Counts tricks taken by `Side` (one player)
+    /// Counts tricks taken by `Side` (one agent)
     /// # Examples:
     /// ```
-    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::agent::side::Side::*;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::{ContractMechanics,Contract};
@@ -186,15 +186,15 @@ impl<Crd: Card2SymTrait,
         self.tricks[0..self.completed_tricks_number].iter()
             .filter(|t| self.solver.winner(t).unwrap() == side).count()
     }
-    /// Counts tricks taken by `Side` (one player)
+    /// Counts tricks taken by `Side` (one agent)
     /// # Examples:
     /// ```
-    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::agent::side::Side::*;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::{ContractMechanics, Contract};
     /// use std::str::FromStr;
-    /// use brydz_core::player::axis::Axis;
+    /// use brydz_core::agent::axis::Axis;
     /// use brydz_core::bidding::Doubling;
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
