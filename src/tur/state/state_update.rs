@@ -6,6 +6,7 @@ use tur::state::StateUpdate;
 use crate::player::side::Side;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(speedy::Writable, speedy::Readable))]
 pub enum ContractAction{
     ShowHand(StackHand),
     PlaceCard(Card)
@@ -29,6 +30,7 @@ impl Display for ContractAction{
 impl Action for ContractAction{}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg_attr(feature = "speedy", derive(speedy::Writable, speedy::Readable))]
 pub struct ContractStateUpdate {
     agent: Side,
     action: ContractAction
