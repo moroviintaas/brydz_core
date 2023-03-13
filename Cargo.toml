@@ -21,7 +21,7 @@ tokio = {version = "1.21.1", features = ["net", "rt", "rt-multi-thread", "io-uti
 #anyhow = "1.0.64"
 postcard = {version = "1.0.2", optional = true}
 tur = {path = "../tur", optional = true}
-smallvec = {vesrion = "1.10.0", optional = true}
+smallvec = {version = "1.10.0", optional = true}
 
 [features]
 #protocol = []
