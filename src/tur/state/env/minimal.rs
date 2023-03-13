@@ -6,7 +6,6 @@ use crate::tur::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use tur::state::env::EnvironmentState;
 use crate::player::side::Side;
-use crate::tur::env::ContractEnv;
 
 pub struct ContractEnvStateMin{
     dummy_hand: Option<StackHand>,

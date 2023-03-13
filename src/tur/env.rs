@@ -1,4 +1,3 @@
-use std::array::IntoIter;
 use tur::comm::CommEndpoint;
 use tur::env::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
 use tur::state::env::EnvironmentState;

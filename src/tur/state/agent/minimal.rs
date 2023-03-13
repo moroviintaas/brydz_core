@@ -1,6 +1,5 @@
 use smallvec::SmallVec;
 use karty::hand::{HandSuitedTrait, HandTrait, StackHand};
-use karty::suits::Suit;
 use crate::contract::{Contract, ContractMechanics};
 use tur::state;
 use crate::error::BridgeCoreError;

@@ -147,7 +147,6 @@ impl<Crd: Card2SymTrait,
     /// Counts tricks taken by `Side` (one agent)
     /// # Examples:
     /// ```
-    /// use brydz_core::agent::side::Side::*;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::{ContractMechanics,Contract};
@@ -156,6 +155,7 @@ impl<Crd: Card2SymTrait,
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling;
     /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
+    /// use brydz_core::player::side::Side::*;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;
@@ -189,16 +189,16 @@ impl<Crd: Card2SymTrait,
     /// Counts tricks taken by `Side` (one agent)
     /// # Examples:
     /// ```
-    /// use brydz_core::agent::side::Side::*;
     /// use brydz_core::contract::TrickGen;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::contract::{ContractMechanics, Contract};
     /// use std::str::FromStr;
-    /// use brydz_core::agent::axis::Axis;
     /// use brydz_core::bidding::Doubling;
     /// use brydz_core::contract::{ContractSpec};
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::contract::suit_exhaust::{SuitExhaust};
+    /// use brydz_core::player::axis::Axis;
+    /// use brydz_core::player::side::Side::*;
     /// use karty::figures::Figure;
     /// use karty::suits::{Suit, Suit::*};
     /// use karty::register::CardRegister;

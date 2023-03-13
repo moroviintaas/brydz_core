@@ -1,13 +1,8 @@
-use std::io::Error;
-use log::debug;
 use tur::agent::{CommunicatingAgent, PolicyAgent, StatefulAgent};
 use tur::automatons::policy::Policy;
 use tur::comm::CommEndpoint;
-use tur::error::CommError;
-use tur::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
 use tur::state::agent::AgentState;
 use tur::state::State;
-use crate::tur::state::ContractAction;
 
 pub struct ContractAgent<S: AgentState, C: CommEndpoint, P: Policy>{
     state: S,
