@@ -4,5 +4,7 @@ pub mod agent;
 pub mod env;
 pub mod spec;
 pub mod comm;
+#[cfg(test)]
+mod test;
 
 pub use tur as framework;
