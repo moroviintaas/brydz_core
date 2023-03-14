@@ -1,6 +1,6 @@
 use std::fmt::{Debug, Display, Formatter};
 use karty::cards::Card;
-use karty::hand::StackHand;
+use karty::hand::CardSet;
 use tur::action::Action;
 use tur::state::StateUpdate;
 use crate::player::side::Side;
@@ -8,7 +8,7 @@ use crate::player::side::Side;
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(speedy::Writable, speedy::Readable))]
 pub enum ContractAction{
-    ShowHand(StackHand),
+    ShowHand(CardSet),
     PlaceCard(Card)
 }
 

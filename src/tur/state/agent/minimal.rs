@@ -1,5 +1,5 @@
 use smallvec::SmallVec;
-use karty::hand::{HandSuitedTrait, HandTrait, StackHand};
+use karty::hand::{HandSuitedTrait, HandTrait, CardSet};
 use crate::contract::{Contract, ContractMechanics};
 use tur::state;
 use crate::error::BridgeCoreError;
@@ -10,13 +10,13 @@ use log::debug;
 #[derive(Debug, Clone)]
 pub struct ContractAgentStateMin {
     side: Side,
-    hand: StackHand,
-    dummy_hand: Option<StackHand>,
+    hand: CardSet,
+    dummy_hand: Option<CardSet>,
     contract: Contract
 }
 
 impl ContractAgentStateMin{
-    pub fn new(side: Side, hand: StackHand, contract: Contract, dummy_hand: Option<StackHand>) -> Self{
+    pub fn new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self{
         Self{side, hand, dummy_hand, contract}
     }
 }

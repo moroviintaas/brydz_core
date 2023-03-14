@@ -1,5 +1,5 @@
 use smallvec::{SmallVec, smallvec};
-use karty::hand::{HandTrait, StackHand};
+use karty::hand::{HandTrait, CardSet};
 use tur::state;
 use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
@@ -11,12 +11,12 @@ use crate::meta::HAND_SIZE;
 #[derive(Debug, Clone)]
 pub struct ContractDummyState {
     side: Side,
-    hand: StackHand,
+    hand: CardSet,
     contract: Contract
 }
 
 impl ContractDummyState {
-    pub fn new(side: Side, hand: StackHand, contract: Contract) -> Self{
+    pub fn new(side: Side, hand: CardSet, contract: Contract) -> Self{
         Self{side, hand, contract}
     }
 }

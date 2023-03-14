@@ -1,4 +1,4 @@
-use karty::hand::{HandTrait, StackHand};
+use karty::hand::{HandTrait, CardSet};
 use tur::state;
 use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
@@ -8,17 +8,17 @@ use tur::state::env::EnvironmentState;
 use crate::player::side::Side;
 
 pub struct ContractEnvStateMin{
-    dummy_hand: Option<StackHand>,
+    dummy_hand: Option<CardSet>,
     contract: Contract
 }
 
 impl ContractEnvStateMin{
 
-    pub fn new(contract: Contract, dummy_hand: Option<StackHand>) -> Self{
+    pub fn new(contract: Contract, dummy_hand: Option<CardSet>) -> Self{
         Self{dummy_hand, contract}
     }
 
-    pub fn dummy_hand(&self) -> Option<&StackHand>{
+    pub fn dummy_hand(&self) -> Option<&CardSet>{
         self.dummy_hand.as_ref()
     }
 
