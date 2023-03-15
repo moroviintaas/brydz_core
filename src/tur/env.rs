@@ -73,8 +73,8 @@ where S: State<UpdateType = ContractStateUpdate>{
         } else {
             ContractStateUpdate::new(agent.to_owned(), action)
         };
-        self.state.update(state_update.clone())?;
-        Ok([(North,state_update.clone()),(East,state_update.clone()),(South,state_update.clone()), (West, state_update.clone())].into_iter())
+        self.state.update(state_update)?;
+        Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter())
     }
 }
 

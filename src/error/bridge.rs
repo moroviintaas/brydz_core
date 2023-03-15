@@ -11,7 +11,7 @@ use crate::tur::spec::ContractProtocolSpec;
 
 
 use crate::error::contract::ContractErrorGen;
-use crate::error::{DistributionError, HandErrorGen, ScoreError, TrickErrorGen};
+use crate::error::{DistributionError, CardErrorGen, ScoreError, TrickErrorGen};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -44,7 +44,7 @@ pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
     Score(ScoreError),
     Trick(TrickErrorGen<Card>),
     Distribution(DistributionError),
-    Hand(HandErrorGen<Card>),
+    Hand(CardErrorGen<Card>),
     Format(FormatError),
     Custom(String),
 

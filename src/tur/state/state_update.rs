@@ -16,12 +16,12 @@ impl Display for ContractAction{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match f.alternate(){
             true => match self{
-                ContractAction::ShowHand(h) => write!(f, "Hand|{:#}|", h),
-                ContractAction::PlaceCard(c) => write!(f, "{:#}", c)
+                ContractAction::ShowHand(h) => write!(f, "Hand|{h:#}|"),
+                ContractAction::PlaceCard(c) => write!(f, "{c:#}")
             }
             false => match self {
-                ContractAction::ShowHand(h) => write!(f, "Hand|{:}|", h),
-                ContractAction::PlaceCard(c) => write!(f, "{:}", c)
+                ContractAction::ShowHand(h) => write!(f, "Hand|{h:}|"),
+                ContractAction::PlaceCard(c) => write!(f, "{c:}")
             }
         }
     }

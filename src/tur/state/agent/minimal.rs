@@ -82,12 +82,12 @@ impl state::agent::AgentState for ContractAgentStateMin {
 
                 match self.contract.current_trick().called_suit(){
                     None => self.hand.into_iter()
-                         .map(|card| ContractAction::PlaceCard(card)).collect(),
+                         .map( ContractAction::PlaceCard).collect(),
                     Some(called) => match self.hand.contains_in_suit(&called){
                         true => self.hand.suit_iterator(&called)
-                            .map(|card| ContractAction::PlaceCard(card)).collect(),
+                            .map(ContractAction::PlaceCard).collect(),
                         false => self.hand.into_iter()
-                            .map(|card| ContractAction::PlaceCard(card)).collect()
+                            .map(ContractAction::PlaceCard).collect()
                     }
                 }
             },
@@ -96,12 +96,12 @@ impl state::agent::AgentState for ContractAgentStateMin {
                 if let Some(dh) = self.dummy_hand{
                     match self.contract.current_trick().called_suit(){
                             None => dh.into_iter()
-                                 .map(|card| ContractAction::PlaceCard(card)).collect(),
+                                 .map(ContractAction::PlaceCard).collect(),
                             Some(called) => match dh.contains_in_suit(&called){
                                 true => dh.suit_iterator(&called)
-                                     .map(|card| ContractAction::PlaceCard(card)).collect(),
+                                     .map(ContractAction::PlaceCard).collect(),
                                 false => dh.into_iter()
-                                     .map(|card| ContractAction::PlaceCard(card)).collect()
+                                     .map( ContractAction::PlaceCard).collect()
                             }
                         }
                 } else {

@@ -24,11 +24,11 @@ impl<Card: Card2SymTrait> From<HandError> for BridgeCoreErrorGen<Card>{
  */
 
 use karty::cards::Card2SymTrait;
-use karty::error::HandErrorGen;
+use karty::error::CardErrorGen;
 use crate::error::BridgeCoreErrorGen;
 
-impl<Card: Card2SymTrait> From<HandErrorGen<Card>> for BridgeCoreErrorGen<Card>{
-    fn from(e: HandErrorGen<Card>) -> Self {
+impl<Card: Card2SymTrait> From<CardErrorGen<Card>> for BridgeCoreErrorGen<Card>{
+    fn from(e: CardErrorGen<Card>) -> Self {
         Self::Hand(e)
     }
 }

@@ -16,7 +16,7 @@ pub use trick::*;
 pub use distribution::*;
 pub use correctness::*;
 //pub use hand::*;
-pub use crate::karty::error::HandErrorGen;
+pub use crate::karty::error::CardErrorGen;
 
 
 mod format;

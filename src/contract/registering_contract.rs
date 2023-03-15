@@ -363,7 +363,7 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
             None => Some(TrickGen::new(self.contract_spec.declarer().prev())),
 
             //Some(t) => t.taker(self.trump()).ok().map(|s| TrickGen::new(s))
-            Some(t) => self.solver.winner(&t).ok()
+            Some(t) => self.solver.winner(t).ok()
                 .map(|s| TrickGen::new(s))
         }
 
