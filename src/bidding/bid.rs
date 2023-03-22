@@ -7,12 +7,18 @@ use crate::error::BiddingErrorGen::IllegalBidNumber;
 use crate::meta::{HALF_TRICKS, MAX_BID_NUMBER, MIN_BID_NUMBER};
 #[cfg(feature = "serde")]
 use serde::{Serialize, Deserialize, Serializer, Deserializer};
+#[cfg(feature = "serde")]
+use serde::de::{SeqAccess, Visitor, MapAccess, self, };
+#[cfg(feature = "serde")]
+use serde::ser::SerializeStruct;
+
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
 
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 #[derive(Debug, Eq, PartialEq, Clone)]
+//#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
 pub struct Bid<S: SuitTrait> {
     trump: TrumpGen<S>,
     number: u8
@@ -20,14 +26,11 @@ pub struct Bid<S: SuitTrait> {
 
 
 
+/*
 #[cfg(feature = "serde")]
-/// ```
-///
-/// ```
 impl Serialize for Bid<Suit>{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
-        todo!()
-        /*
+
         let sym = match self.trump{
             TrumpGen::Colored(c) => match c{
                 Suit::Spades => "S",
@@ -45,9 +48,9 @@ impl Serialize for Bid<Suit>{
         let mut state = serializer.serialize_struct("Bid", 2)?;
         state.serialize_field("trump", )
 
-         */
+
     }
-}
+}*/
 
 
 pub type BidStd = Bid<Suit>;
@@ -115,6 +118,79 @@ impl<S: SuitTrait> Ord for Bid<S> {
 
     }
 }
+
+#[cfg(feature = "serde")]
+impl Serialize for Bid<Suit>{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        let mut state = serializer.serialize_struct("bid", 2)?;
+        state.serialize_field("trump", &self.trump)?;
+        state.serialize_field("number", &self.number)?;
+        state.end()
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for Bid<Suit>{
+
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        #[derive(Deserialize)]
+        #[serde(field_identifier, rename_all = "lowercase")]
+        enum Field { Trump, Number }
+
+        struct BidVisitor;
+        impl<'de> Visitor<'de> for BidVisitor{
+            type Value = Bid<Suit>;
+
+            fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+                formatter.write_str("Expected struct with field Trump(Spades/Hearts/Diamonds/Clubs/NoTrump) and number (0..=7)")
+            }
+            fn visit_seq<V>(self, mut seq: V) -> Result<Bid<Suit>, V::Error>
+            where
+                V: SeqAccess<'de>,
+            {
+                let trump = seq.next_element()?
+                    .ok_or_else(|| de::Error::invalid_length(0, &self))?;
+                let number = seq.next_element()?
+                    .ok_or_else(|| de::Error::invalid_length(1, &self))?;
+                Bid::<Suit>::init(trump, number).map_err(|e| de::Error::custom(&format!("Error deserializing bid: {e:}")[..]))
+
+            }
+
+            fn visit_map<V>(self, mut map: V) -> Result<Bid<Suit>, V::Error>
+            where
+                V: MapAccess<'de>,
+            {
+                let mut trump_op = None;
+                let mut number_op = None;
+                while let Some(key) = map.next_key()? {
+                    match key {
+                        Field::Trump => {
+                            if trump_op.is_some() {
+                                return Err(de::Error::duplicate_field("trump"));
+                            }
+                            trump_op = Some(map.next_value()?);
+                        }
+                        Field::Number => {
+                            if number_op.is_some() {
+                                return Err(de::Error::duplicate_field("number"));
+                            }
+                            number_op = Some(map.next_value()?);
+                        }
+                    }
+                }
+                let trump = trump_op.ok_or_else(|| de::Error::missing_field("secs"))?;
+                let number = number_op.ok_or_else(|| de::Error::missing_field("nanos"))?;
+                Bid::<Suit>::init(trump, number).map_err(|e| de::Error::custom(&format!("Error deserializing bid: {e:}")[..]))
+            }
+        }
+        const FIELDS: &'static [&'static str] = &["trump", "number"];
+        deserializer.deserialize_struct("Bid", FIELDS, BidVisitor)
+    }
+}
+
+
+
+
 pub mod consts {
     use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
     use crate::bidding::Bid;
@@ -159,4 +235,34 @@ pub mod consts {
     pub const BID_NT5: Bid<karty::suits::Suit> = Bid { trump: TrumpGen::NoTrump, number: 5 };
     pub const BID_NT6: Bid<karty::suits::Suit> = Bid { trump: TrumpGen::NoTrump, number: 6 };
     pub const BID_NT7: Bid<karty::suits::Suit> = Bid { trump: TrumpGen::NoTrump, number: 7 };
+}
+
+#[cfg(test)]
+mod tests{
+    use karty::suits::Suit;
+    use karty::suits::Suit::Hearts;
+    use crate::bidding::bid::Bid;
+    use crate::cards::trump::TrumpGen;
+
+    #[test]
+    #[cfg(feature = "serde")]
+    fn serialize_bid(){
+        let bid_1 = Bid::init(TrumpGen::Colored(Hearts), 2).unwrap();
+        let bid_2 = Bid::init(TrumpGen::<Suit>::NoTrump, 4).unwrap();
+        assert_eq!(ron::to_string(&bid_1).unwrap(), "(trump:\"Hearts\",number:2)");
+        assert_eq!(ron::to_string(&bid_2).unwrap(), "(trump:\"NoTrump\",number:4)");
+    }
+
+
+    #[test]
+    #[cfg(feature = "serde")]
+    fn deserialize_bid(){
+
+        let bid_1 = Bid::init(TrumpGen::Colored(Hearts), 2).unwrap();
+        let bid_2 = Bid::init(TrumpGen::<Suit>::NoTrump, 4).unwrap();
+        assert_eq!(bid_1, ron::from_str::<Bid<Suit>>("(trump:\"Hearts\",number:2)").unwrap());
+        assert_eq!(bid_2, ron::from_str::<Bid<Suit>>("(trump:\"NoTrump\",number:4)").unwrap());
+    }
+
+
 }
