@@ -13,7 +13,7 @@ itertools = "0.10.3"
 arrayvec = {version = "0.7.2", features = ["serde"]}
 ron = {version = "0.8.0" , optional = true}
 nom = "7.1.0"
-karty = {path = "../karty", features = ["register", "parse", "speedy"]}
+karty = {path = "../karty", features = ["register", "parse", "speedy", "serde"]}
 log = {version = "0.4.17", optional = true}
 parking_lot = {version = "0.12.1", optional = true}
 speedy = {version = "0.8.2", optional =true}

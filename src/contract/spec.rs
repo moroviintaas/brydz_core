@@ -1,3 +1,4 @@
+//use serde::{Deserialize, Serialize};
 use karty::suits::SuitTrait;
 use crate::error::BiddingErrorGen::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::bidding::{Doubling};
@@ -7,6 +8,7 @@ use crate::error::BiddingErrorGen;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
+//#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct ContractSpec<S: SuitTrait> {
     declarer: Side,
     bid: Bid<S>,

@@ -5,6 +5,8 @@ use crate::cards::trump::TrumpGen;
 use crate::error::BiddingErrorGen;
 use crate::error::BiddingErrorGen::IllegalBidNumber;
 use crate::meta::{HALF_TRICKS, MAX_BID_NUMBER, MIN_BID_NUMBER};
+#[cfg(feature = "serde")]
+use serde::{Serialize, Deserialize, Serializer, Deserializer};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -15,6 +17,38 @@ pub struct Bid<S: SuitTrait> {
     trump: TrumpGen<S>,
     number: u8
 }
+
+
+
+#[cfg(feature = "serde")]
+/// ```
+///
+/// ```
+impl Serialize for Bid<Suit>{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+        todo!()
+        /*
+        let sym = match self.trump{
+            TrumpGen::Colored(c) => match c{
+                Suit::Spades => "S",
+                Suit::Hearts => "H",
+                Suit::Diamonds => "D",
+                Suit::Clubs => "C"
+            }
+            TrumpGen::NoTrump => "NT"
+        };
+
+        serializer.serialize_str(&format!("{}{}", self.number, sym))
+
+
+
+        let mut state = serializer.serialize_struct("Bid", 2)?;
+        state.serialize_field("trump", )
+
+         */
+    }
+}
+
 
 pub type BidStd = Bid<Suit>;
 

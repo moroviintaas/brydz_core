@@ -10,6 +10,7 @@ use crate::speedy::{Readable, Writable};
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Doubling{
     None,
     Double,

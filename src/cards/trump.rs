@@ -3,6 +3,9 @@ use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
 use karty::suits::{SuitTrait, Suit};
 use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
+#[cfg(feature = "serde")]
+use serde::{Serializer, Deserializer, Serialize, Deserialize};
+use serde::de::{Error, Visitor};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -11,40 +14,17 @@ use crate::cards::trump::TrumpGen::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+//#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum TrumpGen<S: SuitTrait>{
     Colored(S),
     NoTrump
 }
 
+
+
 pub type Trump = TrumpGen<Suit>;
 
-impl<S: SuitTrait> TrumpGen<S>{
-    /*
-    pub fn order_cards<Card: Card2SymTrait<Suit = S>> (&self, card_one: &Card, card_two: &Card) -> Ordering{
-        match self{
-            Trump::NoTrump => {
-                card_one.figure().cmp(card_two.figure())
-                    .then_with(|| card_one.suit().cmp(card_two.suit()))
-            },
-            Trump::Colored(trump_suit) =>{
-                match card_one.suit(){
-                    equal if equal == card_two.suit() =>
-                        card_one.figure().cmp(card_two.figure()),
-                    trumped if trumped == trump_suit => Ordering::Greater,
-                    suit_one => match card_two.suit(){
-                        trumped if trumped == trump_suit => Ordering::Less,
-                        suit_two => card_one.figure().cmp(card_two.figure())
-                            .then_with(|| suit_one.cmp(suit_two))
-                    }
-                }
-            }
-        }
-    }*/
 
-
-
-}
 
 
 impl<S: SuitTrait> PartialOrd for TrumpGen<S>{
@@ -76,48 +56,76 @@ impl <S: SuitTrait + Display> Display for TrumpGen<S>{
 
 pub const TRUMPS: [TrumpGen<Suit>; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamonds), Colored(Clubs), NoTrump];
 
+#[cfg(feature = "serde")]
+impl Serialize for TrumpGen<Suit>{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+
+        serializer.serialize_str(match self{
+            Colored(s) => match s{
+                Spades => "Spades",
+                Hearts => "Hearts",
+                Diamonds => "Diamonds",
+                Clubs => "Clubs,"
+            }
+            NoTrump => "NoTrump"
+        })
+    }
+}
+
+#[cfg(feature = "serde")]
+impl<'de> Deserialize<'de> for TrumpGen<Suit>{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        deserializer.deserialize_str(TrumpVisitor)
+    }
+}
+#[cfg(feature = "serde")]
+struct TrumpVisitor;
+
+#[cfg(feature = "serde")]
+impl<'de> Visitor<'de> for TrumpVisitor{
+    type Value = TrumpGen<Suit>;
+
+    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+        formatter.write_str("Spades/Hearts/Diamonds/Clubs/NoTrump")
+    }
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: Error {
+        match &v.to_lowercase()[..]{
+            "s" | "spades" => Ok(Colored(Spades)),
+            "h" | "hearts" => Ok(Colored(Hearts)),
+            "d" | "diamonds" => Ok(Colored(Diamonds)),
+            "c" | "clubs" => Ok(Colored(Clubs)),
+            "nt" | "notrump" | "no_trump" | "n" => Ok(NoTrump),
+            unrecognised => Err(E::custom(format!("Unrecognised {unrecognised:}")))
+        }
+    }
+}
+
+
 #[cfg(test)]
 mod tests{
-    /*
-    use std::cmp::Ordering;
-    use karty::cards::Card2SGen;
-    use karty::figures::{Ace, NumberFigure, Queen};
-    use karty::figures::Figure::Numbered;
-    use karty::suits::Suit::{Diamonds, Hearts, Spades};
+    use karty::suits::Suit;
+    use karty::suits::Suit::{*};
+    use crate::cards::trump::TrumpGen;
 
-    use crate::cards::trump::Trump;
 
     #[test]
-    fn trump_diamonds(){
-        let c1 = Card2SGen::new(Ace, Spades);
-        let c2 = Card2SGen::new(Numbered(NumberFigure::new(10)), Diamonds);
-        let c3 = Card2SGen::new(Queen, Diamonds);
-        let c4 = Card2SGen::new(Numbered(NumberFigure::new(4)), Spades);
-        let c5 = Card2SGen::new(Ace, Hearts);
-        let trump = Trump::Colored(Diamonds);
+    #[cfg(feature = "serde")]
+    fn serialize_trump(){
+        use ron;
+        use serde::Serialize;
 
-        assert_eq!(trump.order_cards(&c1, &c2), Ordering::Less);
-        assert_eq!(trump.order_cards(&c2, &c3), Ordering::Less);
-        assert_eq!(trump.order_cards(&c1, &c4), Ordering::Greater);
-        assert_eq!(trump.order_cards(&c1, &c5), Ordering::Greater);
-
+        let hearts = TrumpGen::Colored(Hearts);
+        assert_eq!(ron::to_string(&hearts).unwrap(), "\"Hearts\"");
+        assert_eq!(ron::to_string(&TrumpGen::NoTrump).unwrap(), "\"NoTrump\"");
     }
 
     #[test]
-    fn no_trump(){
-        let c1 = Card2SGen::new(Ace, Spades);
-        let c2 = Card2SGen::new(Numbered(NumberFigure::new(10)), Diamonds);
-        let c3 = Card2SGen::new(Queen, Diamonds);
-        let c4 = Card2SGen::new(Numbered(NumberFigure::new(4)), Spades);
-        let c5 = Card2SGen::new(Ace, Hearts);
-        let trump = Trump::NoTrump;
-
-        assert_eq!(trump.order_cards(&c1, &c2), Ordering::Greater);
-        assert_eq!(trump.order_cards(&c2, &c3), Ordering::Less);
-        assert_eq!(trump.order_cards(&c1, &c4), Ordering::Greater);
-        assert_eq!(trump.order_cards(&c1, &c5), Ordering::Greater);
-
+    #[cfg(feature = "serde")]
+    fn deserialize_trump(){
+        use ron;
+        use serde::Serialize;
+        assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"NoTrump\"").unwrap(), TrumpGen::NoTrump);
+        assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"Diamonds\"").unwrap(), TrumpGen::Colored(Diamonds));
     }
-    */
 }
 
