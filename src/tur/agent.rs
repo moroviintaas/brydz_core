@@ -1,22 +1,22 @@
 use tur::agent::{CommunicatingAgent, PolicyAgent, StatefulAgent};
 use tur::automatons::policy::Policy;
 use tur::comm::CommEndpoint;
-use tur::state::agent::AgentState;
+use tur::state::agent::InformationSet;
 use tur::state::State;
 
-pub struct ContractAgent<S: AgentState, C: CommEndpoint, P: Policy>{
+pub struct ContractAgent<S: InformationSet, C: CommEndpoint, P: Policy>{
     state: S,
     comm: C,
     policy: P
 }
 
-impl<S: AgentState, C: CommEndpoint, P: Policy> ContractAgent<S, C, P>{
+impl<S: InformationSet, C: CommEndpoint, P: Policy> ContractAgent<S, C, P>{
     pub fn new(state: S, comm: C, policy: P) -> Self{
         Self{state, comm, policy}
     }
 }
 
-impl<S: AgentState, C: CommEndpoint, P: Policy> StatefulAgent for ContractAgent<S, C, P>{
+impl<S: InformationSet, C: CommEndpoint, P: Policy> StatefulAgent for ContractAgent<S, C, P>{
     type State = S;
 
     fn update(&mut self, state_update: <Self::State as State>::UpdateType) -> Result<(), <Self::State as State>::Error> {
@@ -28,15 +28,15 @@ impl<S: AgentState, C: CommEndpoint, P: Policy> StatefulAgent for ContractAgent<
     }
 }
 
-impl<S: AgentState, C: CommEndpoint, P: Policy<StateType = S>> PolicyAgent for ContractAgent<S, C, P>{
-    type Act = <S as AgentState>::ActionType;
+impl<S: InformationSet, C: CommEndpoint, P: Policy<StateType = S>> PolicyAgent for ContractAgent<S, C, P>{
+    type Act = <S as InformationSet>::ActionType;
 
     fn select_action(&self) -> Option<Self::Act> {
         self.policy.select_action(&self.state)
     }
 }
 
-impl<S: AgentState, C: CommEndpoint, P: Policy<StateType = S>>
+impl<S: InformationSet, C: CommEndpoint, P: Policy<StateType = S>>
 CommunicatingAgent for ContractAgent<S, C, P>
 //Spec: ProtocolSpecification,
 //where C: CommEndpoint<OutwardType=AgentMessage<Spec>, InwardType=EnvMessage<Spec>, Error=CommError>

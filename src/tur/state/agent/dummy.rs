@@ -50,7 +50,7 @@ impl state::State for ContractDummyState {
     }
 }
 
-impl state::agent::AgentState for ContractDummyState {
+impl state::agent::InformationSet for ContractDummyState {
     type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     type Id = Side;
@@ -67,5 +67,12 @@ impl state::agent::AgentState for ContractDummyState {
 
     fn id(&self) -> &Self::Id {
         &self.side
+    }
+
+    fn is_action_valid(&self, action: &Self::ActionType) -> bool {
+        match action{
+            ContractAction::ShowHand(_) => true,
+            ContractAction::PlaceCard(_) => false
+        }
     }
 }

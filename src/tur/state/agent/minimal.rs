@@ -7,6 +7,8 @@ use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
 use crate::tur::state::{ContractAction, ContractStateUpdate};
 use log::debug;
+use karty::cards::Card2SymTrait;
+
 #[derive(Debug, Clone)]
 pub struct ContractAgentStateMin {
     side: Side,
@@ -71,7 +73,7 @@ impl state::State for ContractAgentStateMin {
     }
 }
 
-impl state::agent::AgentState for ContractAgentStateMin {
+impl state::agent::InformationSet for ContractAgentStateMin {
     type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     type Id = Side;
@@ -115,5 +117,26 @@ impl state::agent::AgentState for ContractAgentStateMin {
 
     fn id(&self) -> &Self::Id {
         &self.side
+    }
+
+    fn is_action_valid(&self, action: &Self::ActionType) -> bool {
+        match action{
+            ContractAction::ShowHand(_h) => {
+                self.contract.dummy() == self.side
+            }
+            ContractAction::PlaceCard(c) => match self.hand.contains(c){
+                true => match self.contract.current_trick().called_suit(){
+                    None => true,
+                    Some(s) => {
+                        if s == c.suit(){
+                            true
+                        } else {
+                            !self.hand.contains_in_suit(&s)
+                        }
+                    }
+                }
+                false => false
+            }
+        }
     }
 }
