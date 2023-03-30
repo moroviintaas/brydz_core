@@ -58,14 +58,14 @@ impl<'a, S: EnvironmentState + ContractState, C: CommEndpoint> Environment<'a, S
 impl<S: EnvironmentState<AgentId=Side> + ContractState + ContractState, C: CommEndpoint> StatefulEnvironment for ContractEnv<S, C>
 where S: State<UpdateType = ContractStateUpdate>{
     type State = S;
-    type Action = ContractAction;
+    type Act = ContractAction;
     type UpdatesIterator = <[(Side, ContractStateUpdate);4] as IntoIterator>::IntoIter;
 
     fn state(&self) -> &Self::State {
         &self.state
     }
 
-    fn process_action(&mut self, agent: &<Self::State as EnvironmentState>::AgentId, action: Self::Action) -> Result<Self::UpdatesIterator, <Self::State as State>::Error> {
+    fn process_action(&mut self, agent: &<Self::State as EnvironmentState>::AgentId, action: Self::Act) -> Result<Self::UpdatesIterator, <Self::State as State>::Error> {
 
         let state_update =
         if self.state.is_turn_of_dummy() && Some(*agent) == self.state.current_player(){

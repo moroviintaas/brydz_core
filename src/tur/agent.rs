@@ -1,4 +1,4 @@
-use tur::agent::{CommunicatingAgent, PolicyAgent, StatefulAgent};
+use tur::agent::{CommunicatingAgent, ActingAgent, StatefulAgent};
 use tur::automatons::policy::Policy;
 use tur::comm::CommEndpoint;
 use tur::state::agent::InformationSet;
@@ -28,10 +28,10 @@ impl<S: InformationSet, C: CommEndpoint, P: Policy> StatefulAgent for ContractAg
     }
 }
 
-impl<S: InformationSet, C: CommEndpoint, P: Policy<StateType = S>> PolicyAgent for ContractAgent<S, C, P>{
+impl<S: InformationSet, C: CommEndpoint, P: Policy<StateType = S>> ActingAgent for ContractAgent<S, C, P>{
     type Act = <S as InformationSet>::ActionType;
 
-    fn select_action(&self) -> Option<Self::Act> {
+    fn take_action(&self) -> Option<Self::Act> {
         self.policy.select_action(&self.state)
     }
 }
