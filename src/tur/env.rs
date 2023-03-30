@@ -1,10 +1,10 @@
-use tur::comm::CommEndpoint;
-use tur::env::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
-use tur::state::env::EnvironmentState;
+use tur::CommEndpoint;
+use tur::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
+use tur::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::tur::state::{ContractAction, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
-use tur::state::State;
+use tur::State;
 use crate::player::side::Side::*;
 
 pub struct ContractEnv<S: EnvironmentState + ContractState, C: CommEndpoint>{

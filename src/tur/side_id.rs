@@ -1,5 +1,5 @@
 
-use tur::agent::AgentIdentifier;
+use tur::AgentIdentifier;
 use crate::player::side::Side;
 
 

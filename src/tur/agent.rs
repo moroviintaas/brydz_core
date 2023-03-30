@@ -1,8 +1,8 @@
-use tur::agent::{CommunicatingAgent, ActingAgent, StatefulAgent};
-use tur::automatons::policy::Policy;
-use tur::comm::CommEndpoint;
-use tur::state::agent::InformationSet;
-use tur::state::State;
+use tur::{CommunicatingAgent, ActingAgent, StatefulAgent};
+use tur::Policy;
+use tur::CommEndpoint;
+use tur::InformationSet;
+use tur::State;
 
 pub struct ContractAgent<S: InformationSet, C: CommEndpoint, P: Policy>{
     state: S,

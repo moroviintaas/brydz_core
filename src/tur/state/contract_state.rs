@@ -1,4 +1,4 @@
-use tur::state::State;
+use tur::State;
 use crate::player::side::Side;
 
 pub trait ContractState: State{

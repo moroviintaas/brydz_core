@@ -1,6 +1,5 @@
 use smallvec::{SmallVec, smallvec};
 use karty::hand::{HandTrait, CardSet};
-use tur::state;
 use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
@@ -21,7 +20,7 @@ impl ContractDummyState {
     }
 }
 
-impl state::State for ContractDummyState {
+impl tur::State for ContractDummyState {
     type UpdateType = ContractStateUpdate;
     type Error = BridgeCoreError;
 
@@ -50,7 +49,7 @@ impl state::State for ContractDummyState {
     }
 }
 
-impl state::agent::InformationSet for ContractDummyState {
+impl tur::InformationSet for ContractDummyState {
     type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     type Id = Side;

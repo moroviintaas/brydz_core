@@ -1,4 +1,4 @@
-use tur::comm::SyncComm;
+use tur::SyncComm;
 use tur::error::CommError;
 use tur::protocol::{AgentMessage, EnvMessage};
 use crate::tur::spec::ContractProtocolSpec;

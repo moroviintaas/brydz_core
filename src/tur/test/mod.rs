@@ -1,7 +1,7 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use tur::automatons::policy::RandomPolicy;
+use tur::RandomPolicy;
 use tur::automatons::rr::{AgentRR, EnvironmentRR};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
