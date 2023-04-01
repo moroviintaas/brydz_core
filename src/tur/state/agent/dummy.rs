@@ -53,6 +53,7 @@ impl tur::InformationSet for ContractDummyState {
     type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     type Id = Side;
+    type RewardType = u32;
 
     fn available_actions(&self) -> Self::ActionIteratorType {
         match self.contract.current_side(){
@@ -73,5 +74,9 @@ impl tur::InformationSet for ContractDummyState {
             ContractAction::ShowHand(_) => true,
             ContractAction::PlaceCard(_) => false
         }
+    }
+
+    fn current_reward(&self) -> Self::RewardType {
+        self.contract.total_tricks_taken_axis(self.side.axis())
     }
 }

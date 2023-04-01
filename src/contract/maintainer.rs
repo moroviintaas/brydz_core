@@ -15,8 +15,8 @@ pub trait ContractMechanics {
     fn insert_card(&mut self, side: Side, card: Self::Card) -> Result<Side, ContractErrorGen<Self::Card>>;
     fn is_completed(&self) -> bool;
     fn completed_tricks(&self) -> Vec<TrickGen<Self::Card>>;
-    fn total_tricks_taken_side(&self, side: Side) -> usize;
-    fn total_tricks_taken_axis(&self, axis: Axis) -> usize;
+    fn total_tricks_taken_side(&self, side: Side) -> u32;
+    fn total_tricks_taken_axis(&self, axis: Axis) -> u32;
     fn current_side(&self) -> Side{
         self.current_trick().current_side().unwrap()
     }

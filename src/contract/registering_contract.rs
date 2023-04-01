@@ -182,9 +182,9 @@ impl<Crd: Card2SymTrait,
     /// assert_eq!(deal.total_tricks_taken_side(South), 0);
     /// assert_eq!(deal.total_tricks_taken_side(East), 0);
     /// ```
-    fn total_tricks_taken_side(&self, side: Side) -> usize{
+    fn total_tricks_taken_side(&self, side: Side) -> u32{
         self.tricks[0..self.completed_tricks_number].iter()
-            .filter(|t| self.solver.winner(t).unwrap() == side).count()
+            .filter(|t| self.solver.winner(t).unwrap() == side).count() as u32
     }
     /// Counts tricks taken by `Side` (one agent)
     /// # Examples:
@@ -221,9 +221,9 @@ impl<Crd: Card2SymTrait,
     /// assert_eq!(deal.total_tricks_taken_axis(Axis::NorthSouth), 2);
     /// assert_eq!(deal.total_tricks_taken_axis(Axis::EastWest), 1);
     /// ```
-    fn total_tricks_taken_axis(&self, axis: Axis) -> usize{
+    fn total_tricks_taken_axis(&self, axis: Axis) -> u32{
         self.tricks[0..self.completed_tricks_number].iter()
-            .filter(|t| self.solver.winner(t).unwrap().axis() == axis).count()
+            .filter(|t| self.solver.winner(t).unwrap().axis() == axis).count() as u32
             //.filter(|t| t.taker(&self.solver).unwrap().axis() == axis).count()
 
     }
