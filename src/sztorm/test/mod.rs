@@ -1,18 +1,18 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use tur::RandomPolicy;
-use tur::automatons::rr::{AgentRR, EnvironmentRR};
+use sztorm::RandomPolicy;
+use sztorm::automatons::rr::{AgentRR, EnvironmentRR};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
 use crate::contract::{Contract, ContractSpec};
 use crate::deal::fair_bridge_deal;
 use crate::player::side::{Side, SideMap};
 use crate::player::side::Side::*;
-use crate::tur::agent::ContractAgent;
-use crate::tur::comm::ContractEnvSyncComm;
-use crate::tur::env::ContractEnv;
-use crate::tur::state::{ContractAgentStateMin, ContractDummyState, ContractEnvStateMin};
+use crate::sztorm::agent::ContractAgent;
+use crate::sztorm::comm::ContractEnvSyncComm;
+use crate::sztorm::env::ContractEnv;
+use crate::sztorm::state::{ContractAgentStateMin, ContractDummyState, ContractEnvStateMin};
 
 mod env_agent;
 

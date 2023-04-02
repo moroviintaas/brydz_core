@@ -7,4 +7,4 @@ pub mod comm;
 #[cfg(test)]
 mod test;
 
-pub use tur as framework;
+pub use sztorm as base;

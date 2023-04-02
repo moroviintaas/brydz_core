@@ -1,10 +1,10 @@
-use tur::CommEndpoint;
-use tur::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
-use tur::EnvironmentState;
+use sztorm::CommEndpoint;
+use sztorm::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
+use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
-use crate::tur::state::{ContractAction, ContractState, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
-use tur::State;
+use sztorm::State;
 use crate::player::side::Side::*;
 
 pub struct ContractEnv<S: EnvironmentState + ContractState, C: CommEndpoint>{

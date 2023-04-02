@@ -1,9 +1,9 @@
 use karty::hand::{HandTrait, CardSet};
 use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
-use crate::tur::state::{ContractAction, ContractState, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use tur::EnvironmentState;
+use sztorm::EnvironmentState;
 use crate::player::side::Side;
 
 pub struct ContractEnvStateMin{
@@ -36,7 +36,7 @@ impl ContractState for ContractEnvStateMin{
     }
 }
 
-impl tur::State for ContractEnvStateMin{
+impl sztorm::State for ContractEnvStateMin{
     type UpdateType = ContractStateUpdate;
     type Error = BridgeCoreError;
 

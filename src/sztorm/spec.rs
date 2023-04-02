@@ -1,7 +1,7 @@
-use tur::protocol::ProtocolSpecification;
+use sztorm::protocol::ProtocolSpecification;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
-use crate::tur::state::{ContractAction, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 
 #[derive(Clone, Copy, Debug)]
 pub struct ContractProtocolSpec{

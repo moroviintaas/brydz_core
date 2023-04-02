@@ -1,8 +1,8 @@
-use tur::{CommunicatingAgent, ActingAgent, StatefulAgent};
-use tur::Policy;
-use tur::CommEndpoint;
-use tur::InformationSet;
-use tur::State;
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent};
+use sztorm::Policy;
+use sztorm::CommEndpoint;
+use sztorm::InformationSet;
+use sztorm::State;
 
 pub struct ContractAgent<S: InformationSet, C: CommEndpoint, P: Policy>{
     state: S,

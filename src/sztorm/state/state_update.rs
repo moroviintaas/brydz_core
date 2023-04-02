@@ -1,7 +1,7 @@
 use std::fmt::{Debug, Display, Formatter};
 use karty::cards::Card;
 use karty::hand::CardSet;
-use tur::{Action, StateUpdate};
+use sztorm::{Action, StateUpdate};
 use crate::player::side::Side;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

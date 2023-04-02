@@ -4,10 +4,10 @@ use karty::suits::{SuitTrait};
 
 use crate::error::bidding::BiddingErrorGen;
 
-#[cfg(feature="tur")]
-use tur::error::{InternalGameError, TurError};
-#[cfg(feature="tur")]
-use crate::tur::spec::ContractProtocolSpec;
+#[cfg(feature="sztorm")]
+use sztorm::error::{InternalGameError, TurError};
+#[cfg(feature="sztorm")]
+use crate::sztorm::spec::ContractProtocolSpec;
 
 
 use crate::error::contract::ContractErrorGen;
@@ -78,20 +78,20 @@ impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
     }
 }
 */
-/*#[cfg_attr(feature = "tur", derive(Writable, Readable))]
+/*#[cfg_attr(feature = "sztorm", derive(Writable, Readable))]
 impl Into<TurError<ContractProtocolSpec>> for BridgeCoreError {
     fn into(self) -> TurError<ContractProtocolSpec> {
         TurError::GameError()
     }
 }*/
-#[cfg(feature = "tur")]
+#[cfg(feature = "sztorm")]
 impl From<BridgeCoreError> for TurError<ContractProtocolSpec>{
     fn from(value: BridgeCoreError) -> Self {
         Self::GameError(value)
     }
 }
 
-#[cfg(feature = "tur")]
+#[cfg(feature = "sztorm")]
 impl  InternalGameError<ContractProtocolSpec> for BridgeCoreError{
 
 }

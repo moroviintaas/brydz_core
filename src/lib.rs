@@ -15,8 +15,8 @@ pub mod meta;
 pub mod error;
 pub mod deal;
 
-#[cfg(feature = "tur")]
-pub mod tur;
+#[cfg(feature = "sztorm")]
+pub mod sztorm;
 
 
 #[cfg(feature = "serde")]

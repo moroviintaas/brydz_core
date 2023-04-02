@@ -3,7 +3,7 @@ use karty::hand::{HandTrait, CardSet};
 use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
-use crate::tur::state::{ContractAction, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
 use crate::meta::HAND_SIZE;
 
@@ -20,7 +20,7 @@ impl ContractDummyState {
     }
 }
 
-impl tur::State for ContractDummyState {
+impl sztorm::State for ContractDummyState {
     type UpdateType = ContractStateUpdate;
     type Error = BridgeCoreError;
 
@@ -49,7 +49,7 @@ impl tur::State for ContractDummyState {
     }
 }
 
-impl tur::InformationSet for ContractDummyState {
+impl sztorm::InformationSet for ContractDummyState {
     type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     type Id = Side;

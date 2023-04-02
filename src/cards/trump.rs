@@ -112,7 +112,6 @@ mod tests{
     #[cfg(feature = "serde")]
     fn serialize_trump(){
         use ron;
-        use serde::Serialize;
 
         let hearts = TrumpGen::Colored(Hearts);
         assert_eq!(ron::to_string(&hearts).unwrap(), "\"Hearts\"");
@@ -123,7 +122,6 @@ mod tests{
     #[cfg(feature = "serde")]
     fn deserialize_trump(){
         use ron;
-        use serde::Serialize;
         assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"NoTrump\"").unwrap(), TrumpGen::NoTrump);
         assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"Diamonds\"").unwrap(), TrumpGen::Colored(Diamonds));
     }
