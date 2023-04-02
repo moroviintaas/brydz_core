@@ -5,7 +5,7 @@ use karty::suits::{SuitTrait};
 use crate::error::bidding::BiddingErrorGen;
 
 #[cfg(feature="sztorm")]
-use sztorm::error::{InternalGameError, TurError};
+use sztorm::error::{InternalGameError, SztormError};
 #[cfg(feature="sztorm")]
 use crate::sztorm::spec::ContractProtocolSpec;
 
@@ -85,7 +85,7 @@ impl Into<TurError<ContractProtocolSpec>> for BridgeCoreError {
     }
 }*/
 #[cfg(feature = "sztorm")]
-impl From<BridgeCoreError> for TurError<ContractProtocolSpec>{
+impl From<BridgeCoreError> for SztormError<ContractProtocolSpec>{
     fn from(value: BridgeCoreError) -> Self {
         Self::GameError(value)
     }
