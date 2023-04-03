@@ -178,13 +178,13 @@ impl<'de> Deserialize<'de> for Bid<Suit>{
                         }
                     }
                 }
-                let trump = trump_op.ok_or_else(|| de::Error::missing_field("secs"))?;
-                let number = number_op.ok_or_else(|| de::Error::missing_field("nanos"))?;
+                let trump = trump_op.ok_or_else(|| de::Error::missing_field("trump"))?;
+                let number = number_op.ok_or_else(|| de::Error::missing_field("number"))?;
                 Bid::<Suit>::init(trump, number).map_err(|e| de::Error::custom(&format!("Error deserializing bid: {e:}")[..]))
             }
         }
         const FIELDS: &'static [&'static str] = &["trump", "number"];
-        deserializer.deserialize_struct("Bid", FIELDS, BidVisitor)
+        deserializer.deserialize_struct("bid", FIELDS, BidVisitor)
     }
 }
 

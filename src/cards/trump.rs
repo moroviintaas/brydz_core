@@ -5,6 +5,7 @@ use karty::suits::{SuitTrait, Suit};
 use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
 #[cfg(feature = "serde")]
 use serde::{Serializer, Deserializer, Serialize, Deserialize};
+#[cfg(feature = "serde")]
 use serde::de::{Error, Visitor};
 
 #[cfg(feature="speedy")]
@@ -55,10 +56,24 @@ impl <S: SuitTrait + Display> Display for TrumpGen<S>{
 }
 
 pub const TRUMPS: [TrumpGen<Suit>; 5] = [Colored(Spades), Colored(Hearts), Colored(Diamonds), Colored(Clubs), NoTrump];
+/*
+#[cfg(feature = "serde")]
+impl<ST: SuitTrait + Serialize> Serialize for TrumpGen<ST>{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+
+
+        match self{
+            Colored(c) => serializer.serialize_newtype_variant("Trump", 0, "Colored", c),
+            NoTrump => serializer.serialize_unit_variant("Trump", 1, "NoTrump")
+        }
+
+    }
+}*/
 
 #[cfg(feature = "serde")]
 impl Serialize for TrumpGen<Suit>{
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+
 
         serializer.serialize_str(match self{
             Colored(s) => match s{
@@ -69,6 +84,7 @@ impl Serialize for TrumpGen<Suit>{
             }
             NoTrump => "NoTrump"
         })
+
     }
 }
 
@@ -115,7 +131,7 @@ mod tests{
 
         let hearts = TrumpGen::Colored(Hearts);
         assert_eq!(ron::to_string(&hearts).unwrap(), "\"Hearts\"");
-        assert_eq!(ron::to_string(&TrumpGen::NoTrump).unwrap(), "\"NoTrump\"");
+        assert_eq!(ron::to_string(&TrumpGen::<Suit>::NoTrump).unwrap(), "\"NoTrump\"");
     }
 
     #[test]
