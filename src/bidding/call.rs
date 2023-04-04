@@ -14,7 +14,7 @@ use crate::speedy::{Readable, Writable};
 pub enum Doubling{
     None,
     Double,
-    ReDouble
+    Redouble
 }
 
 #[derive(Debug, Eq, PartialEq,  Copy, Clone)]
@@ -22,7 +22,7 @@ pub enum Doubling{
 pub enum Call<S: SuitTrait> {
     NewBid(Bid<S>),
     Double,
-    ReDouble,
+    Redouble,
     Pass
 }
 

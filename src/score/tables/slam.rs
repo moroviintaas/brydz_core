@@ -26,7 +26,7 @@ impl PointsSlam{
     /// use brydz_core::contract::ContractSpec;
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
-    /// use brydz_core::bidding::Doubling::ReDouble;
+    /// use brydz_core::bidding::Doubling::Redouble;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::POINTS_SLAM;
@@ -38,7 +38,7 @@ impl PointsSlam{
     /// assert_eq!(points_table.points(&contract, 12, false), 500);
     /// assert_eq!(points_table.points(&contract, 12, true), 750);
     /// assert_eq!(points_table.points(&contract, 13, true), 750);
-    /// let contract = ContractSpec::new_d(North, Bid::init(NoTrump, 7).unwrap(), ReDouble);
+    /// let contract = ContractSpec::new_d(North, Bid::init(NoTrump, 7).unwrap(), Redouble);
     /// assert_eq!(points_table.points(&contract, 12, false), 0 );
     /// assert_eq!(points_table.points(&contract, 13, true), 1500 );
     /// assert_eq!(points_table.points(&contract, 13, false), 1000 );

@@ -87,7 +87,7 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                         Ok(AuctionStatus::Running(player_side.next()))
                     }
                     Call::Double => Err(DoubleOnVoidCall),
-                    Call::ReDouble => Err(ReDoubleOnVoidCall)
+                    Call::Redouble => Err(ReDoubleOnVoidCall)
 
 
                 }
@@ -142,9 +142,9 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
 
                                 }
                                 Doubling::Double => Err(DoubleAfterDouble),
-                                Doubling::ReDouble => Err(DoubleAfterReDouble)
+                                Doubling::Redouble => Err(DoubleAfterReDouble)
                             }
-                            Call::ReDouble => match &self.current_contract.as_ref().unwrap().doubling(){
+                            Call::Redouble => match &self.current_contract.as_ref().unwrap().doubling(){
                                 Doubling::None => Err(ReDoubleWithoutDouble),
                                 Doubling::Double => match self.current_contract.as_ref().unwrap().declarer().axis() {
                                     same if same == player_side.axis() => {
@@ -156,7 +156,7 @@ impl<S: SuitTrait, DS: DeclarationStorage<S>> AuctionStack<S, DS>{
                                     },
                                     _different => Err(ReDoubleOnSameAxis)
                                 },
-                                Doubling::ReDouble => Err(ReDoubleAfterReDouble)
+                                Doubling::Redouble => Err(ReDoubleAfterReDouble)
 
                             }
                         }
@@ -225,11 +225,11 @@ mod tests{
             North,
             Bid::init(Colored(Diamonds), 2).unwrap(),
             Doubling::Double)));
-        auction_stack.add_contract_bid(North, Call::ReDouble).unwrap();
+        auction_stack.add_contract_bid(North, Call::Redouble).unwrap();
         assert_eq!(auction_stack.current_contract, Some(ContractSpec::new_d(
             North,
             Bid::init(Colored(Diamonds), 2).unwrap(),
-            Doubling::ReDouble)));
+            Doubling::Redouble)));
 
     }
 
@@ -273,9 +273,9 @@ mod tests{
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(North, Call::Double).unwrap();
-        auction_stack.add_contract_bid(East, Call::ReDouble).unwrap();
+        auction_stack.add_contract_bid(East, Call::Redouble).unwrap();
         auction_stack.add_contract_bid(South, Call::Pass).unwrap();
-        let r = auction_stack.add_contract_bid(West, Call::ReDouble);
+        let r = auction_stack.add_contract_bid(West, Call::Redouble);
         assert_eq!(r, Err(ReDoubleAfterReDouble));
     }
 
@@ -289,7 +289,7 @@ mod tests{
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
         auction_stack.add_contract_bid(North, Call::Double).unwrap();
-        auction_stack.add_contract_bid(East, Call::ReDouble).unwrap();
+        auction_stack.add_contract_bid(East, Call::Redouble).unwrap();
         let r = auction_stack.add_contract_bid(South, Call::Double);
         assert_eq!(r, Err(DoubleAfterReDouble));
     }
@@ -303,7 +303,7 @@ mod tests{
             West,
             Bid::init(Colored(Clubs), 1).unwrap(),
             Doubling::None)));
-        let r = auction_stack.add_contract_bid(North, Call::ReDouble);
+        let r = auction_stack.add_contract_bid(North, Call::Redouble);
         assert_eq!(r, Err(ReDoubleWithoutDouble));
     }
 

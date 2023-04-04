@@ -9,7 +9,7 @@ use crate::error::BiddingErrorGen;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-//#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 pub struct ContractSpec<S: SuitTrait> {
     declarer: Side,
     bid: Bid<S>,
@@ -40,24 +40,24 @@ impl<S: SuitTrait> ContractSpec<S> {
                 Ok(())
             },
             Doubling::Double => Err(DoubleAfterDouble),
-            Doubling::ReDouble => Err(DoubleAfterReDouble)
+            Doubling::Redouble => Err(DoubleAfterReDouble)
         }
     }
 
     pub fn redouble(&mut self) -> Result<(), BiddingErrorGen<S>>{
         match self.doubling{
             Doubling::Double => {
-                self.doubling = Doubling::ReDouble;
+                self.doubling = Doubling::Redouble;
                 Ok(())
             },
-            Doubling::ReDouble => Err(ReDoubleAfterReDouble),
+            Doubling::Redouble => Err(ReDoubleAfterReDouble),
             Doubling::None => Err(ReDoubleWithoutDouble)
         }
     }
 
 }
 
-#[cfg(feature = "serde")]
+#[cfg(feature = "serde_dedicate")]
 mod serde_for_contract_spec{
     use std::fmt::Formatter;
     use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
@@ -65,7 +65,6 @@ mod serde_for_contract_spec{
     use serde::ser::SerializeStruct;
     use karty::suits::Suit;
     use crate::contract::ContractSpec;
-    use crate::player::side::Side;
 
     impl Serialize for ContractSpec<Suit>{
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
@@ -147,27 +146,27 @@ mod serde_for_contract_spec{
 #[cfg(test)]
 mod tests{
     use karty::suits::Suit;
-    use karty::suits::Suit::{Diamonds, Hearts};
+    use karty::suits::Suit::{*};
     use crate::bidding::Bid;
-    use crate::bidding::Doubling::{Double, ReDouble};
+    use crate::bidding::Doubling::{Double, Redouble};
     use crate::cards::trump::TrumpGen;
     use crate::contract::ContractSpec;
     use crate::player::side::Side::*;
 
     #[test]
-    #[cfg(feature = "serde")]
+    #[cfg(feature = "serde_dedicate")]
     fn serialize_contract_spec(){
         let contract_1 = ContractSpec::new_d(
             East,
             Bid::init(TrumpGen::Colored(Diamonds), 4).unwrap(),
-            ReDouble
+            Redouble
         );
-        assert_eq!(ron::to_string(&contract_1).unwrap(), "(declarer:East,bid:(trump:\"Diamonds\",number:4),doubling:ReDouble)");
+        assert_eq!(ron::to_string(&contract_1).unwrap(), "(declarer:East,bid:(trump:\"Diamonds\",number:4),doubling:Redouble)");
 
     }
 
     #[test]
-    #[cfg(feature = "serde")]
+    #[cfg(feature = "serde_dedicate")]
     fn deserialize_contract_spec(){
         let contract_1 = ContractSpec::new_d(
             West,
@@ -175,6 +174,29 @@ mod tests{
             Double
         );
         assert_eq!(ron::from_str::<ContractSpec<Suit>>("(declarer:West, doubling:Double, bid: (trump:\"NoTrump\",number:6))").unwrap(), contract_1);
+
+    }
+
+    #[test]
+    #[cfg(feature = "serde_derive")]
+    fn serialize_contract_spec_derive() {
+        let contract_1 = ContractSpec::new_d(
+            East,
+            Bid::init(TrumpGen::Colored(Diamonds), 4).unwrap(),
+            Redouble
+        );
+        assert_eq!(ron::to_string(&contract_1).unwrap(), "(declarer:East,bid:(trump:Colored(Diamonds),number:4),doubling:Redouble)");
+    }
+
+    #[test]
+    #[cfg(feature = "serde_derive")]
+    fn deserialize_contract_spec_derive(){
+        let contract_1 = ContractSpec::new_d(
+            West,
+            Bid::init(TrumpGen::NoTrump, 6).unwrap(),
+            Double
+        );
+        assert_eq!(ron::from_str::<ContractSpec<Suit>>("(declarer:West, doubling:Double, bid: (trump:NoTrump,number:6))").unwrap(), contract_1);
 
     }
 }

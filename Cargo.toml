@@ -30,7 +30,9 @@ smallvec = {version = "1.10.0", optional = true}
 speedy = ["dep:speedy"]
 #async = ["tokio"]
 serde = ["dep:serde"]
+serde_derive = ["dep:serde", "serde", "dep:ron"]
+serde_dedicate = ["dep:serde", "serde", "dep:ron"]
 serde_ron = ["dep:serde", "serde", "dep:ron"]
-serde_postcard = ["dep:serde", "serde", "dep:postcard"]
+#serde_postcard = ["dep:serde", "serde", "dep:postcard"]
 sztorm = ["dep:sztorm", "dep:smallvec", "dep:log"]
 

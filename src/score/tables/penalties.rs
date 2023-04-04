@@ -27,7 +27,7 @@ impl PenaltyTable{
                 true => self.vulnerable_doubled,
                 false => self.not_vulnerable_doubled
             }
-            Doubling::ReDouble => match vulnerability{
+            Doubling::Redouble => match vulnerability{
                 true => self.vulnerable_redoubled,
                 false => self.not_vulnerable_redoubled
             }

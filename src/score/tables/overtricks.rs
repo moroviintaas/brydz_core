@@ -23,7 +23,7 @@ impl PointsOverTrick{
     /// use brydz_core::contract::ContractSpec;
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
-    /// use brydz_core::bidding::Doubling::{ReDouble, Double};
+    /// use brydz_core::bidding::Doubling::{Redouble, Double};
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::{POINTS_OVER_TRICK};
@@ -36,7 +36,7 @@ impl PointsOverTrick{
     /// assert_eq!(points_table.points(&contract, 7 ,false), 0);
     /// assert_eq!(points_table.points(&contract, 10 ,false), 200);
     /// assert_eq!(points_table.points(&contract, 11 ,true), 600);
-    /// let contract = ContractSpec::new_d(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(), ReDouble);
+    /// let contract = ContractSpec::new_d(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(), Redouble);
     /// assert_eq!(points_table.points(&contract, 12 ,true), 1600);
     ///
     /// ```
@@ -55,7 +55,7 @@ impl PointsOverTrick{
                 true => self.doubled_vulnerable,
                 false => self.doubled_not_vulnerable
             }
-            Doubling::ReDouble => match vulnerable {
+            Doubling::Redouble => match vulnerable {
                 true => self.redoubled_vulnerable,
                 false => self.redoubled_not_vulnerable
             }

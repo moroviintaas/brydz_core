@@ -24,7 +24,7 @@ impl PointsContractedTrick{
     /// use brydz_core::contract::ContractSpec;
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
-    /// use brydz_core::bidding::Doubling::ReDouble;
+    /// use brydz_core::bidding::Doubling::Redouble;
     /// use brydz_core::cards::trump::TrumpGen;
     /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::POINTS_CONTRACTED_TRICK;
@@ -35,7 +35,7 @@ impl PointsContractedTrick{
     /// assert_eq!(points_table.points(&contract, 8), 60 );
     /// assert_eq!(points_table.points(&contract, 9), 60 );
     ///
-    /// let contract = ContractSpec::new_d(North, Bid::init(NoTrump, 1).unwrap(), ReDouble);
+    /// let contract = ContractSpec::new_d(North, Bid::init(NoTrump, 1).unwrap(), Redouble);
     /// assert_eq!(points_table.points(&contract, 6), 0 );
     /// assert_eq!(points_table.points(&contract, 7), 160 );
     /// assert_eq!(points_table.points(&contract, 8), 160 );
@@ -46,7 +46,7 @@ impl PointsContractedTrick{
         let multiplier = match contract.doubling(){
             Doubling::None => 1,
             Doubling::Double => self.doubling_multiplier,
-            Doubling::ReDouble => self.redoubling_multiplier,
+            Doubling::Redouble => self.redoubling_multiplier,
         };
         match contract.bid().trump(){
             TrumpGen::Colored(c) => {

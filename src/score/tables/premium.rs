@@ -47,7 +47,7 @@ impl<S: SuitTrait> PointsPremiumContract<S>{
             return match contract.doubling(){
                 Doubling::None => 0,
                 Doubling::Double => self.on_doubled,
-                Doubling::ReDouble => self.on_redoubled,
+                Doubling::Redouble => self.on_redoubled,
             }
         }
         0

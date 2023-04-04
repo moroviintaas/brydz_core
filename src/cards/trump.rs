@@ -3,10 +3,6 @@ use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
 use karty::suits::{SuitTrait, Suit};
 use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
-#[cfg(feature = "serde")]
-use serde::{Serializer, Deserializer, Serialize, Deserialize};
-#[cfg(feature = "serde")]
-use serde::de::{Error, Visitor};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -15,7 +11,7 @@ use crate::cards::trump::TrumpGen::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-//#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
 pub enum TrumpGen<S: SuitTrait>{
     Colored(S),
     NoTrump
@@ -70,50 +66,66 @@ impl<ST: SuitTrait + Serialize> Serialize for TrumpGen<ST>{
     }
 }*/
 
-#[cfg(feature = "serde")]
-impl Serialize for TrumpGen<Suit>{
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
+#[cfg(feature = "serde_dedicate")]
+mod serialize_dedicated{
+    use crate::cards::trump::TrumpGen::NoTrump;
+    use crate::cards::trump::Suit::*;
+    use crate::cards::trump::TrumpGen::*;
+    use serde::de::Error;
+    use core::fmt::Formatter;
+    use crate::cards::trump::Suit;
+    use serde::de::Visitor;
+    use crate::cards::trump::TrumpGen;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
 
-        serializer.serialize_str(match self{
-            Colored(s) => match s{
-                Spades => "Spades",
-                Hearts => "Hearts",
-                Diamonds => "Diamonds",
-                Clubs => "Clubs,"
-            }
-            NoTrump => "NoTrump"
-        })
 
-    }
-}
+    impl Serialize for TrumpGen<Suit>{
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
 
-#[cfg(feature = "serde")]
-impl<'de> Deserialize<'de> for TrumpGen<Suit>{
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        deserializer.deserialize_str(TrumpVisitor)
-    }
-}
-#[cfg(feature = "serde")]
-struct TrumpVisitor;
 
-#[cfg(feature = "serde")]
-impl<'de> Visitor<'de> for TrumpVisitor{
-    type Value = TrumpGen<Suit>;
+            serializer.serialize_str(match self{
+                Colored(s) => match s{
+                    Spades => "Spades",
+                    Hearts => "Hearts",
+                    Diamonds => "Diamonds",
+                    Clubs => "Clubs,"
+                }
+                NoTrump => "NoTrump"
+            })
 
-    fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-        formatter.write_str("Spades/Hearts/Diamonds/Clubs/NoTrump")
-    }
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: Error {
-        match &v.to_lowercase()[..]{
-            "s" | "spades" => Ok(Colored(Spades)),
-            "h" | "hearts" => Ok(Colored(Hearts)),
-            "d" | "diamonds" => Ok(Colored(Diamonds)),
-            "c" | "clubs" => Ok(Colored(Clubs)),
-            "nt" | "notrump" | "no_trump" | "n" => Ok(NoTrump),
-            unrecognised => Err(E::custom(format!("Unrecognised {unrecognised:}")))
         }
     }
+
+
+    impl<'de> Deserialize<'de> for TrumpGen<Suit>{
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+            deserializer.deserialize_str(TrumpVisitor)
+        }
+    }
+
+    struct TrumpVisitor;
+
+
+    impl<'de> Visitor<'de> for TrumpVisitor{
+        type Value = TrumpGen<Suit>;
+
+        fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
+            formatter.write_str("Spades/Hearts/Diamonds/Clubs/NoTrump")
+        }
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: Error {
+            match &v.to_lowercase()[..]{
+                "s" | "spades" => Ok(Colored(Spades)),
+                "h" | "hearts" => Ok(Colored(Hearts)),
+                "d" | "diamonds" => Ok(Colored(Diamonds)),
+                "c" | "clubs" => Ok(Colored(Clubs)),
+                "nt" | "notrump" | "no_trump" | "n" => Ok(NoTrump),
+                unrecognised => Err(E::custom(format!("Unrecognised {unrecognised:}")))
+            }
+        }
+    }
+
+
 }
 
 
@@ -125,7 +137,7 @@ mod tests{
 
 
     #[test]
-    #[cfg(feature = "serde")]
+    #[cfg(feature = "serde_dedicate")]
     fn serialize_trump(){
         use ron;
 
@@ -135,11 +147,21 @@ mod tests{
     }
 
     #[test]
-    #[cfg(feature = "serde")]
+    #[cfg(feature = "serde_dedicate")]
     fn deserialize_trump(){
         use ron;
         assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"NoTrump\"").unwrap(), TrumpGen::NoTrump);
         assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"Diamonds\"").unwrap(), TrumpGen::Colored(Diamonds));
+    }
+
+    #[test]
+    #[cfg(feature = "serde_derive")]
+    fn serialize_trump(){
+        use ron;
+
+        let hearts = TrumpGen::Colored(Hearts);
+        assert_eq!(ron::to_string(&hearts).unwrap(), "Colored(Hearts)");
+        assert_eq!(ron::to_string(&TrumpGen::<Suit>::NoTrump).unwrap(), "NoTrump");
     }
 }
 
