@@ -1,7 +1,7 @@
 use std::marker::PhantomData;
 use karty::suits::{SuitTrait, Suit};
 use crate::bidding::Doubling;
-use crate::contract::ContractSpec;
+use crate::contract::ContractParametersGen;
 
 pub struct PointsPremiumSport{
     pub game_vulnerable: i32,
@@ -42,7 +42,7 @@ pub type PointsPremiumContractStd = PointsPremiumContract<Suit>;
 
 impl<S: SuitTrait> PointsPremiumContract<S>{
 
-    pub fn points(&self, contract: &ContractSpec<S>, taken: u8) -> i32{
+    pub fn points(&self, contract: &ContractParametersGen<S>, taken: u8) -> i32{
         if taken >= contract.bid().number_normalised(){
             return match contract.doubling(){
                 Doubling::None => 0,

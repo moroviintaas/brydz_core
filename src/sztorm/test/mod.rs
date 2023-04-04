@@ -5,7 +5,7 @@ use sztorm::RandomPolicy;
 use sztorm::automatons::rr::{AgentRR, EnvironmentRR};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
-use crate::contract::{Contract, ContractSpec};
+use crate::contract::{Contract, ContractParametersGen};
 use crate::deal::fair_bridge_deal;
 use crate::player::side::{Side, SideMap};
 use crate::player::side::Side::*;
@@ -18,7 +18,7 @@ mod env_agent;
 
 #[test]
 fn random_agents_sync_comm(){
-    let contract = ContractSpec::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
+    let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
     let (comm_env_north, comm_north) = ContractEnvSyncComm::new_pair();
     let (comm_env_east, comm_east) = ContractEnvSyncComm::new_pair();
     let (comm_env_west, comm_west) = ContractEnvSyncComm::new_pair();

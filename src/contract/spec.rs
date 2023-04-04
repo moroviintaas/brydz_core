@@ -1,6 +1,6 @@
 
 //use serde::{Deserialize, Serialize};
-use karty::suits::SuitTrait;
+use karty::suits::{Suit, SuitTrait};
 use crate::error::BiddingErrorGen::{DoubleAfterDouble, DoubleAfterReDouble, ReDoubleAfterReDouble, ReDoubleWithoutDouble};
 use crate::bidding::{Doubling};
 use crate::player::side::Side;
@@ -10,13 +10,15 @@ use crate::error::BiddingErrorGen;
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
 #[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
-pub struct ContractSpec<S: SuitTrait> {
+pub struct ContractParametersGen<S: SuitTrait> {
     declarer: Side,
     bid: Bid<S>,
     doubling: Doubling
 }
 
-impl<S: SuitTrait> ContractSpec<S> {
+pub type ContractParameters = ContractParametersGen<Suit>;
+
+impl<S: SuitTrait> ContractParametersGen<S> {
     pub fn new_d(owner: Side, bid: Bid<S>, doubling: Doubling) -> Self{
         Self{bid, doubling, declarer: owner }
     }
@@ -64,9 +66,9 @@ mod serde_for_contract_spec{
     use serde::de::{MapAccess, SeqAccess, Visitor};
     use serde::ser::SerializeStruct;
     use karty::suits::Suit;
-    use crate::contract::ContractSpec;
+    use crate::contract::ContractParametersGen;
 
-    impl Serialize for ContractSpec<Suit>{
+    impl Serialize for ContractParametersGen<Suit>{
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
             let mut state = serializer.serialize_struct("contract", 3)?;
             state.serialize_field("declarer", &self.declarer)?;
@@ -76,19 +78,19 @@ mod serde_for_contract_spec{
         }
     }
 
-    impl<'de> Deserialize<'de> for ContractSpec<Suit>{
+    impl<'de> Deserialize<'de> for ContractParametersGen<Suit>{
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
             #[derive(Deserialize)]
             #[serde(field_identifier, rename_all = "lowercase")]
             enum Field { Declarer, Bid, Doubling }
             struct ContractSpecVisitor;
             impl<'de> Visitor<'de> for ContractSpecVisitor{
-                type Value = ContractSpec<Suit>;
+                type Value = ContractParametersGen<Suit>;
 
                 fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
                     formatter.write_str("Expected struct with fields [Declarer(Side), Bid(Bid<Suit>), Doubling]")
                 }
-                fn visit_seq<V>(self, mut seq: V) -> Result<ContractSpec<Suit>, V::Error>
+                fn visit_seq<V>(self, mut seq: V) -> Result<ContractParametersGen<Suit>, V::Error>
                 where V: SeqAccess<'de> {
                     let declarer = seq.next_element()?
                         .ok_or_else(|| de::Error::invalid_length(0, &self))?;
@@ -97,11 +99,11 @@ mod serde_for_contract_spec{
                     let doubling = seq.next_element()?
                         .ok_or_else(|| de::Error::invalid_length(2, &self))?;
 
-                    Ok(ContractSpec::<Suit>::new_d(declarer, bid, doubling))
+                    Ok(ContractParametersGen::<Suit>::new_d(declarer, bid, doubling))
 
                 }
 
-                fn visit_map<V>(self, mut map: V) -> Result<ContractSpec<Suit>, V::Error>
+                fn visit_map<V>(self, mut map: V) -> Result<ContractParametersGen<Suit>, V::Error>
                 where
                     V: MapAccess<'de>,
                 {
@@ -134,7 +136,7 @@ mod serde_for_contract_spec{
                     let declarer = declarer_op.ok_or_else(|| de::Error::missing_field("declarer"))?;
                     let bid = bid_op.ok_or_else(|| de::Error::missing_field("bid"))?;
                     let doubling = doubling_op.ok_or_else(|| de::Error::missing_field("doubling"))?;
-                    Ok(ContractSpec::<Suit>::new_d(declarer, bid, doubling))
+                    Ok(ContractParametersGen::<Suit>::new_d(declarer, bid, doubling))
                 }
             }
             const FIELDS: &'static [&'static str] = &["declarer", "bid", "doubling"];
@@ -150,13 +152,13 @@ mod tests{
     use crate::bidding::Bid;
     use crate::bidding::Doubling::{Double, Redouble};
     use crate::cards::trump::TrumpGen;
-    use crate::contract::ContractSpec;
+    use crate::contract::ContractParametersGen;
     use crate::player::side::Side::*;
 
     #[test]
     #[cfg(feature = "serde_dedicate")]
     fn serialize_contract_spec(){
-        let contract_1 = ContractSpec::new_d(
+        let contract_1 = ContractParametersGen::new_d(
             East,
             Bid::init(TrumpGen::Colored(Diamonds), 4).unwrap(),
             Redouble
@@ -168,19 +170,19 @@ mod tests{
     #[test]
     #[cfg(feature = "serde_dedicate")]
     fn deserialize_contract_spec(){
-        let contract_1 = ContractSpec::new_d(
+        let contract_1 = ContractParametersGen::new_d(
             West,
             Bid::init(TrumpGen::NoTrump, 6).unwrap(),
             Double
         );
-        assert_eq!(ron::from_str::<ContractSpec<Suit>>("(declarer:West, doubling:Double, bid: (trump:\"NoTrump\",number:6))").unwrap(), contract_1);
+        assert_eq!(ron::from_str::<ContractParametersGen<Suit>>("(declarer:West, doubling:Double, bid: (trump:\"NoTrump\",number:6))").unwrap(), contract_1);
 
     }
 
     #[test]
     #[cfg(feature = "serde_derive")]
     fn serialize_contract_spec_derive() {
-        let contract_1 = ContractSpec::new_d(
+        let contract_1 = ContractParametersGen::new_d(
             East,
             Bid::init(TrumpGen::Colored(Diamonds), 4).unwrap(),
             Redouble
@@ -191,12 +193,12 @@ mod tests{
     #[test]
     #[cfg(feature = "serde_derive")]
     fn deserialize_contract_spec_derive(){
-        let contract_1 = ContractSpec::new_d(
+        let contract_1 = ContractParametersGen::new_d(
             West,
             Bid::init(TrumpGen::NoTrump, 6).unwrap(),
             Double
         );
-        assert_eq!(ron::from_str::<ContractSpec<Suit>>("(declarer:West, doubling:Double, bid: (trump:NoTrump,number:6))").unwrap(), contract_1);
+        assert_eq!(ron::from_str::<ContractParametersGen<Suit>>("(declarer:West, doubling:Double, bid: (trump:NoTrump,number:6))").unwrap(), contract_1);
 
     }
 }

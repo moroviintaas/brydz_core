@@ -1,7 +1,7 @@
 use karty::cards::Card2SymTrait;
 
 use karty::suits::SuitTrait;
-use crate::contract::{ContractSpec, ContractMechanics};
+use crate::contract::{ContractParametersGen, ContractMechanics};
 use crate::error::BridgeCoreErrorGen;
 use crate::player::axis::Axis;
 
@@ -12,5 +12,5 @@ pub trait ScoreTracker<Co: ContractMechanics<Card = Crd>, Crd: Card2SymTrait>: D
 }
 
 pub trait ScoreIngredient<S: SuitTrait>{
-    fn calculate(&self, contract: &ContractSpec<S>, taken: u8, vulnerability: bool) -> i32;
+    fn calculate(&self, contract: &ContractParametersGen<S>, taken: u8, vulnerability: bool) -> i32;
 }

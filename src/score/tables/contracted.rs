@@ -1,7 +1,7 @@
 
 use karty::suits::Suit;
 use crate::bidding::Doubling;
-use crate::contract::ContractSpec;
+use crate::contract::ContractParametersGen;
 use crate::cards::trump::TrumpGen;
 use crate::meta::HALF_TRICKS;
 use crate::score::calculation::ScoreIngredient;
@@ -21,7 +21,7 @@ impl PointsContractedTrick{
     /// Calculates points for contracted tricks based on number of taken, does not count overtricks
     /// # Examples:
     /// ```
-    /// use brydz_core::contract::ContractSpec;
+    /// use brydz_core::contract::ContractParametersGen;
     /// use brydz_core::player::side::Side::North;
     /// use brydz_core::bidding::Bid;
     /// use brydz_core::bidding::Doubling::Redouble;
@@ -29,20 +29,20 @@ impl PointsContractedTrick{
     /// use brydz_core::cards::trump::TrumpGen::NoTrump;
     /// use brydz_core::score::tables::POINTS_CONTRACTED_TRICK;
     /// use karty::suits::Suit::Hearts;
-    /// let contract = ContractSpec::new(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(),);
+    /// let contract = ContractParametersGen::new(North, Bid::init(TrumpGen::Colored(Hearts), 2).unwrap(),);
     /// let points_table = POINTS_CONTRACTED_TRICK;
     /// assert_eq!(points_table.points(&contract, 7), 0 );
     /// assert_eq!(points_table.points(&contract, 8), 60 );
     /// assert_eq!(points_table.points(&contract, 9), 60 );
     ///
-    /// let contract = ContractSpec::new_d(North, Bid::init(NoTrump, 1).unwrap(), Redouble);
+    /// let contract = ContractParametersGen::new_d(North, Bid::init(NoTrump, 1).unwrap(), Redouble);
     /// assert_eq!(points_table.points(&contract, 6), 0 );
     /// assert_eq!(points_table.points(&contract, 7), 160 );
     /// assert_eq!(points_table.points(&contract, 8), 160 );
     ///
     /// ```
 
-    pub fn points(&self, contract: &ContractSpec<Suit>, taken: u8) -> i32{
+    pub fn points(&self, contract: &ContractParametersGen<Suit>, taken: u8) -> i32{
         let multiplier = match contract.doubling(){
             Doubling::None => 1,
             Doubling::Double => self.doubling_multiplier,
@@ -83,7 +83,7 @@ impl PointsContractedTrick{
 }
 
 impl ScoreIngredient<Suit> for PointsContractedTrick{
-    fn calculate(&self, contract: &ContractSpec<Suit>, taken: u8, _vulnerability: bool) -> i32 {
+    fn calculate(&self, contract: &ContractParametersGen<Suit>, taken: u8, _vulnerability: bool) -> i32 {
         self.points(contract, taken)
     }
 }
