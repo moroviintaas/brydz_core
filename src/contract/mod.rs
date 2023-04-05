@@ -5,7 +5,7 @@ mod maintainer;
 pub use maintainer::*;
 pub mod suit_exhaust;
 mod spec;
-pub use spec::ContractParametersGen;
+pub use spec::*;
 mod registering_contract;
 mod trick_solver;
 pub use trick_solver::*;

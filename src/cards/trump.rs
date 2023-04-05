@@ -71,12 +71,38 @@ mod serialize_dedicated{
     use crate::cards::trump::TrumpGen::NoTrump;
     use crate::cards::trump::Suit::*;
     use crate::cards::trump::TrumpGen::*;
-    use serde::de::Error;
-    use core::fmt::Formatter;
-    use crate::cards::trump::Suit;
-    use serde::de::Visitor;
+    use crate::cards::trump::{Suit, Trump};
     use crate::cards::trump::TrumpGen;
     use serde::{Deserialize, Deserializer, Serialize, Serializer};
+
+    #[derive(Deserialize, Serialize)]
+    enum FlatTrump{NoTrump, Spades, Hearts, Diamonds, Clubs}
+
+    impl From<FlatTrump> for Trump{
+        fn from(value: FlatTrump) -> Self {
+            match value{
+                FlatTrump::NoTrump => NoTrump,
+                FlatTrump::Spades => Colored(Spades),
+                FlatTrump::Hearts => Colored(Hearts),
+                FlatTrump::Diamonds => Colored(Diamonds),
+                FlatTrump::Clubs => Colored(Clubs)
+            }
+        }
+    }
+
+    impl From<&Trump> for FlatTrump{
+        fn from(value: &Trump) -> Self {
+            match value{
+                Colored(s) => match s{
+                    Spades => FlatTrump::Spades,
+                    Hearts => FlatTrump::Hearts,
+                    Diamonds => FlatTrump::Diamonds,
+                    Clubs => FlatTrump::Clubs
+                }
+                NoTrump => FlatTrump::NoTrump
+            }
+        }
+    }
 
 
 
@@ -84,15 +110,14 @@ mod serialize_dedicated{
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: Serializer {
 
 
-            serializer.serialize_str(match self{
-                Colored(s) => match s{
-                    Spades => "Spades",
-                    Hearts => "Hearts",
-                    Diamonds => "Diamonds",
-                    Clubs => "Clubs,"
-                }
-                NoTrump => "NoTrump"
-            })
+            match FlatTrump::from(self){
+                FlatTrump::NoTrump => serializer.serialize_unit_variant("Trump", 4, "NoTrump"),
+                FlatTrump::Spades => serializer.serialize_unit_variant("Trump", 3, "Spades"),
+                FlatTrump::Hearts => serializer.serialize_unit_variant("Trump", 2, "Hearts"),
+                FlatTrump::Diamonds => serializer.serialize_unit_variant("Trump", 1, "Diamonds"),
+                FlatTrump::Clubs => serializer.serialize_unit_variant("Trump", 0, "Clubs")
+            }
+
 
         }
     }
@@ -100,28 +125,7 @@ mod serialize_dedicated{
 
     impl<'de> Deserialize<'de> for TrumpGen<Suit>{
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-            deserializer.deserialize_str(TrumpVisitor)
-        }
-    }
-
-    struct TrumpVisitor;
-
-
-    impl<'de> Visitor<'de> for TrumpVisitor{
-        type Value = TrumpGen<Suit>;
-
-        fn expecting(&self, formatter: &mut Formatter) -> std::fmt::Result {
-            formatter.write_str("Spades/Hearts/Diamonds/Clubs/NoTrump")
-        }
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: Error {
-            match &v.to_lowercase()[..]{
-                "s" | "spades" => Ok(Colored(Spades)),
-                "h" | "hearts" => Ok(Colored(Hearts)),
-                "d" | "diamonds" => Ok(Colored(Diamonds)),
-                "c" | "clubs" => Ok(Colored(Clubs)),
-                "nt" | "notrump" | "no_trump" | "n" => Ok(NoTrump),
-                unrecognised => Err(E::custom(format!("Unrecognised {unrecognised:}")))
-            }
+            FlatTrump::deserialize(deserializer).map(|ft| ft.into())
         }
     }
 
@@ -142,21 +146,21 @@ mod tests{
         use ron;
 
         let hearts = TrumpGen::Colored(Hearts);
-        assert_eq!(ron::to_string(&hearts).unwrap(), "\"Hearts\"");
-        assert_eq!(ron::to_string(&TrumpGen::<Suit>::NoTrump).unwrap(), "\"NoTrump\"");
+        assert_eq!(ron::to_string(&hearts).unwrap(), "Hearts");
+        assert_eq!(ron::to_string(&TrumpGen::<Suit>::NoTrump).unwrap(), "NoTrump");
     }
 
     #[test]
     #[cfg(feature = "serde_dedicate")]
     fn deserialize_trump(){
         use ron;
-        assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"NoTrump\"").unwrap(), TrumpGen::NoTrump);
-        assert_eq!(ron::from_str::<TrumpGen<Suit>>("\"Diamonds\"").unwrap(), TrumpGen::Colored(Diamonds));
+        assert_eq!(ron::from_str::<TrumpGen<Suit>>("NoTrump").unwrap(), TrumpGen::NoTrump);
+        assert_eq!(ron::from_str::<TrumpGen<Suit>>("Diamonds").unwrap(), TrumpGen::Colored(Diamonds));
     }
 
     #[test]
     #[cfg(feature = "serde_derive")]
-    fn serialize_trump(){
+    fn serialize_trump_derive(){
         use ron;
 
         let hearts = TrumpGen::Colored(Hearts);

@@ -257,8 +257,8 @@ mod tests{
     fn serialize_bid(){
         let bid_1 = Bid::init(TrumpGen::Colored(Hearts), 2).unwrap();
         let bid_2 = Bid::init(TrumpGen::<Suit>::NoTrump, 4).unwrap();
-        assert_eq!(ron::to_string(&bid_1).unwrap(), "(trump:\"Hearts\",number:2)");
-        assert_eq!(ron::to_string(&bid_2).unwrap(), "(trump:\"NoTrump\",number:4)");
+        assert_eq!(ron::to_string(&bid_1).unwrap(), "(trump:Hearts,number:2)");
+        assert_eq!(ron::to_string(&bid_2).unwrap(), "(trump:NoTrump,number:4)");
     }
 
 
@@ -268,8 +268,8 @@ mod tests{
 
         let bid_1 = Bid::init(TrumpGen::Colored(Hearts), 2).unwrap();
         let bid_2 = Bid::init(TrumpGen::<Suit>::NoTrump, 4).unwrap();
-        assert_eq!(bid_1, ron::from_str::<Bid<Suit>>("(trump:\"Hearts\",number:2)").unwrap());
-        assert_eq!(bid_2, ron::from_str::<Bid<Suit>>("(trump:\"NoTrump\",number:4)").unwrap());
+        assert_eq!(bid_1, ron::from_str::<Bid<Suit>>("(trump:Hearts,number:2)").unwrap());
+        assert_eq!(bid_2, ron::from_str::<Bid<Suit>>("(trump:NoTrump,number:4)").unwrap());
     }
     #[test]
     #[cfg(feature = "serde_derive")]

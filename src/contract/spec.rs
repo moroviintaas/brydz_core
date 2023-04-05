@@ -163,7 +163,7 @@ mod tests{
             Bid::init(TrumpGen::Colored(Diamonds), 4).unwrap(),
             Redouble
         );
-        assert_eq!(ron::to_string(&contract_1).unwrap(), "(declarer:East,bid:(trump:\"Diamonds\",number:4),doubling:Redouble)");
+        assert_eq!(ron::to_string(&contract_1).unwrap(), "(declarer:East,bid:(trump:Diamonds,number:4),doubling:Redouble)");
 
     }
 
@@ -175,7 +175,7 @@ mod tests{
             Bid::init(TrumpGen::NoTrump, 6).unwrap(),
             Double
         );
-        assert_eq!(ron::from_str::<ContractParametersGen<Suit>>("(declarer:West, doubling:Double, bid: (trump:\"NoTrump\",number:6))").unwrap(), contract_1);
+        assert_eq!(ron::from_str::<ContractParametersGen<Suit>>("(declarer:West, doubling:Double, bid: (trump:NoTrump,number:6))").unwrap(), contract_1);
 
     }
 

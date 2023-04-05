@@ -7,6 +7,7 @@ use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
 use crate::meta::HAND_SIZE;
 
+//#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
 pub struct ContractDummyState {
     side: Side,
