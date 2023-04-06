@@ -1,6 +1,9 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
+use rand::distributions::{Distribution, Standard};
+use rand::Rng;
+use karty::random::RandomSymbol;
 use karty::suits::{SuitTrait, Suit};
 use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
 
@@ -16,6 +19,26 @@ pub enum TrumpGen<S: SuitTrait>{
     Colored(S),
     NoTrump
 }
+
+impl<R: Rng, S: SuitTrait> RandomSymbol<R> for TrumpGen<S>{
+    fn random(rng: &mut R) -> Self {
+        match rng.gen_range(0..=S::SYMBOL_SPACE){
+            special if special == S::SYMBOL_SPACE => NoTrump,
+            i => Colored(S::from_position(i).unwrap())
+        }
+    }
+}
+/*
+
+impl<S: SuitTrait> Distribution<TrumpGen<S>> for Standard
+where Standard: Distribution<S>{
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> TrumpGen<S> {
+        match rng.gen_range(0..=S::SYMBOL_SPACE){
+            special if special == S::SYMBOL_SPACE => NoTrump,
+            i => Colored(S::from_position(i).unwrap())
+        }
+    }
+}*/
 
 
 

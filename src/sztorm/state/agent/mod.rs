@@ -1,6 +1,8 @@
-mod minimal;
+mod simple;
 mod dummy;
+mod hand_info;
 
-pub use minimal::*;
+pub use simple::*;
 pub use dummy::*;
+pub use hand_info::*;
 

@@ -9,21 +9,21 @@ use log::debug;
 use karty::cards::Card2SymTrait;
 
 #[derive(Debug, Clone)]
-pub struct ContractAgentStateMin {
+pub struct ContractAgentInfoSetSimple {
     side: Side,
     hand: CardSet,
     dummy_hand: Option<CardSet>,
     contract: Contract
 }
 
-impl ContractAgentStateMin{
+impl ContractAgentInfoSetSimple {
     pub fn new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self{
         Self{side, hand, dummy_hand, contract}
     }
 }
 
 
-impl sztorm::State for ContractAgentStateMin {
+impl sztorm::State for ContractAgentInfoSetSimple {
     type UpdateType = ContractStateUpdate;
     type Error = BridgeCoreError;
 
@@ -72,7 +72,7 @@ impl sztorm::State for ContractAgentStateMin {
     }
 }
 
-impl sztorm::InformationSet for ContractAgentStateMin {
+impl sztorm::InformationSet for ContractAgentInfoSetSimple {
     type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     type Id = Side;

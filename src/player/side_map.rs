@@ -10,6 +10,7 @@ use crate::speedy::{Readable, Writable};
 /// ```
 #[derive(Debug, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
+#[cfg_attr(any(feature = "serde_derive", feature = "serde_dedicate"), derive(serde::Serialize, serde::Deserialize))]
 pub struct SideMap<T>{
     pub north: T,
     pub east: T,

@@ -1,5 +1,8 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Index, IndexMut, Sub};
+use rand::prelude::Distribution;
+use rand::Rng;
+use karty::random::RandomSymbol;
 use crate::player::axis::Axis;
 use crate::player::axis::Axis::{EastWest, NorthSouth};
 use crate::player::side::Side::{East, North, South, West};
@@ -121,6 +124,33 @@ impl Display for Side{
         })
     }
 }
+/*
+impl Distribution<Side> for rand::distributions::Standard{
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> Side {
+        SIDES[rng.gen_range(0..4)]
+    }
+}*/
+
+impl<R: Rng> RandomSymbol<R> for Side{
+    fn random(rng: &mut R) -> Self {
+        match rng.gen_range(0..4) {
+            0 => North,
+            1 => East,
+            2 => South,
+            3 => West,
+            _ => panic!("Unfallable")
+        }
+    }
+}
+/*
+impl Display for Option<Side>{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self{
+            None => "None",
+            Some(s) => s.fmt(f)
+        })
+    }
+}*/
 
 
 

@@ -12,7 +12,7 @@ use crate::player::side::Side::*;
 use crate::sztorm::agent::ContractAgent;
 use crate::sztorm::comm::ContractEnvSyncComm;
 use crate::sztorm::env::ContractEnv;
-use crate::sztorm::state::{ContractAgentStateMin, ContractDummyState, ContractEnvStateMin};
+use crate::sztorm::state::{ContractAgentInfoSetSimple, ContractDummyState, ContractEnvStateMin};
 
 mod env_agent;
 
@@ -33,13 +33,13 @@ fn random_agents_sync_comm(){
     let card_deal = fair_bridge_deal::<CardSet>();
     let (hand_north, hand_east, hand_south, hand_west) = card_deal.destruct();
 
-    let initial_state_east = ContractAgentStateMin::new(East, hand_east, initial_contract.clone(), None);
-    let initial_state_south = ContractAgentStateMin::new(South, hand_south, initial_contract.clone(), None);
+    let initial_state_east = ContractAgentInfoSetSimple::new(East, hand_east, initial_contract.clone(), None);
+    let initial_state_south = ContractAgentInfoSetSimple::new(South, hand_south, initial_contract.clone(), None);
     let initial_state_west = ContractDummyState::new(West, hand_west, initial_contract.clone());
-    let initial_state_north = ContractAgentStateMin::new(North, hand_north, initial_contract.clone(), None);
+    let initial_state_north = ContractAgentInfoSetSimple::new(North, hand_north, initial_contract.clone(), None);
 
 
-    let random_policy = RandomPolicy::<ContractAgentStateMin>::new();
+    let random_policy = RandomPolicy::<ContractAgentInfoSetSimple>::new();
     let policy_dummy = RandomPolicy::<ContractDummyState>::new();
 
     let mut agent_east = ContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
