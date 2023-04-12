@@ -28,6 +28,7 @@ pub use karty::speedy;
 
 #[cfg(feature = "serde_ron")]
 pub use ron;
+
 pub use karty;
 
 /// Fills contract with cards.

@@ -1,9 +1,8 @@
-use smallvec::SmallVec;
-use karty::cards::Card;
+use std::ops::Index;
 use karty::hand::CardSet;
 use crate::meta::DECK_SIZE;
 use crate::player::side::{Side, SideMap};
-use num_rational::Rational32;
+use serde_big_array::BigArray;
 
 
 pub trait HandInfo{
@@ -36,11 +35,37 @@ impl HandInfo for HandInfoSimple{
     }
 }
 
+
+
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
+struct WrapCardProbs{
+    #[serde(with = "BigArray")]
+    pub probabilities: [f64; DECK_SIZE]
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct HandInfoSuspect {
     //side: Side,
     //cards_probs: SideMap<[Rational32; 52]>
-    //cards_probs: SideMap<Vec<f64>>
-    cards_probs: Vec<SideMap<f64>>
+    //#[serde(with = "BigArray")]
+    //cards_probs: SideMap<[f64; DECK_SIZE]>
+    side_probabilities: SideMap<WrapCardProbs>
+    //cards_probs: Vec<SideMap<f64>>
+}
+
+impl Index<Side> for HandInfoSuspect{
+    type Output = [f64; DECK_SIZE];
+
+    fn index(&self, index: Side) -> &Self::Output {
+        &self.side_probabilities[&index].probabilities
+    }
+}
+
+impl Index<(Side, usize)> for HandInfoSuspect{
+    type Output = f64;
+
+    fn index(&self, index: (Side, usize)) -> &Self::Output {
+        &self.side_probabilities[&index.0].probabilities[index.1]
+    }
 }
 

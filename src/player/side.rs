@@ -1,6 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
 use std::ops::{Index, IndexMut, Sub};
-use rand::prelude::Distribution;
 use rand::Rng;
 use karty::random::RandomSymbol;
 use crate::player::axis::Axis;

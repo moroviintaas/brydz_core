@@ -1,7 +1,6 @@
 use std::cmp::Ordering;
 use std::fmt::{Display, Formatter};
 use std::hash::{Hash};
-use rand::distributions::{Distribution, Standard};
 use rand::Rng;
 use karty::random::RandomSymbol;
 use karty::suits::{SuitTrait, Suit};
