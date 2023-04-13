@@ -1,4 +1,4 @@
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent};
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent};
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::InformationSet;
@@ -33,6 +33,14 @@ impl<S: InformationSet, C: CommEndpoint, P: Policy<StateType = S>> ActingAgent f
 
     fn take_action(&self) -> Option<Self::Act> {
         self.policy.select_action(&self.state)
+    }
+}
+
+impl<S: InformationSet, C: CommEndpoint, P: Policy<StateType = S>> PolicyAgent for ContractAgent<S, C, P>{
+    type Policy = P;
+
+    fn policy(&self) -> &Self::Policy {
+        &self.policy
     }
 }
 
