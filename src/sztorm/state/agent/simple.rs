@@ -7,6 +7,7 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
 use karty::cards::Card2SymTrait;
+use crate::sztorm::agent::ContractAgent;
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -144,3 +145,5 @@ impl sztorm::InformationSet for ContractAgentInfoSetSimple {
         self.contract.total_tricks_taken_axis(self.side.axis())
     }
 }
+
+

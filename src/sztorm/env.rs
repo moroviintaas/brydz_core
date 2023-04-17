@@ -1,11 +1,13 @@
-use sztorm::CommEndpoint;
+use sztorm::{CommEndpoint, DomainEnvironment};
 use sztorm::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
+use sztorm::protocol::ProtocolSpecification;
 use sztorm::State;
 use crate::player::side::Side::*;
+use crate::sztorm::spec::ContractProtocolSpec;
 
 pub struct ContractEnv<S: EnvironmentState + ContractState, C: CommEndpoint>{
     state: S,
@@ -22,17 +24,17 @@ impl<S: EnvironmentState + ContractState, C: CommEndpoint> CommunicatingEnv for 
     type Outward = C::OutwardType;
     type Inward = C::InwardType;
     type CommunicationError = C::Error;
-    type AgentId = Side;
+    //type AgentId = Side;
 
-    fn send_to(&mut self, agent_id: &Self::AgentId, message: Self::Outward) -> Result<(), Self::CommunicationError> {
+    fn send_to(&mut self, agent_id: &<Self::DomainParameter as ProtocolSpecification>::AgentId, message: Self::Outward) -> Result<(), Self::CommunicationError> {
         self.comm[agent_id].send(message)
     }
 
-    fn recv_from(&mut self, agent_id: &Self::AgentId) -> Result<Self::Inward, Self::CommunicationError> {
+    fn recv_from(&mut self, agent_id: &<Self::DomainParameter as ProtocolSpecification>::AgentId) -> Result<Self::Inward, Self::CommunicationError> {
         self.comm[agent_id].recv()
     }
 
-    fn try_recv_from(&mut self, agent_id: &Self::AgentId) -> Result<Self::Inward, Self::CommunicationError> {
+    fn try_recv_from(&mut self, agent_id: &<Self::DomainParameter as ProtocolSpecification>::AgentId) -> Result<Self::Inward, Self::CommunicationError> {
         self.comm[agent_id].try_recv()
     }
 }
@@ -77,4 +79,6 @@ where S: State<UpdateType = ContractStateUpdate>{
         Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter())
     }
 }
-
+impl<S: EnvironmentState + ContractState, C: CommEndpoint> DomainEnvironment for ContractEnv<S, C>{
+    type DomainParameter = ContractProtocolSpec;
+}

@@ -1,8 +1,9 @@
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent};
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, DomainEnvironment};
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::InformationSet;
 use sztorm::State;
+use crate::sztorm::spec::ContractProtocolSpec;
 
 pub struct ContractAgent<S: InformationSet, C: CommEndpoint, P: Policy>{
     state: S,
@@ -59,6 +60,14 @@ CommunicatingAgent for ContractAgent<S, C, P>
 
     fn recv(&mut self) -> Result<Self::Inward, Self::CommunicationError> {
         self.comm.recv()
+    }
+}
+
+impl<S: InformationSet, C: CommEndpoint, P: Policy> sztorm::DistinctAgent for ContractAgent<S, C, P>{
+    type Id = S::Id;
+
+    fn id(&self) -> &Self::Id {
+        self.state().id()
     }
 }
 
