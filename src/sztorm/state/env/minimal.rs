@@ -5,6 +5,7 @@ use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::EnvironmentState;
 use crate::player::side::Side;
+use crate::sztorm::spec::ContractProtocolSpec;
 
 pub struct ContractEnvStateMin{
     dummy_hand: Option<CardSet>,
@@ -36,11 +37,9 @@ impl ContractState for ContractEnvStateMin{
     }
 }
 
-impl sztorm::State for ContractEnvStateMin{
-    type UpdateType = ContractStateUpdate;
-    type Error = BridgeCoreError;
+impl sztorm::State<ContractProtocolSpec> for ContractEnvStateMin{
 
-    fn update(&mut self, update: Self::UpdateType) -> Result<(), Self::Error> {
+    fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
         debug!("Updating environment with {:?}", &update);
         let (side, action) = update.into_tuple();
         match action{
@@ -81,10 +80,9 @@ impl sztorm::State for ContractEnvStateMin{
     }
 }
 
-impl EnvironmentState for ContractEnvStateMin{
-    type AgentId = Side;
+impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
 
-    fn current_player(&self) -> Option<Self::AgentId> {
+    fn current_player(&self) -> Option<Side> {
         match self.contract.is_completed(){
             true => None,
             false => Some(match self.contract.dummy() == self.contract.current_side(){

@@ -4,44 +4,52 @@ use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
-use sztorm::protocol::ProtocolSpecification;
+use sztorm::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
 use sztorm::State;
+use crate::error::BridgeCoreError;
 use crate::player::side::Side::*;
 use crate::sztorm::spec::ContractProtocolSpec;
 
-pub struct ContractEnv<S: EnvironmentState + ContractState, C: CommEndpoint>{
+pub struct ContractEnv<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>{
     state: S,
     comm: SideMap<C>
 }
 
-impl<S: EnvironmentState + ContractState, C: CommEndpoint> ContractEnv<S, C>{
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> ContractEnv<S, C>{
     pub fn new(state: S, comm: SideMap<C>) -> Self{
         Self{state, comm}
     }
 }
 
-impl<S: EnvironmentState + ContractState, C: CommEndpoint> CommunicatingEnv for ContractEnv<S, C>{
-    type Outward = C::OutwardType;
-    type Inward = C::InwardType;
+impl< S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    C: CommEndpoint<
+        OutwardType=EnvMessage<ContractProtocolSpec>,
+        InwardType=AgentMessage<ContractProtocolSpec>>>
+CommunicatingEnv<ContractProtocolSpec> for ContractEnv< S, C>{
+
     type CommunicationError = C::Error;
     //type AgentId = Side;
 
-    fn send_to(&mut self, agent_id: &<Self::DomainParameter as ProtocolSpecification>::AgentId, message: Self::Outward) -> Result<(), Self::CommunicationError> {
+    fn send_to(&mut self, agent_id: &Side, message: EnvMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
         self.comm[agent_id].send(message)
     }
 
-    fn recv_from(&mut self, agent_id: &<Self::DomainParameter as ProtocolSpecification>::AgentId) -> Result<Self::Inward, Self::CommunicationError> {
+    fn recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractProtocolSpec>, Self::CommunicationError> {
         self.comm[agent_id].recv()
     }
 
-    fn try_recv_from(&mut self, agent_id: &<Self::DomainParameter as ProtocolSpecification>::AgentId) -> Result<Self::Inward, Self::CommunicationError> {
+    fn try_recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractProtocolSpec>, Self::CommunicationError> {
         self.comm[agent_id].try_recv()
     }
 }
 
-impl<S: EnvironmentState + ContractState, C: CommEndpoint> BroadcastingEnv for ContractEnv<S, C>
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    C: CommEndpoint<
+        OutwardType=EnvMessage<ContractProtocolSpec>,
+        InwardType=AgentMessage<ContractProtocolSpec>>>
+BroadcastingEnv<ContractProtocolSpec> for ContractEnv<S, C>
 where <C as CommEndpoint>::OutwardType: Clone{
-    fn send_to_all(&mut self, message: Self::Outward) -> Result<(), Self::CommunicationError> {
+    fn send_to_all(&mut self, message: EnvMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
         for s in SIDES{
             self.comm[&s].send(message.clone())?;
         }
@@ -49,7 +57,7 @@ where <C as CommEndpoint>::OutwardType: Clone{
     }
 }
 
-impl<'a, S: EnvironmentState + ContractState, C: CommEndpoint> Environment<'a, Side> for ContractEnv<S, C>{
+impl<'a,  S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> Environment<'a, Side> for ContractEnv<S, C>{
     type PlayerIterator = &'a [Side; 4];
 
     fn players(&self) -> Self::PlayerIterator {
@@ -57,17 +65,16 @@ impl<'a, S: EnvironmentState + ContractState, C: CommEndpoint> Environment<'a, S
     }
 }
 
-impl<S: EnvironmentState<AgentId=Side> + ContractState + ContractState, C: CommEndpoint> StatefulEnvironment for ContractEnv<S, C>
-where S: State<UpdateType = ContractStateUpdate>{
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState + ContractState, C: CommEndpoint> StatefulEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
+where S: State<ContractProtocolSpec> {
     type State = S;
-    type Act = ContractAction;
     type UpdatesIterator = <[(Side, ContractStateUpdate);4] as IntoIterator>::IntoIter;
 
     fn state(&self) -> &Self::State {
         &self.state
     }
 
-    fn process_action(&mut self, agent: &<Self::State as EnvironmentState>::AgentId, action: Self::Act) -> Result<Self::UpdatesIterator, <Self::State as State>::Error> {
+    fn process_action(&mut self, agent: &Side, action: ContractAction) -> Result<Self::UpdatesIterator, BridgeCoreError> {
 
         let state_update =
         if self.state.is_turn_of_dummy() && Some(*agent) == self.state.current_player(){
@@ -79,6 +86,6 @@ where S: State<UpdateType = ContractStateUpdate>{
         Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter())
     }
 }
-impl<S: EnvironmentState + ContractState, C: CommEndpoint> DomainEnvironment for ContractEnv<S, C>{
-    type DomainParameter = ContractProtocolSpec;
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> DomainEnvironment<ContractProtocolSpec> for ContractEnv<S, C>{
+    //type DomainParameter<Spec> = ContractProtocolSpec;
 }

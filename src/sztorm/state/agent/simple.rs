@@ -8,6 +8,7 @@ use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
 use karty::cards::Card2SymTrait;
 use crate::sztorm::agent::ContractAgent;
+use crate::sztorm::spec::ContractProtocolSpec;
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -24,11 +25,11 @@ impl ContractAgentInfoSetSimple {
 }
 
 
-impl sztorm::State for ContractAgentInfoSetSimple {
-    type UpdateType = ContractStateUpdate;
-    type Error = BridgeCoreError;
+impl sztorm::State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+    //type UpdateType = ContractStateUpdate;
+    //type Error = BridgeCoreError;
 
-    fn update(&mut self, update: Self::UpdateType) -> Result<(), Self::Error> {
+    fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
         //debug!("Agent {} received state update: {:?}", self.side, &update);
         let (side, action) = update.into_tuple();
         match action{
@@ -73,10 +74,10 @@ impl sztorm::State for ContractAgentInfoSetSimple {
     }
 }
 
-impl sztorm::InformationSet for ContractAgentInfoSetSimple {
-    type ActionType = ContractAction;
+impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+    //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
-    type Id = Side;
+    //type Id = Side;
     type RewardType = u32;
 
     fn available_actions(&self) -> Self::ActionIteratorType {
@@ -116,11 +117,11 @@ impl sztorm::InformationSet for ContractAgentInfoSetSimple {
         }
     }
 
-    fn id(&self) -> &Self::Id {
+    fn id(&self) -> &Side {
         &self.side
     }
 
-    fn is_action_valid(&self, action: &Self::ActionType) -> bool {
+    fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
             ContractAction::ShowHand(_h) => {
                 self.contract.dummy() == self.side

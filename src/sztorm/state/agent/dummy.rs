@@ -6,6 +6,7 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
 use crate::meta::HAND_SIZE;
+use crate::sztorm::spec::ContractProtocolSpec;
 
 //#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 #[derive(Debug, Clone)]
@@ -21,11 +22,11 @@ impl ContractDummyState {
     }
 }
 
-impl sztorm::State for ContractDummyState {
-    type UpdateType = ContractStateUpdate;
-    type Error = BridgeCoreError;
+impl sztorm::State<ContractProtocolSpec> for ContractDummyState {
+    //type UpdateType = ContractStateUpdate;
+    //type Error = BridgeCoreError;
 
-    fn update(&mut self, update: Self::UpdateType) -> Result<(), Self::Error> {
+    fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
         //debug!("Agent {} received state update: {:?}", self.side, &update);
         let (side, action) = update.into_tuple();
 
@@ -50,10 +51,10 @@ impl sztorm::State for ContractDummyState {
     }
 }
 
-impl sztorm::InformationSet for ContractDummyState {
-    type ActionType = ContractAction;
+impl sztorm::InformationSet<ContractProtocolSpec> for ContractDummyState {
+    //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
-    type Id = Side;
+    //type Id = Side;
     type RewardType = u32;
 
     fn available_actions(&self) -> Self::ActionIteratorType {
@@ -66,11 +67,11 @@ impl sztorm::InformationSet for ContractDummyState {
         }
     }
 
-    fn id(&self) -> &Self::Id {
+    fn id(&self) -> &Side{
         &self.side
     }
 
-    fn is_action_valid(&self, action: &Self::ActionType) -> bool {
+    fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
             ContractAction::ShowHand(_) => true,
             ContractAction::PlaceCard(_) => false
