@@ -50,10 +50,10 @@ impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contrac
     }
 }
 
-impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec, StateType = S>>
+impl<Spec: ProtocolSpecification,S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec, StateType = S>>
 CommunicatingAgent<ContractProtocolSpec> for ContractAgent<S, C, P>
 //Spec: ProtocolSpecification,
-where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType=EnvMessage<ContractProtocolSpec>, Error=CommError>
+where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType=EnvMessage<ContractProtocolSpec>, Error=CommError<Spec>>
 {
     type CommunicationError = C::Error;
 

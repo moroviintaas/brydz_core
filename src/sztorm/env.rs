@@ -1,9 +1,10 @@
 use sztorm::{CommEndpoint, DomainEnvironment};
-use sztorm::{BroadcastingEnv, CommunicatingEnv, Environment, StatefulEnvironment};
+use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
+use log::warn;
 use sztorm::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
 use sztorm::State;
 use crate::error::BridgeCoreError;
@@ -51,17 +52,20 @@ BroadcastingEnv<ContractProtocolSpec> for ContractEnv<S, C>
 where <C as CommEndpoint>::OutwardType: Clone{
     fn send_to_all(&mut self, message: EnvMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
         for s in SIDES{
-            self.comm[&s].send(message.clone())?;
+            match self.comm[&s].send(message.clone()){
+                Ok(_) => {},
+                Err(e) => warn!("Failed sending to {s:}")
+            }
         }
         Ok(())
     }
 }
 
-impl<'a,  S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> Environment<'a, Side> for ContractEnv<S, C>{
-    type PlayerIterator = &'a [Side; 4];
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> EnvironmentWithAgents<ContractProtocolSpec> for ContractEnv<S, C>{
+    type PlayerIterator = [Side; 4];
 
     fn players(&self) -> Self::PlayerIterator {
-        &SIDES
+        SIDES
     }
 }
 
