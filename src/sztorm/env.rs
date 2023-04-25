@@ -1,10 +1,12 @@
-use sztorm::{CommEndpoint, DomainEnvironment};
+use std::collections::HashMap;
+use sztorm::{CommEndpoint, ConstructedEnvironment, DomainEnvironment};
 use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
 use log::warn;
+use sztorm::error::SetupError;
 use sztorm::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
 use sztorm::State;
 use crate::error::BridgeCoreError;
@@ -92,4 +94,33 @@ where S: State<ContractProtocolSpec> {
 }
 impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> DomainEnvironment<ContractProtocolSpec> for ContractEnv<S, C>{
     //type DomainParameter<Spec> = ContractProtocolSpec;
+}
+
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> ConstructedEnvironment<ContractProtocolSpec, C> for ContractEnv<S, C>{
+    fn construct(state: S, mut env_comms: HashMap<Side, C>) -> Result<Self, SetupError<ContractProtocolSpec>> {
+
+        let comm = SideMap::new(
+            match env_comms.remove(&North){
+                None => return Err(SetupError::MissingId(North)),
+                Some(c) => c
+            },
+            match env_comms.remove(&East){
+                None => return Err(SetupError::MissingId(East)),
+                Some(c) => c
+            },
+            match env_comms.remove(&South){
+                None => return Err(SetupError::MissingId(South)),
+                Some(c) => c
+            },
+            match env_comms.remove(&West){
+                None => return Err(SetupError::MissingId(West)),
+                Some(c) => c
+            },
+
+        );
+        Ok(Self{comm, state})
+
+
+
+    }
 }

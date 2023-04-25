@@ -87,7 +87,7 @@ impl Into<TurError<ContractProtocolSpec>> for BridgeCoreError {
 #[cfg(feature = "sztorm")]
 impl From<BridgeCoreError> for SztormError<ContractProtocolSpec>{
     fn from(value: BridgeCoreError) -> Self {
-        Self::GameError(value)
+        Self::Game(value)
     }
 }
 

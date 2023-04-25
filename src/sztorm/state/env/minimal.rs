@@ -3,7 +3,8 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use sztorm::EnvironmentState;
+use sztorm::{ConstructedEnvironment, EnvironmentState};
+use sztorm::protocol::ProtocolSpecification;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
 
@@ -95,3 +96,4 @@ impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
         }
     }
 }
+
