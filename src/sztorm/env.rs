@@ -1,9 +1,9 @@
 use std::collections::HashMap;
-use sztorm::{CommEndpoint, ConstructedEnvironment, DomainEnvironment};
+use sztorm::{ActionProcessor, CommEndpoint, ConstructedEnvironment, DomainEnvironment};
 use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
-use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractEnvStateMin, ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
 use log::warn;
 use sztorm::error::SetupError;
@@ -96,6 +96,13 @@ impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>
     //type DomainParameter<Spec> = ContractProtocolSpec;
 }
 
+pub struct ContractProcessor{
+
+}
+
+
+
+/*
 impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> ConstructedEnvironment<ContractProtocolSpec, C> for ContractEnv<S, C>{
     fn construct(state: S, mut env_comms: HashMap<Side, C>) -> Result<Self, SetupError<ContractProtocolSpec>> {
 
@@ -123,4 +130,4 @@ impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>
 
 
     }
-}
+}*/

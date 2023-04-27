@@ -3,9 +3,11 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use sztorm::{ConstructedEnvironment, EnvironmentState};
+use sztorm::{ActionProcessor, ConstructedEnvironment, EnvironmentState, State};
 use sztorm::protocol::ProtocolSpecification;
 use crate::player::side::Side;
+use crate::player::side::Side::*;
+use crate::sztorm::env::ContractProcessor;
 use crate::sztorm::spec::ContractProtocolSpec;
 
 pub struct ContractEnvStateMin{
@@ -97,3 +99,15 @@ impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
     }
 }
 
+impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractProcessor{
+    fn process_action(&self, state: &mut ContractEnvStateMin, agent_id: &Side, action: ContractAction) -> Result<Vec<(Side, ContractStateUpdate)>, BridgeCoreError> {
+        let state_update =
+            if state.is_turn_of_dummy() && Some(*agent_id) == state.current_player(){
+                ContractStateUpdate::new(state.dummy_side(), action)
+            } else {
+                ContractStateUpdate::new(*agent_id, action)
+            };
+        state.update(state_update)?;
+        Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
+    }
+}
