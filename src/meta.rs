@@ -1,7 +1,7 @@
 use karty::figures::FigureTrait;
 use karty::suits::SuitTrait;
-use karty::cards::{Card2SymTrait, Card};
-pub const DECK_SIZE: usize = karty::suits::Suit::NUMBER_OF_SUITS * karty::figures::Figure::NUMBER_OF_FIGURES;
+use karty::cards::{Card2SymTrait, Card, DECK_SIZE};
+//pub const DECK_SIZE: usize = karty::suits::Suit::NUMBER_OF_SUITS * karty::figures::Figure::NUMBER_OF_FIGURES;
 pub const HAND_SIZE: usize = Card::CARD_SPACE/4;
 
 

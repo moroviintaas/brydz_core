@@ -1,6 +1,6 @@
 use std::ops::Index;
 use karty::hand::CardSet;
-use crate::meta::DECK_SIZE;
+use karty::cards::DECK_SIZE;
 use crate::player::side::{Side, SideMap};
 use serde_big_array::BigArray;
 

@@ -7,8 +7,7 @@ use rand::seq::SliceRandom;
 use karty::cards::Card2SGen;
 use karty::figures::{FIGURES, Figure};
 use karty::suits::{SUITS, Suit};
-use crate::meta::DECK_SIZE;
-
+use karty::cards::DECK_SIZE;
 
 
 

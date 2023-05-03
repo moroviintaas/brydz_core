@@ -300,13 +300,13 @@ impl<Crd: Card2SymTrait,
 }
 
 impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> ContractGen<Card, Um, Se>{
-    pub fn new(contract: ContractParametersGen<Card::Suit>) -> Self{
-        let first_player = contract.declarer().next();
-        let trump = contract.bid().trump().to_owned();
+    pub fn new(contract_parameters: ContractParametersGen<Card::Suit>) -> Self{
+        let first_player = contract_parameters.declarer().next();
+        let trump = contract_parameters.bid().trump().to_owned();
         let mut tricks = <[TrickGen::<Card>; QUARTER_SIZE]>::default();
         tricks[0] = TrickGen::new(first_player);
         Self{
-            contract_spec: contract, tricks, completed_tricks_number: 0,
+            contract_spec: contract_parameters, tricks, completed_tricks_number: 0,
             exhaust_table: Se::default(), current_trick: TrickGen::new(first_player), used_cards_memory: Um::default(),
             solver: SmartTrickSolver::new(trump)}
     }

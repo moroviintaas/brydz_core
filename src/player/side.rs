@@ -99,6 +99,18 @@ impl Side{
             West => 3
         }
     }
+    pub(crate) fn first_unknown_side(self, declarer: Side) -> Side{
+        match self - declarer{
+            1 => self.partner(),
+            _ => self.next()
+        }
+    }
+    pub(crate) fn second_unknown_side(self, declarer: Side) -> Side{
+        match self - declarer{
+            0 | 1 => self.prev(),
+            _ => self.partner()
+        }
+    }
 }
 
 impl Sub for Side{
@@ -141,6 +153,8 @@ impl<R: Rng> RandomSymbol<R> for Side{
         }
     }
 }
+
+
 /*
 impl Display for Option<Side>{
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
@@ -217,3 +231,27 @@ impl<T:Default> Default for SideMap<T>{
     }
 }
 
+#[cfg(test)]
+mod tests{
+    use crate::player::side::Side::*;
+
+    #[test]
+    fn first_unknown(){
+        let declarer = North;
+        assert_eq!(North.first_unknown_side(declarer), East);
+        assert_eq!(East.first_unknown_side(declarer), West);
+        assert_eq!(South.first_unknown_side(declarer), West);
+        assert_eq!(West.first_unknown_side(declarer), North);
+
+    }
+
+    #[test]
+    fn second_unknown(){
+        let declarer = North;
+        assert_eq!(North.second_unknown_side(declarer), West);
+        assert_eq!(East.second_unknown_side(declarer), North);
+        assert_eq!(South.second_unknown_side(declarer), North);
+        assert_eq!(West.second_unknown_side(declarer), East);
+
+    }
+}
