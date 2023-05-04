@@ -7,7 +7,6 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
 use karty::cards::Card2SymTrait;
-use crate::sztorm::agent::ContractAgent;
 use crate::sztorm::spec::ContractProtocolSpec;
 
 #[derive(Debug, Clone)]
@@ -151,12 +150,9 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple
 #[cfg(feature = "tensorflow")]
 mod tensor{
     use crate::sztorm::state::ContractAgentInfoSetSimple;
-    use tensorflow::{QUInt8, Tensor, TensorType};
-    use karty::cards::{Card, Card2SymTrait, DECK_SIZE, STANDARD_DECK_CDHS};
-    use karty::figures::FIGURES;
-    use karty::hand::{CardSet, HandTrait};
+    use karty::cards::{Card2SymTrait, DECK_SIZE, STANDARD_DECK_CDHS};
+    use karty::hand::{ HandTrait};
     use karty::register::Register;
-    use karty::suits::SUITS;
     use karty::symbol::CardSymbol;
     use crate::bidding::Doubling;
     use crate::cards::trump::TrumpGen;

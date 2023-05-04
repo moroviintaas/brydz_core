@@ -1,13 +1,11 @@
-use std::collections::HashMap;
-use sztorm::{ActionProcessor, CommEndpoint, ConstructedEnvironment, DomainEnvironment};
+use sztorm::{CommEndpoint, DomainEnvironment};
 use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
-use crate::sztorm::state::{ContractAction, ContractEnvStateMin, ContractState, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction,  ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
 use log::warn;
-use sztorm::error::SetupError;
-use sztorm::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
+use sztorm::protocol::{AgentMessage, EnvMessage};
 use sztorm::State;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side::*;
@@ -56,7 +54,7 @@ where <C as CommEndpoint>::OutwardType: Clone{
         for s in SIDES{
             match self.comm[&s].send(message.clone()){
                 Ok(_) => {},
-                Err(e) => warn!("Failed sending to {s:}")
+                Err(_e) => warn!("Failed sending to {s:}")
             }
         }
         Ok(())

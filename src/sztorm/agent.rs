@@ -1,10 +1,9 @@
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, DomainEnvironment};
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent};
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::error::CommError;
 use sztorm::InformationSet;
 use sztorm::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
-use sztorm::State;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;

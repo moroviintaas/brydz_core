@@ -188,7 +188,7 @@ mod serde_dedicate{
                     Bid::<Suit>::init(trump, number).map_err(|e| de::Error::custom(&format!("Error deserializing bid: {e:}")[..]))
                 }
             }
-            const FIELDS: &'static [&'static str] = &["trump", "number"];
+            const FIELDS: &[& str] = &["trump", "number"];
             deserializer.deserialize_struct("bid", FIELDS, BidVisitor)
         }
     }
@@ -246,11 +246,10 @@ pub mod consts {
 
 #[cfg(test)]
 mod tests{
-    
-
-    
-    
-    
+    use karty::suits::Suit;
+    use karty::suits::Suit::*;
+    use crate::bidding::Bid;
+    use crate::cards::trump::TrumpGen;
 
     #[test]
     #[cfg(feature = "serde_dedicate")]

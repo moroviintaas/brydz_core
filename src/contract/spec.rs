@@ -139,7 +139,7 @@ mod serde_for_contract_spec{
                     Ok(ContractParametersGen::<Suit>::new_d(declarer, bid, doubling))
                 }
             }
-            const FIELDS: &'static [&'static str] = &["declarer", "bid", "doubling"];
+            const FIELDS: & [& str] = &["declarer", "bid", "doubling"];
             deserializer.deserialize_struct("contract", FIELDS, ContractSpecVisitor)
         }
     }
@@ -147,13 +147,13 @@ mod serde_for_contract_spec{
 
 #[cfg(test)]
 mod tests{
-    
-    
-    
-    
-    
-    
-    
+    use karty::suits::Suit;
+    use karty::suits::Suit::*;
+    use crate::bidding::Bid;
+    use crate::bidding::Doubling::*;
+    use crate::cards::trump::TrumpGen;
+    use crate::contract::ContractParametersGen;
+    use crate::player::side::Side::{*};
 
     #[test]
     #[cfg(feature = "serde_dedicate")]
