@@ -157,9 +157,9 @@ mod serialize_dedicated{
 
 #[cfg(test)]
 mod tests{
-    use karty::suits::Suit;
-    use karty::suits::Suit::{*};
-    use crate::cards::trump::TrumpGen;
+    
+    
+    
 
 
     #[test]
