@@ -16,6 +16,8 @@ pub trait ContractMechanics {
     fn is_completed(&self) -> bool;
     fn completed_tricks(&self) -> Vec<TrickGen<Self::Card>>;
     fn total_tricks_taken_side(&self, side: Side) -> u32;
+    fn tricks_taken_side_in_n_first_tricks(&self, side: Side, n: usize);
+    fn tricks_taken_axis_in_n_first_tricks(&self, axis: Axis, n: usize);
     fn total_tricks_taken_axis(&self, axis: Axis) -> u32;
     fn current_side(&self) -> Side{
         self.current_trick().current_side().unwrap()

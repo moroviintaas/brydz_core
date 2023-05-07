@@ -20,6 +20,9 @@ impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>
     pub fn new(state: S, comm: SideMap<C>) -> Self{
         Self{state, comm}
     }
+    pub fn replace_state(&mut self, state: S){
+        self.state = state;
+    }
 }
 
 impl< S: EnvironmentState<ContractProtocolSpec> + ContractState,

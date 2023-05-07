@@ -1,3 +1,4 @@
+use std::cmp::min;
 use std::fmt::{Debug, Display, Formatter};
 use std::mem;
 use std::ops::Index;
@@ -186,6 +187,24 @@ impl<Crd: Card2SymTrait,
         self.tricks[0..self.completed_tricks_number].iter()
             .filter(|t| self.solver.winner(t).unwrap() == side).count() as u32
     }
+
+    fn tricks_taken_side_in_n_first_tricks(&self, side: Side, n: usize) {
+        let mut tricks_taken = 0u32;
+        for i in 0..min(n, self.tricks.len()){
+            if self.tricks[i].taker(&self.solver).unwrap() == side{
+                tricks_taken += 1;
+            }
+        }
+    }
+    fn tricks_taken_axis_in_n_first_tricks(&self, axis: Axis, n: usize) {
+        let mut tricks_taken = 0u32;
+        for i in 0..min(n, self.tricks.len()){
+            if self.tricks[i].taker(&self.solver).unwrap().axis() == axis{
+                tricks_taken += 1;
+            }
+        }
+    }
+
     /// Counts tricks taken by `Side` (one agent)
     /// # Examples:
     /// ```

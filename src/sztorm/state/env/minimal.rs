@@ -27,6 +27,9 @@ impl ContractEnvStateMin{
     pub fn contract(&self) -> &Contract{
         &self.contract
     }
+    pub fn replace_contract(&mut self, contract: Contract){
+        self.contract = contract
+    }
 }
 
 impl ContractState for ContractEnvStateMin{

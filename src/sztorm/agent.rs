@@ -19,6 +19,9 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
     pub fn new(state: S, comm: C, policy: P) -> Self{
         Self{state, comm, policy}
     }
+    pub fn replace_state(&mut self, state: S){
+        self.state = state;
+    }
 }
 
 impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> StatefulAgent<ContractProtocolSpec> for ContractAgent< S, C, P>{

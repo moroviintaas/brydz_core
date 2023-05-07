@@ -68,3 +68,36 @@ impl Display for ContractStateUpdate{
 impl StateUpdate for ContractStateUpdate{
 
 }
+
+#[cfg(feature = "dl")]
+mod tensor{
+    use tensorflow::{QUInt8, Tensor};
+    use karty::cards::Card2SymTrait;
+    use karty::symbol::CardSymbol;
+    use crate::sztorm::state::ContractAction;
+    const MIN_ACTION_SIZE:usize = 2;
+
+    impl From<&ContractAction> for [u8;MIN_ACTION_SIZE]{
+        fn from(value: &ContractAction) -> Self {
+            match value{
+                ContractAction::ShowHand(_) => [0,0],
+                ContractAction::PlaceCard(c) => [c.suit().position() as u8 +1, c.figure().position() as u8 + 1]
+            }
+        }
+    }
+    impl From<&ContractAction> for [f32;MIN_ACTION_SIZE]{
+        fn from(value: &ContractAction) -> Self {
+            match value{
+                ContractAction::ShowHand(_) => [0.0,0.0],
+                ContractAction::PlaceCard(c) => [c.suit().position() as f32 +1.0, c.figure().position() as f32 + 1.0]
+            }
+        }
+    }
+
+    impl From<&ContractAction> for Tensor<QUInt8>{
+        fn from(value: &ContractAction) -> Self {
+            let array:[u8;MIN_ACTION_SIZE] = value.into();
+            Tensor::from(array.map(|b|QUInt8::from(b)))
+        }
+    }
+}
