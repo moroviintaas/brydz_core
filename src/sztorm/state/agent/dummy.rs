@@ -78,7 +78,7 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractDummyState {
         }
     }
 
-    fn current_reward(&self) -> Self::RewardType {
+    fn current_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())
     }
 }

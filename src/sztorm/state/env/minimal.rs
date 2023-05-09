@@ -9,6 +9,7 @@ use crate::player::side::Side::*;
 use crate::sztorm::env::ContractProcessor;
 use crate::sztorm::spec::ContractProtocolSpec;
 
+#[derive(Clone)]
 pub struct ContractEnvStateMin{
     dummy_hand: Option<CardSet>,
     contract: Contract

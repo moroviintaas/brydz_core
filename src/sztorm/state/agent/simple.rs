@@ -141,7 +141,7 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple
         }
     }
 
-    fn current_reward(&self) -> Self::RewardType {
+    fn current_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())
     }
 }
@@ -149,7 +149,7 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple
 
 #[cfg(feature = "dl")]
 mod tensor{
-    use tensorflow::{QUInt8, Tensor};
+    //use tensorflow::{QUInt8, Tensor};
     use crate::sztorm::state::ContractAgentInfoSetSimple;
     use karty::cards::{Card2SymTrait, DECK_SIZE, STANDARD_DECK_CDHS};
     use karty::hand::{ HandTrait};
@@ -174,10 +174,11 @@ mod tensor{
     const PARTNER_CARD: usize = LEFT_CARD + 2;
     const RIGHT_CARD: usize = PARTNER_CARD + 2;
     const BID_OFFSET: usize = RIGHT_CARD + 2;
+    const PLAY_AS_DUMMY: usize = BID_OFFSET + 3;
 
 
 
-    const SIMPLE_INFO_SET_LENGTH:usize = BID_OFFSET + 3;
+    const SIMPLE_INFO_SET_LENGTH:usize = PLAY_AS_DUMMY + 1;
 
 
 
@@ -220,6 +221,10 @@ mod tensor{
                 Doubling::None => 0,
                 Doubling::Double => 1,
                 Doubling::Redouble => 2
+            };
+            array[PLAY_AS_DUMMY] = match state.contract.current_side() == state.contract.dummy(){
+                true => 1,
+                false => 0
             };
             for card in STANDARD_DECK_CDHS{
                 if state.hand.contains(&card){
@@ -305,9 +310,13 @@ mod tensor{
                 Doubling::Double => 1.0,
                 Doubling::Redouble => 2.0
             };
+            array[PLAY_AS_DUMMY] = match state.contract.current_side() == state.contract.dummy(){
+                true => 1.0,
+                false => 0.0
+            };
             for card in STANDARD_DECK_CDHS{
                 if state.hand.contains(&card){
-                   array[card.position()] = SURE as f32; //sure
+                   array[card.position()] = 1.0; //sure
                    /*not needed
                    for i in 1..=3{
                        array[(i*DECK_SIZE)+card.position()] = QUInt8::from(0);
@@ -317,23 +326,23 @@ mod tensor{
                         None => {
                             //dummy's hand not shown yet
                             for i in 1..=3{
-                                array[(i*DECK_SIZE) + card.position()] = ONE_IN_THREE as f32;
+                                array[(i*DECK_SIZE) + card.position()] = 1.0/3.0;
                             }
                         }
                         Some(dhand) => {
                             if dhand.contains(&card){
-                                array[(DECK_SIZE*dummy_offset) + card.position()] = SURE as f32;
+                                array[(DECK_SIZE*dummy_offset) + card.position()] = 1.0;
                             } else {
                                 //this is tricky
                                 if state.contract.suits_exhausted().is_registered(&(unknown_side_1, card.suit())){
-                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = SURE as f32;
+                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = 1.0;
                                 }
                                 else if state.contract.suits_exhausted().is_registered(&(unknown_side_2, card.suit())){
-                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = SURE as f32;
+                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = 1.0;
                                 }
                                 else{
-                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = ONE_IN_TWO as f32;
-                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = ONE_IN_TWO as f32;
+                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = 0.5;
+                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = 0.5;
                                 }
 
                             }
@@ -350,12 +359,15 @@ mod tensor{
         }
     }
 
+    /*
     impl From<&ContractAgentInfoSetSimple> for Tensor<QUInt8>{
         fn from(value: &ContractAgentInfoSetSimple) -> Self {
             let array:[u8;SIMPLE_INFO_SET_LENGTH] = value.into();
             Tensor::from(array.map(|b| QUInt8::from(b)))
         }
     }
+
+     */
 }
 
 
@@ -384,7 +396,7 @@ mod tests{
                                                        CardSet::from_str("AT86.KJT93.4T.2A").unwrap(),
                                                        contract, None);
 
-        let state_as_vec:[u8; 221] = (&info_set).into();
+        let state_as_vec:[u8; 222] = (&info_set).into();
         assert_eq!(Vec::from(state_as_vec),
                    vec![120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120,//north
                         0, 0, 120, 0, 0, 0, 0, 0, 120, 0, 0, 0, 0,
@@ -402,13 +414,13 @@ mod tests{
                         40, 40, 0, 40, 40, 40, 40, 40, 0, 40, 40, 40, 40,
                         40, 0, 40, 40, 40, 40, 40, 0, 0, 0, 40, 0, 40,
                         40, 40, 40, 40, 0, 40, 0, 40, 0, 40, 40, 40, 0,
-                        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0
+                        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 2, 0, 0
 
                    ]
         );
 
         info_set.update(ContractStateUpdate::new(South, PlaceCard(ACE_DIAMONDS))).unwrap();
-        let state_as_vec:[u8;221] = (&info_set).into();
+        let state_as_vec:[u8;222] = (&info_set).into();
         assert_eq!(Vec::from(state_as_vec),
                    vec![120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120,//north
                         0, 0, 120, 0, 0, 0, 0, 0, 120, 0, 0, 0, 0,
@@ -426,7 +438,7 @@ mod tests{
                         40, 40, 0, 40, 40, 40, 40, 40, 0, 40, 40, 40, 0,
                         40, 0, 40, 40, 40, 40, 40, 0, 0, 0, 40, 0, 40,
                         40, 40, 40, 40, 0, 40, 0, 40, 0, 40, 40, 40, 0,
-                        1, 1, 0, 0, 0, 0, 2, 13, 0, 0 , 3, 2, 0
+                        1, 1, 0, 0, 0, 0, 2, 13, 0, 0 , 3, 2, 0, 1
 
                    ]
         );
@@ -436,7 +448,7 @@ mod tests{
         info_set.update(ContractStateUpdate::new(West,
                                                  PlaceCard(FIVE_DIAMONDS))).unwrap();
 
-        let state_as_vec:[u8;221] = (&info_set).into();
+        let state_as_vec:[u8;222] = (&info_set).into();
         assert_eq!(Vec::from(state_as_vec),
                    vec![120, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 120,//north
                         0, 0, 120, 0, 0, 0, 0, 0, 120, 0, 0, 0, 0,
@@ -454,7 +466,7 @@ mod tests{
                         0, 0, 0, 0, 0, 0, 0, 120, 0, 0, 0, 0, 0,
                         0, 0, 120, 0, 120, 120, 120, 0, 0, 0, 0, 0, 0,
                         0, 120, 0, 0, 0, 0, 0, 0, 0, 120, 120, 0, 0,
-                        1, 2, 0, 0, 0, 0, 2, 13, 2, 4 , 3, 2, 0
+                        1, 2, 0, 0, 0, 0, 2, 13, 2, 4 , 3, 2, 0, 0
 
                    ]
         );

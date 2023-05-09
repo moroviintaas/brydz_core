@@ -71,7 +71,6 @@ impl StateUpdate for ContractStateUpdate{
 
 #[cfg(feature = "dl")]
 mod tensor{
-    use tensorflow::{QUInt8, Tensor};
     use karty::cards::Card2SymTrait;
     use karty::symbol::CardSymbol;
     use crate::sztorm::state::ContractAction;
@@ -94,10 +93,4 @@ mod tensor{
         }
     }
 
-    impl From<&ContractAction> for Tensor<QUInt8>{
-        fn from(value: &ContractAction) -> Self {
-            let array:[u8;MIN_ACTION_SIZE] = value.into();
-            Tensor::from(array.map(|b|QUInt8::from(b)))
-        }
-    }
 }
