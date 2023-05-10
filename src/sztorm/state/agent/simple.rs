@@ -359,6 +359,15 @@ mod tensor{
         }
     }
 
+
+    impl From<&ContractAgentInfoSetSimple> for tch::Tensor{
+        fn from(value: &ContractAgentInfoSetSimple) -> Self {
+            tch::Tensor::of_slice(&Into::<[f32;SIMPLE_INFO_SET_LENGTH]>::into(value))
+        }
+    }
+
+
+
     /*
     impl From<&ContractAgentInfoSetSimple> for Tensor<QUInt8>{
         fn from(value: &ContractAgentInfoSetSimple) -> Self {
