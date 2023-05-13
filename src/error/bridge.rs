@@ -11,7 +11,7 @@ use crate::sztorm::spec::ContractProtocolSpec;
 
 
 use crate::error::contract::ContractErrorGen;
-use crate::error::{DistributionError, CardErrorGen, ScoreError, TrickErrorGen};
+use crate::error::{DistributionError, CardSetErrorGen, ScoreError, TrickErrorGen};
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -36,7 +36,7 @@ impl<S: SuitTrait> Display for BiddingErrorGen<S>{
     }
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
     Deal(ContractErrorGen<Card>),
@@ -44,7 +44,7 @@ pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
     Score(ScoreError),
     Trick(TrickErrorGen<Card>),
     Distribution(DistributionError),
-    Hand(CardErrorGen<Card>),
+    Hand(CardSetErrorGen<Card>),
     Format(FormatError),
     Custom(String),
 

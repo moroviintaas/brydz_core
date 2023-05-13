@@ -1,8 +1,10 @@
 use std::ops::Index;
-use karty::hand::CardSet;
-use karty::cards::DECK_SIZE;
+use approx::abs_diff_ne;
+use karty::hand::{CardSet, FuzzyCardSet};
+use karty::cards::{Card, DECK_SIZE};
 use crate::player::side::{Side, SideMap};
 use serde_big_array::BigArray;
+use karty::error::CardSetErrorGen;
 
 
 pub trait HandInfo{
@@ -37,35 +39,33 @@ impl HandInfo for HandInfoSimple{
 
 
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
-struct WrapCardProbs{
-    #[serde(with = "BigArray")]
-    pub probabilities: [f64; DECK_SIZE]
-}
+
+
+
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
-pub struct HandInfoSuspect {
+pub struct CardDistribution {
     //side: Side,
     //cards_probs: SideMap<[Rational32; 52]>
     //#[serde(with = "BigArray")]
     //cards_probs: SideMap<[f64; DECK_SIZE]>
-    side_probabilities: SideMap<WrapCardProbs>
+    side_probabilities: SideMap<FuzzyCardSet>
     //cards_probs: Vec<SideMap<f64>>
 }
 
-impl Index<Side> for HandInfoSuspect{
-    type Output = [f64; DECK_SIZE];
+impl Index<Side> for CardDistribution {
+    type Output = FuzzyCardSet;
 
     fn index(&self, index: Side) -> &Self::Output {
-        &self.side_probabilities[&index].probabilities
+        &self.side_probabilities[&index]
     }
 }
-
-impl Index<(Side, usize)> for HandInfoSuspect{
-    type Output = f64;
+/*
+impl Index<(Side, usize)> for CardDistribution {
+    type Output = f32;
 
     fn index(&self, index: (Side, usize)) -> &Self::Output {
-        &self.side_probabilities[&index.0].probabilities[index.1]
+        &self.side_probabilities[&index.0].probabilities()[index.1]
     }
-}
+}*/
 
