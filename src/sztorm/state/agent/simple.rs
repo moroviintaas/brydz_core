@@ -383,8 +383,7 @@ mod tensor{
 #[cfg(test)]
 mod tests{
     use std::str::FromStr;
-    use karty::card_set;
-    use karty::cards::{ACE_DIAMONDS, EIGHT_DIAMONDS, FIVE_DIAMONDS, KING_SPADES};
+    use karty::cards::{*};
     use karty::hand::CardSet;
     use karty::suits::Suit::Hearts;
     use sztorm::State;

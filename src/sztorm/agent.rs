@@ -1,4 +1,3 @@
-use log::debug;
 use smallvec::SmallVec;
 use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent};
 use sztorm::Policy;
@@ -11,7 +10,6 @@ use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
-use sztorm::DistinctAgent;
 
 pub struct ContractAgent<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>>{
     state: S,

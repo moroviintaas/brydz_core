@@ -1,10 +1,6 @@
 use std::ops::Index;
-use approx::abs_diff_ne;
 use karty::hand::{CardSet, FuzzyCardSet};
-use karty::cards::{Card, DECK_SIZE};
 use crate::player::side::{Side, SideMap};
-use serde_big_array::BigArray;
-use karty::error::CardSetErrorGen;
 
 
 pub trait HandInfo{

@@ -188,21 +188,23 @@ impl<Crd: Card2SymTrait,
             .filter(|t| self.solver.winner(t).unwrap() == side).count() as u32
     }
 
-    fn tricks_taken_side_in_n_first_tricks(&self, side: Side, n: usize) {
+    fn tricks_taken_side_in_n_first_tricks(&self, side: Side, n: usize) -> u32{
         let mut tricks_taken = 0u32;
         for i in 0..min(n, self.tricks.len()){
             if self.tricks[i].taker(&self.solver).unwrap() == side{
                 tricks_taken += 1;
             }
         }
+        tricks_taken
     }
-    fn tricks_taken_axis_in_n_first_tricks(&self, axis: Axis, n: usize) {
+    fn tricks_taken_axis_in_n_first_tricks(&self, axis: Axis, n: usize) -> u32 {
         let mut tricks_taken = 0u32;
         for i in 0..min(n, self.tricks.len()){
             if self.tricks[i].taker(&self.solver).unwrap().axis() == axis{
                 tricks_taken += 1;
             }
         }
+        tricks_taken
     }
 
     /// Counts tricks taken by `Side` (one agent)
