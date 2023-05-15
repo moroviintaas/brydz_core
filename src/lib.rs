@@ -70,5 +70,5 @@ macro_rules! fill_deal {
 
     }
 }
-#[cfg(all(feature = "serde_derive", feature = "serde_dedicate"))]
-compile_error!("features `brydz_core/serde_derive` and `/brydz_core/serde_dedicate` are mutually exclusive");
+//#[cfg(all(feature = "serde_derive", feature = "serde_dedicate"))]
+//compile_error!("features `brydz_core/serde_derive` and `/brydz_core/serde_dedicate` are mutually exclusive");

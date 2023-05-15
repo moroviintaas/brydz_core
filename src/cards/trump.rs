@@ -13,7 +13,7 @@ use crate::cards::trump::TrumpGen::{Colored, NoTrump};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, Hash)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
-#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(all(feature = "serde_derive", not(feature = "serde_dedicate")), derive(serde::Serialize, serde::Deserialize))]
 pub enum TrumpGen<S: SuitTrait>{
     Colored(S),
     NoTrump
@@ -180,7 +180,7 @@ mod tests{
     }
 
     #[test]
-    #[cfg(feature = "serde_derive")]
+    #[cfg(all(feature = "serde_derive", not(feature = "serde_dedicate")))]
     fn serialize_trump_derive(){
         use ron;
 

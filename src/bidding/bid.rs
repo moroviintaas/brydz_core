@@ -13,7 +13,7 @@ use crate::speedy::{Readable, Writable};
 
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 #[derive(Debug, Eq, PartialEq, Clone)]
-#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(all(feature = "serde_derive", not(feature = "serde_dedicate")), derive(serde::Serialize, serde::Deserialize))]
 pub struct Bid<S: SuitTrait> {
     trump: TrumpGen<S>,
     number: u8
@@ -271,7 +271,7 @@ mod tests{
         assert_eq!(bid_2, ron::from_str::<Bid<Suit>>("(trump:NoTrump,number:4)").unwrap());
     }
     #[test]
-    #[cfg(feature = "serde_derive")]
+    #[cfg(all(feature = "serde_derive", not(feature = "serde_dedicate")))]
     fn serialize_bid_derive(){
         let bid_1 = Bid::init(TrumpGen::Colored(Hearts), 2).unwrap();
         let bid_2 = Bid::init(TrumpGen::<Suit>::NoTrump, 4).unwrap();

@@ -9,7 +9,7 @@ use crate::error::BiddingErrorGen;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
-#[cfg_attr(feature = "serde_derive", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(all(feature = "serde_derive", not(feature = "serde_dedicate")), derive(serde::Serialize, serde::Deserialize))]
 pub struct ContractParametersGen<S: SuitTrait> {
     declarer: Side,
     bid: Bid<S>,
@@ -180,7 +180,7 @@ mod tests{
     }
 
     #[test]
-    #[cfg(feature = "serde_derive")]
+    #[cfg(all(feature = "serde_derive", not(feature = "serde_dedicate")))]
     fn serialize_contract_spec_derive() {
         let contract_1 = ContractParametersGen::new_d(
             East,
@@ -191,7 +191,7 @@ mod tests{
     }
 
     #[test]
-    #[cfg(feature = "serde_derive")]
+    #[cfg(all(feature = "serde_derive", not(feature = "serde_dedicate")))]
     fn deserialize_contract_spec_derive(){
         let contract_1 = ContractParametersGen::new_d(
             West,
