@@ -15,14 +15,19 @@ pub struct ContractAgent<S: InformationSet<ContractProtocolSpec>, C: CommEndpoin
     state: S,
     comm: C,
     policy: P,
-    trace: SmallVec<[(S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );HAND_SIZE]>,
+    trace: SmallVec<[ContractTraceStep<S>;HAND_SIZE]>,
     last_action: Option<<S::ActionIteratorType as IntoIterator>::Item>,
     last_action_accumulated_reward: S::RewardType,
     last_action_state: Option<S>,
 
 }
 
+#[allow(type_alias_bounds)]
+pub type ContractTraceStep<S: InformationSet<ContractProtocolSpec>> = (S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );
+
 impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> ContractAgent<S, C, P>{
+
+
     pub fn new(state: S, comm: C, policy: P) -> Self{
         Self{state, comm, policy,
             trace: Default::default(),
@@ -40,7 +45,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
         self.last_action_accumulated_reward = Default::default();
     }
 
-    pub fn trace(&self) -> &SmallVec<[(S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );HAND_SIZE]>{
+    pub fn trace(&self) -> &SmallVec<[ContractTraceStep<S> ;HAND_SIZE]>{
         &self.trace
     }
 
@@ -77,7 +82,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
         let action = self.policy.select_action_mut(&self.state);
         self.last_action = action;
         self.last_action_state = Some(self.state.clone());
-        action.clone()
+        action
     }
 
     fn finalize(&mut self) {
