@@ -1,6 +1,7 @@
 use std::ops::Index;
-use karty::hand::{CardSet, FuzzyCardSet};
+use karty::hand::{CardSet};
 use crate::player::side::{Side, SideMap};
+use crate::sztorm::state::FuzzyCardSet;
 
 
 pub trait HandInfo{

@@ -20,4 +20,7 @@ pub use crate::karty::error::CardSetErrorGen;
 
 
 mod format;
+mod fuzzy_card_set;
+
 pub use format::*;
+pub use fuzzy_card_set::*;
