@@ -140,7 +140,7 @@ impl FuzzyCardSet{
             self.expected_card_number = expected_f32.round() as u8;
             Ok(())
         } else{
-            Err(FuzzyCardSetErrorGen::BadProbabilitiesSum(expected_f32, sum))
+            Err(FuzzyCardSetErrorGen::BadProbabilitiesSum{expected: expected_f32, found: sum})
         }
     }
 
@@ -188,7 +188,7 @@ impl FuzzyCardSet{
 
         let expected = expected_card_number as f32;
         if abs_diff_ne!(expected, sum, epsilon = FUZZY_CARD_SET_TOLERANCE){
-            return Err(FuzzyCardSetErrorGen::BadProbabilitiesSum(sum, expected))
+            return Err(FuzzyCardSetErrorGen::BadProbabilitiesSum{expected: sum, found: expected})
         }
         Ok(Self{probabilities: tmp, expected_card_number })
     }

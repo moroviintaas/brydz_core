@@ -3,21 +3,135 @@ use log::debug;
 use rand::distributions::Standard;
 use rand::prelude::{Distribution};
 use rand::Rng;
+use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
-use karty::cards::{DECK_SIZE};
+use smallvec::SmallVec;
+use karty::cards::{Card, DECK_SIZE, STANDARD_DECK};
+use karty::error::CardSetErrorGen;
 use karty::figures::Figure;
-use karty::hand::{CardSet};
+use karty::hand::{CardSet, HandTrait};
 use karty::suits::{Suit, SuitMap};
 use karty::suits::Suit::Spades;
 use karty::symbol::CardSymbol;
+use crate::error::FuzzyCardSetErrorGen;
 use crate::meta::HAND_SIZE;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::player::side::Side::{East, North, South, West};
-use crate::sztorm::state::FuzzyCardSet;
+use crate::sztorm::state::{FProbability, FuzzyCardSet};
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct BiasedHandDistribution {
     side_probabilities: SideMap<FuzzyCardSet>
+}
+
+impl BiasedHandDistribution{
+
+    pub fn card_probabilities(&self, card: &Card) -> SideMap<FProbability>{
+        SideMap::new(
+                self.side_probabilities[&North].card_probability(card),
+                self.side_probabilities[&East].card_probability(card),
+                self.side_probabilities[&South].card_probability(card),
+                self.side_probabilities[&West].card_probability(card),
+        )
+    }
+
+    fn allocate_card<R: Rng + ?Sized>(&self, card: &Card, map_of_closed: &SideMap<bool>, rng: &mut R) -> Result<Side, FuzzyCardSetErrorGen<Card>>{
+        let card_probabilities = self.card_probabilities(card);
+        let top_north = match map_of_closed[&North]{
+            true => 0.0,
+            false => f32::from(card_probabilities[&North])
+        };
+        let top_east = match map_of_closed[&East]{
+            true => top_north,
+            false => top_north + f32::from(card_probabilities[&East])
+        };
+        let top_south = match map_of_closed[&South]{
+            true => top_east,
+            false => top_east + f32::from(card_probabilities[&South])
+        };
+        let top_west = match map_of_closed[&West]{
+            true => top_south,
+            false => top_south + f32::from(card_probabilities[&West])
+        };
+
+        debug!("Sample top: {}", top_west);
+        let sample = rng.gen_range(0f32..top_west);
+        if sample < top_north{
+            return Ok(North);
+        } else if sample < top_east{
+            return  Ok(East)
+        } else if sample < top_south{
+            return Ok(South);
+        } else if sample < top_west{
+            return Ok(West)
+        }
+
+        Err(FuzzyCardSetErrorGen::ImpossibleCardChoice)
+
+
+    }
+
+    pub fn sample_cards<R: Rng + ?Sized>(&self, rng: &mut R) -> Result<SideMap<CardSet>, FuzzyCardSetErrorGen<Card>>{
+
+
+        let mut card_sets = SideMap::new_symmetric(CardSet::empty());
+        let mut cards_uncertain: SmallVec<[Card; 64]> = SmallVec::new();
+        let mut cards_with_zero: SmallVec<[Card; 64]> = SmallVec::new();
+
+        let mut closed_sides = SideMap::new_symmetric(false);
+
+        let mut cards = STANDARD_DECK;
+        cards.shuffle(rng);
+
+
+        //phase 1, alloc certain One
+        for c in cards{
+            let card_probabilities = self.card_probabilities(&c);
+            match choose_certain(&card_probabilities)?{
+                None => {
+                    match choose_certain_zero(&card_probabilities)?{
+                        None => {
+                            cards_uncertain.push(c);
+                        }
+                        Some(_s) => {
+                            cards_with_zero.push(c);
+                        }
+                    }
+
+                }
+                Some(side) => {
+                    card_sets[&side].insert_card(c)?;
+                    if card_sets[&side].len() >= HAND_SIZE{
+                        closed_sides[&side] = true;
+                    }
+                }
+            }
+
+        }
+
+        // phase 2: alloc these with zero
+
+        for c in cards_with_zero{
+            let side = self.allocate_card(&c, &closed_sides, rng)?;
+            card_sets[&side].insert_card(c)?;
+            if card_sets[&side].len() >= HAND_SIZE{
+                closed_sides[&side] = true;
+            }
+
+        }
+
+        for c in cards_uncertain{
+            let side = self.allocate_card(&c, &closed_sides, rng)?;
+            card_sets[&side].insert_card(c)?;
+            if card_sets[&side].len() >= HAND_SIZE{
+                closed_sides[&side] = true;
+            }
+
+        }
+
+        Ok(card_sets)
+
+    }
 }
 
 impl Index<Side> for BiasedHandDistribution {
@@ -120,8 +234,47 @@ impl Distribution<BiasedHandDistribution> for Standard{
     }
 }
 
+
+fn choose_certain(probabilities: &SideMap<FProbability>) -> Result<Option<Side>, FuzzyCardSetErrorGen<Card>>{
+    for side in SIDES{
+        if probabilities[&side] == FProbability::One{
+            let probability_sum = probabilities
+                .fold_on_ref(0.0f32, |acc, x|{
+                    acc + f32::from(*x)
+                });
+            if probability_sum == 1.0{
+                return Ok(Some(side))
+            } else {
+                return Err(FuzzyCardSetErrorGen::BadProbabilitiesSum{expected: 1.0, found: probability_sum})
+            }
+        }
+    }
+    Ok(None)
+}
+
+fn choose_certain_zero(probabilities: &SideMap<FProbability>) -> Result<Option<Side>, FuzzyCardSetErrorGen<Card>> {
+    for side in SIDES{
+        if probabilities[&side] == FProbability::Zero{
+            return Ok(Some(side))
+        }
+    }
+    Ok(None)
+}
+
+
+
 impl Distribution<SideMap<CardSet>> for BiasedHandDistribution{
-    fn sample<R: Rng + ?Sized>(&self, _rng: &mut R) -> SideMap<CardSet> {
-        todo!()
+    fn sample<R: Rng + ?Sized>(&self, rng: &mut R) -> SideMap<CardSet> {
+
+        //let mut distribution_
+
+        match self.sample_cards(rng){
+            Ok(p) => p,
+            Err(e) => {
+                panic!("Error sampling cards from distribution {e:?}")
+            }
+        }
+
+
     }
 }

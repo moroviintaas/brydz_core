@@ -81,6 +81,18 @@ impl<T> SideMap<T>{
         best
     }
 
+    pub fn fold_on_ref<B, F>(&self, init: B, f: F) -> B
+    where
+        Self: Sized,
+        F: Fn(B, &T) -> B{
+
+        let mut acc = init;
+        for side in SIDES{
+            acc = f(acc, &self[&side])
+        }
+        acc
+    }
+
 }
 
 impl<T: Eq> SideMap<T>{

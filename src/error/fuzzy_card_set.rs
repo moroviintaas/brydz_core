@@ -1,4 +1,5 @@
 use thiserror;
+use karty::error::CardSetErrorGen;
 use karty::symbol::CardSymbol;
 
 #[derive(Debug, thiserror::Error)]
@@ -8,8 +9,10 @@ pub enum FuzzyCardSetErrorGen<Crd: CardSymbol>{
     CardNotInHand(Crd),
     #[error("Parsing FuzzyCardSet")]
     Parse,
-    #[error("Bad probabilities sum, expected: {0}, found {1}")]
-    BadProbabilitiesSum(f32, f32),
+    #[error("Bad probabilities sum, expected: {expected:}, found {found:}")]
+    BadProbabilitiesSum{
+        expected: f32,
+        found: f32},
     #[error("Downscale factor {0} is forbidden")]
     ForbiddenDownscale(f32),
     #[error("Probability is bad: {0} (over 1.0)")]
@@ -18,5 +21,16 @@ pub enum FuzzyCardSetErrorGen<Crd: CardSymbol>{
     ProbabilityBelowZero(f32),
     #[error("Probability is bad: {0} (unspecified)")]
     BadProbability(f32),
+    #[error("Card error: {0}")]
+    CardSet(CardSetErrorGen<Crd>),
+    #[error("Impossible card choice")]
+    ImpossibleCardChoice,
 
+
+}
+
+impl<Crd: CardSymbol> From<CardSetErrorGen<Crd>> for FuzzyCardSetErrorGen<Crd>{
+    fn from(value: CardSetErrorGen<Crd>) -> Self {
+        Self::CardSet(value)
+    }
 }
