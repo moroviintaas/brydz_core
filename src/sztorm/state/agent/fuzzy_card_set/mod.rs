@@ -50,6 +50,7 @@ impl FuzzyCardSet{
     pub fn empty() -> Self{
         Self{probabilities: SuitMap::new_from_f(|_| Default::default()), expected_card_number: 0}
     }
+
     /*
     pub fn insert_card(card: Card, probability: FProbability){
         //let previous_probability
@@ -364,10 +365,16 @@ impl FuzzyCardSet{
         println!("{}", scale);
         for s in SUITS{
             for i in 0..self.probabilities[&s].len(){
-                if let FProbability::Uncertain(_ ) = self.probabilities()[&s][i]{
-                    self.probabilities[&s][i]  *= scale
-                } else if let FProbability::Bad(_ ) = self.probabilities()[&s][i]{
-                    self.probabilities[&s][i]  *= scale
+                if let FProbability::Uncertain(p ) = self.probabilities()[&s][i]{
+                    if p == 0.0{
+                        self.probabilities[&s][i] = FProbability::Zero;
+                    } else {
+                        self.probabilities[&s][i]  *= scale;
+                    }
+
+                } else if let FProbability::Bad(b ) = self.probabilities()[&s][i]{
+                    //self.probabilities[&s][i]  *= scale
+                    return  Err(FuzzyCardSetErrorGen::BadProbability(b))
                 }
 
             }

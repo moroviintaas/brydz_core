@@ -1,6 +1,7 @@
 use thiserror;
 use karty::error::CardSetErrorGen;
 use karty::symbol::CardSymbol;
+use crate::player::side::Side;
 
 #[derive(Debug, thiserror::Error)]
 #[cfg_attr(feature = "speedy", derive(speedy::Writable, speedy::Readable))]
@@ -25,6 +26,8 @@ pub enum FuzzyCardSetErrorGen<Crd: CardSymbol>{
     CardSet(CardSetErrorGen<Crd>),
     #[error("Impossible card choice")]
     ImpossibleCardChoice,
+    #[error("Too few uncertain cards field to allocate for side: {0}")]
+    OutOfUncertainCardsForSide(Side)
 
 
 }
