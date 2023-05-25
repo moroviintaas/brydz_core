@@ -54,7 +54,9 @@ impl BiasedHandDistribution{
             false => top_south + f32::from(card_probabilities[&West])
         };
 
-        debug!("Sample top: {}", top_west);
+        if top_west == 0.0{
+            return Err(FuzzyCardSetErrorGen::ImpossibleSideSelection)
+        }
         let sample = rng.gen_range(0f32..top_west);
         if sample < top_north{
             return Ok(North);
@@ -66,7 +68,7 @@ impl BiasedHandDistribution{
             return Ok(West)
         }
 
-        Err(FuzzyCardSetErrorGen::ImpossibleCardChoice)
+        Err(FuzzyCardSetErrorGen::ImpossibleSideSelection)
 
 
     }

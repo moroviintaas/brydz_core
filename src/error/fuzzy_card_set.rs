@@ -24,10 +24,11 @@ pub enum FuzzyCardSetErrorGen<Crd: CardSymbol>{
     BadProbability(f32),
     #[error("Card error: {0}")]
     CardSet(CardSetErrorGen<Crd>),
-    #[error("Impossible card choice")]
-    ImpossibleCardChoice,
+    #[error("Every side has 0 effective probability of getting this card")]
+    ImpossibleSideSelection,
     #[error("Too few uncertain cards field to allocate for side: {0}")]
     OutOfUncertainCardsForSide(Side)
+
 
 
 }
