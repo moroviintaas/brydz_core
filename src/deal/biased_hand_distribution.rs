@@ -164,7 +164,57 @@ impl BiasedHandDistribution{
     //fn set_card_as_used(&self, card: &Card, )
 
 
-    pub fn sample_cards<R: Rng + ?Sized>(&self, rng: &mut R) -> Result<SideMap<CardSet>, FuzzyCardSetErrorGen<Card>>{
+    pub fn sample_deal_single_try<R: Rng + ?Sized>(&self, rng: &mut R) -> Result<SideMap<CardSet>, FuzzyCardSetErrorGen<Card>>{
+        let mut deal = SideMap::new_symmetric(CardSet::empty());
+        let mut cards_uncertain: SmallVec<[Card; 64]> = SmallVec::new();
+        let mut cards_with_zero: SmallVec<[Card; 64]> = SmallVec::new();
+        let mut closed_sides = SideMap::new_symmetric(false);
+
+        let mut cards = STANDARD_DECK;
+        cards.shuffle(rng);
+        for c in cards{
+            let card_probabilities = self.card_probabilities(&c);
+            match choose_certain(&card_probabilities)?{
+                None => match choose_certain_zero(&card_probabilities)?{
+                    None => {
+                        cards_uncertain.push(c);
+
+                    }
+                    Some(_s) => {
+                        cards_with_zero.push(c);
+
+                    }
+                }
+
+                Some(side) => {
+                    deal[&side].insert_card(c)?;
+                    if deal[&side].len() >= HAND_SIZE{
+                        closed_sides[&side] = true;
+                    }
+                }
+            }
+        }
+
+        for c in cards_with_zero {
+            let side = self.pick_side_for_card(&c, &closed_sides, rng)?;
+            deal[&side].insert_card(c)?;
+            if deal[&side].len() >= HAND_SIZE {
+                closed_sides[&side] = true;
+            }
+        }
+
+        for c in cards_uncertain{
+            let side = self.pick_side_for_card(&c, &closed_sides, rng)?;
+            deal[&side].insert_card(c)?;
+            if deal[&side].len() >= HAND_SIZE {
+                closed_sides[&side] = true;
+            }
+        }
+
+        Ok(deal)
+    }
+
+    pub fn sample_deal_crossing<R: Rng + ?Sized>(&self, rng: &mut R) -> Result<SideMap<CardSet>, FuzzyCardSetErrorGen<Card>>{
 
 
 
@@ -421,7 +471,7 @@ impl Distribution<SideMap<CardSet>> for BiasedHandDistribution{
 
         //let mut distribution_
 
-        match self.sample_cards(rng){
+        match self.sample_deal_crossing(rng){
             Ok(p) => p,
             Err(e) => {
                 panic!("Error sampling cards from distribution {e:?}")
