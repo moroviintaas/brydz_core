@@ -3,11 +3,9 @@ use log::debug;
 use rand::distributions::Standard;
 use rand::prelude::{Distribution};
 use rand::Rng;
-use rand::rngs::ThreadRng;
 use rand::seq::SliceRandom;
 use smallvec::SmallVec;
 use karty::cards::{Card, DECK_SIZE, STANDARD_DECK};
-use karty::error::CardSetErrorGen;
 use karty::figures::Figure;
 use karty::hand::{CardSet, HandTrait};
 use karty::suits::{Suit, SuitMap};
@@ -97,7 +95,7 @@ impl BiasedHandDistribution{
     }
 
     fn distribute_uncertain_cards_when_sure(&self,
-                                            side: &Side,
+                                            _side: &Side,
                                             card_set_to_insert: &mut SideMap<CardSet>,
                                             used_cards_register: &mut CardSet,
                                             numbers_of_uncertain: &mut SideMap<u8>,
@@ -223,7 +221,7 @@ impl BiasedHandDistribution{
         let mut cards_uncertain: SmallVec<[Card; 64]> = SmallVec::new();
         let mut cards_with_zero: SmallVec<[Card; 64]> = SmallVec::new();
 
-        let mut distributed_card_numbers = SideMap::new_symmetric(0u8);
+        //let mut distributed_card_numbers = SideMap::new_symmetric(0u8);
         let mut cards_distributed = CardSet::empty();
 
 
@@ -243,7 +241,7 @@ impl BiasedHandDistribution{
                     for side in SIDES{
                         match card_probabilities[&side]{
 
-                            FProbability::Uncertain(c) => {
+                            FProbability::Uncertain(_) => {
                                 numbers_of_uncertain[&side] +=1;
                             }
                             FProbability::Bad(b) => {

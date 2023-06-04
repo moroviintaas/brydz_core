@@ -9,6 +9,9 @@ use log::debug;
 use karty::cards::Card2SymTrait;
 use crate::sztorm::spec::ContractProtocolSpec;
 
+#[cfg(feature = "neuro")]
+mod state_history_tensor;
+
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
     side: Side,
@@ -378,6 +381,7 @@ mod tensor{
 
      */
 }
+
 
 
 #[cfg(test)]

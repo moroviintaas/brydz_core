@@ -513,6 +513,7 @@ impl FuzzyCardSet{
         */
     }
 
+    #[allow(dead_code)]
     fn set_expected(&mut self, expected: u8){
         self.expected_card_number = expected
     }
