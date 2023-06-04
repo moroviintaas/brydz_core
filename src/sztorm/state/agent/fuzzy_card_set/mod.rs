@@ -361,12 +361,24 @@ impl FuzzyCardSet{
 
     pub fn repair_not_fixed(&mut self) -> Result<f32, FuzzyCardSetErrorGen<Card>>{
         let sum_uncertain = self.sum_uncertain();
-        let scale = (self.expected_card_number as f32 - self.count_ones() as f32) / sum_uncertain;
-        println!("{}", scale);
+        let cards_yet_to_take = self.expected_card_number- self.count_ones() as u8;
+        let scale = (cards_yet_to_take as f32) / sum_uncertain;
+        if cards_yet_to_take == self.count_uncertain() as u8{
+            for s in SUITS{
+                for i in 0..self.probabilities[&s].len(){
+                    if let FProbability::Uncertain(_) = self.probabilities()[&s][i]{
+                        self.probabilities[&s][i] = FProbability::One;
+                    }
+                }
+            }
+            return Ok(scale)
+        }
+
+        //println!("{}", scale);
         for s in SUITS{
             for i in 0..self.probabilities[&s].len(){
                 if let FProbability::Uncertain(p ) = self.probabilities()[&s][i]{
-                    if p == 0.0{
+                    if p == 0.0 || scale ==0.0 {
                         self.probabilities[&s][i] = FProbability::Zero;
                     } else {
                         self.probabilities[&s][i]  *= scale;
@@ -501,7 +513,7 @@ impl FuzzyCardSet{
         */
     }
 
-    pub fn set_expected(&mut self, expected: u8){
+    fn set_expected(&mut self, expected: u8){
         self.expected_card_number = expected
     }
 

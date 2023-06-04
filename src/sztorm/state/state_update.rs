@@ -69,7 +69,7 @@ impl StateUpdate for ContractStateUpdate{
 
 }
 
-#[cfg(feature = "dl")]
+#[cfg(feature = "neuro")]
 mod tensor{
     use karty::cards::Card2SymTrait;
     use karty::symbol::CardSymbol;

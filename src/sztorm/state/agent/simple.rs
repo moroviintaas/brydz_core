@@ -147,7 +147,7 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple
 }
 
 
-#[cfg(feature = "dl")]
+#[cfg(feature = "neuro")]
 mod tensor{
     //use tensorflow::{QUInt8, Tensor};
     use crate::sztorm::state::ContractAgentInfoSetSimple;
