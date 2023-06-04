@@ -71,7 +71,7 @@ impl StateUpdate for ContractStateUpdate{
 
 #[cfg(feature = "neuro")]
 mod tensor{
-    use karty::cards::Card2SymTrait;
+    use karty::cards::{Card2SymTrait, DECK_SIZE};
     use karty::symbol::CardSymbol;
     use crate::sztorm::state::ContractAction;
     const MIN_ACTION_SIZE:usize = 2;
@@ -96,6 +96,28 @@ mod tensor{
     impl From<&ContractAction> for tch::Tensor{
         fn from(value: &ContractAction) -> Self {
             tch::Tensor::of_slice(&Into::<[f32;MIN_ACTION_SIZE]>::into(value))
+        }
+    }
+
+    impl ContractAction{
+
+        pub fn sparse_representation(&self) -> [f32; DECK_SIZE+1]{
+            let mut crd = [0.0; DECK_SIZE+1];
+
+            match self{
+                ContractAction::ShowHand(h) => {
+                    for c in h.into_iter(){
+                        crd[c.position()] = 1.0;
+                    }
+                    crd[DECK_SIZE] = 0.0;
+                }
+                ContractAction::PlaceCard(c) => {
+                    crd[c.position()] = 1.0;
+                    crd[DECK_SIZE] = 1.0;
+                }
+            }
+
+            crd
         }
     }
 

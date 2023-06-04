@@ -71,12 +71,8 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
     fn trick_cards(&self, trick_number: usize, relative_side: u8) -> [f32; DECK_SIZE + 1] {
         match self.contract.completed_tricks().len().cmp(&trick_number){
             Ordering::Less => {
-                let trick = self.contract.completed_tricks()[trick_number];
-                let card = trick[self.side. next_i(relative_side)].unwrap();
-                let mut mask = [0.0; DECK_SIZE+1];
-                mask[card.position()] = 1.0;
-                mask[DECK_SIZE] = 1.0;
-                mask
+                [0.0;DECK_SIZE+1]
+
             }
             Ordering::Equal => {
                 let mut mask = [0.0; DECK_SIZE+1];
@@ -87,7 +83,12 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
                 mask
             }
             Ordering::Greater => {
-                [0.0;DECK_SIZE+1]
+                let trick = self.contract.completed_tricks()[trick_number];
+                let card = trick[self.side. next_i(relative_side)].unwrap();
+                let mut mask = [0.0; DECK_SIZE+1];
+                mask[card.position()] = 1.0;
+                mask[DECK_SIZE] = 1.0;
+                mask
             }
         }
     }
