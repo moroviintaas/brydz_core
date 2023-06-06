@@ -4,7 +4,7 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
 use log::debug;
 use karty::cards::Card2SymTrait;
 use crate::sztorm::spec::ContractProtocolSpec;
@@ -146,6 +146,25 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple
 
     fn current_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())
+    }
+}
+
+impl RenewableContractInfoSet for ContractAgentInfoSetSimple{
+    fn renew(&mut self, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) {
+        self.hand = hand;
+        self.contract = contract;
+        self.dummy_hand = dummy_hand;
+    }
+}
+
+impl CreatedContractInfoSet for ContractAgentInfoSetSimple{
+    fn create_new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self {
+        Self{
+            side,
+            hand,
+            dummy_hand,
+            contract,
+        }
     }
 }
 
@@ -384,6 +403,8 @@ mod tensor{
 
 
 
+
+
 #[cfg(test)]
 mod tests{
     use std::str::FromStr;
@@ -488,3 +509,4 @@ mod tests{
 
     }
 }
+
