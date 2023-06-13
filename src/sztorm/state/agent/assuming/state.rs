@@ -8,7 +8,7 @@ use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate,  RenewableContractInfoSet};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetAssuming {
@@ -171,4 +171,15 @@ impl RenewableContractInfoSet for ContractAgentInfoSetAssuming{
     }
 }
 
+impl CreatedContractInfoSet for ContractAgentInfoSetAssuming{
+    fn create_new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>, distribution: BiasedHandDistribution) -> Self {
+        Self{
+            side,
+            hand,
+            dummy_hand,
+            contract,
+            card_distribution: distribution
+        }
+    }
+}
 

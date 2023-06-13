@@ -7,6 +7,7 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
 use log::debug;
 use karty::cards::Card2SymTrait;
+use crate::deal::BiasedHandDistribution;
 use crate::sztorm::spec::ContractProtocolSpec;
 
 #[cfg(feature = "neuro")]
@@ -158,7 +159,7 @@ impl RenewableContractInfoSet for ContractAgentInfoSetSimple{
 }
 
 impl CreatedContractInfoSet for ContractAgentInfoSetSimple{
-    fn create_new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self {
+    fn create_new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>, _distribution: BiasedHandDistribution) -> Self {
         Self{
             side,
             hand,
