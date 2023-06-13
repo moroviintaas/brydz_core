@@ -388,17 +388,6 @@ mod tensor{
         }
     }
 
-
-
-    /*
-    impl From<&ContractAgentInfoSetSimple> for Tensor<QUInt8>{
-        fn from(value: &ContractAgentInfoSetSimple) -> Self {
-            let array:[u8;SIMPLE_INFO_SET_LENGTH] = value.into();
-            Tensor::from(array.map(|b| QUInt8::from(b)))
-        }
-    }
-
-     */
 }
 
 

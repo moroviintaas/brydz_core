@@ -1,7 +1,4 @@
-use std::ops::Index;
 use karty::hand::{CardSet};
-use crate::player::side::{Side, SideMap};
-use crate::sztorm::state::FuzzyCardSet;
 
 
 pub trait HandInfo{
@@ -39,15 +36,19 @@ impl HandInfo for HandInfoSimple{
 
 
 
-
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+/*
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct CardDistribution {
-    //side: Side,
-    //cards_probs: SideMap<[Rational32; 52]>
-    //#[serde(with = "BigArray")]
-    //cards_probs: SideMap<[f64; DECK_SIZE]>
+
     side_probabilities: SideMap<FuzzyCardSet>
     //cards_probs: Vec<SideMap<f64>>
+}
+
+impl Default for CardDistribution{
+    fn default() -> Self {
+        Self{side_probabilities: SideMap::new_symmetric(
+            FuzzyCardSet::new_from_f32_derive_sum(SuitMap::new_symmetric([0.25;13])).unwrap()) }
+    }
 }
 
 impl Index<Side> for CardDistribution {
@@ -57,6 +58,8 @@ impl Index<Side> for CardDistribution {
         &self.side_probabilities[&index]
     }
 }
+
+ */
 /*
 impl Index<(Side, usize)> for CardDistribution {
     type Output = f32;
@@ -65,4 +68,3 @@ impl Index<(Side, usize)> for CardDistribution {
         &self.side_probabilities[&index.0].probabilities()[index.1]
     }
 }*/
-

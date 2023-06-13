@@ -17,7 +17,7 @@ use crate::player::side::{Side, SideMap, SIDES};
 use crate::player::side::Side::{East, North, South, West};
 use crate::sztorm::state::{FProbability, FuzzyCardSet};
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct BiasedHandDistribution {
     side_probabilities: SideMap<FuzzyCardSet>
 }
@@ -434,6 +434,14 @@ impl Distribution<BiasedHandDistribution> for Standard{
 
     }
 }
+
+impl Default for BiasedHandDistribution{
+    fn default() -> Self {
+        Self{side_probabilities: SideMap::new_symmetric(
+            FuzzyCardSet::new_from_f32_derive_sum(SuitMap::new_symmetric([0.25;13])).unwrap()) }
+    }
+}
+
 
 
 fn choose_certain(probabilities: &SideMap<FProbability>) -> Result<Option<Side>, FuzzyCardSetErrorGen<Card>>{
