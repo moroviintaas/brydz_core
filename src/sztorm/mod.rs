@@ -7,4 +7,4 @@ pub mod comm;
 #[cfg(test)]
 mod test;
 
-pub use sztorm as base;
+pub use sztorm as prelude;

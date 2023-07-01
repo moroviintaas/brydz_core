@@ -1,12 +1,10 @@
-use smallvec::SmallVec;
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent};
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, GameTrace, GameTraceLine};
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::error::CommError;
 use sztorm::InformationSet;
 use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
 use crate::error::BridgeCoreError;
-use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
@@ -15,39 +13,48 @@ pub struct ContractAgent<S: InformationSet<ContractProtocolSpec>, C: CommEndpoin
     state: S,
     comm: C,
     policy: P,
-    trace: SmallVec<[ContractTraceStep<S>;HAND_SIZE]>,
+    //trace: SmallVec<[ContractTraceStep<S>;HAND_SIZE]>,
+    trace: GameTrace<ContractProtocolSpec, S>,
     last_action: Option<<S::ActionIteratorType as IntoIterator>::Item>,
     last_action_accumulated_reward: S::RewardType,
     last_action_state: Option<S>,
 
 }
 
-#[allow(type_alias_bounds)]
-pub type ContractTraceStep<S: InformationSet<ContractProtocolSpec>> = (S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );
-
+//#[allow(type_alias_bounds)]
+//pub type ContractTraceStep<S: InformationSet<ContractProtocolSpec>> = (S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );
 impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> ContractAgent<S, C, P>{
 
 
     pub fn new(state: S, comm: C, policy: P) -> Self{
         Self{state, comm, policy,
-            trace: Default::default(),
+            //trace: Default::default(),
+            trace: GameTrace::new(),
             last_action: None,
             last_action_accumulated_reward: Default::default(),
             last_action_state: None
         }
     }
-    pub fn replace_state(&mut self, state: S) {
-        self.state = state;
+    pub fn reset_state_and_trace(&mut self, state: S) {
+        self.state = state.clone();
+        self.reset_trace();
     }
-    pub fn reset_trace(&mut self){
-        self.trace = Default::default();
+    fn reset_trace(&mut self){
+        //self.trace = Default::default();
+        self.trace.clear();
         self.last_action = None;
         self.last_action_accumulated_reward = Default::default();
     }
 
+    pub fn game_trace(&self) -> &GameTrace<ContractProtocolSpec, S>{
+        &self.trace
+    }
+    /*
     pub fn trace(&self) -> &SmallVec<[ContractTraceStep<S> ;HAND_SIZE]>{
         &self.trace
     }
+
+     */
 
         /*
     pub fn policy_mut(&mut self) -> &mut P{
@@ -76,7 +83,12 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
     fn take_action(&mut self) -> Option<ContractAction> {
         //debug!("Agent {} taking action", self.id());
         if let Some(prev_action) = self.last_action.take(){
-            self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
+            //self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
+            self.trace.push_line(GameTraceLine::new(self.last_action_state.take().unwrap(),
+                                                    prev_action,
+                                                    self.state.current_score()
+                                                        - std::mem::take(&mut self.last_action_accumulated_reward)));
+
         }
         self.last_action_accumulated_reward = self.state.current_score();
         let action = self.policy.select_action_mut(&self.state);
@@ -87,7 +99,11 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
 
     fn finalize(&mut self) {
         if let Some(prev_action) = self.last_action.take(){
-            self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
+            self.trace.push_line(
+                GameTraceLine::new(self.last_action_state.take().unwrap(),
+                                   prev_action,
+                                   self.state.current_score()
+                                       - std::mem::take(&mut self.last_action_accumulated_reward)));
         }
         self.last_action_accumulated_reward = self.state.current_score();
         self.last_action_state = Some(self.state.clone());
