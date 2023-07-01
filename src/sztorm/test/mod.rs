@@ -1,8 +1,8 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::RandomPolicy;
-use sztorm::automatons::rr::{AgentAuto, EnvironmentRR};
+use sztorm::{AgentAuto, RandomPolicy};
+use sztorm::automatons::rr::{EnvironmentRR};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
 use crate::contract::{Contract, ContractParametersGen};

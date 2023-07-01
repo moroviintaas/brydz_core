@@ -20,9 +20,11 @@ pub struct ContractAgentInfoSetAssuming {
 }
 
 impl ContractAgentInfoSetAssuming{
+    #[allow(dead_code)]
     pub fn new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>, card_distribution: BiasedHandDistribution) -> Self{
         Self{side, hand, dummy_hand, contract, card_distribution}
     }
+    #[allow(dead_code)]
     pub fn new_fair(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self{
         Self{side, hand, dummy_hand, contract, card_distribution: Default::default()}
     }
