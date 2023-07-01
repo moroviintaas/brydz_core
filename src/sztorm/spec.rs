@@ -1,4 +1,4 @@
-use sztorm::protocol::ProtocolSpecification;
+use sztorm::protocol::DomainParameters;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
@@ -8,7 +8,7 @@ pub struct ContractProtocolSpec{
 
 }
 
-impl ProtocolSpecification for ContractProtocolSpec{
+impl DomainParameters for ContractProtocolSpec{
     type ActionType = ContractAction;
     type GameErrorType = BridgeCoreError;
     type UpdateType = ContractStateUpdate;

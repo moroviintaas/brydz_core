@@ -4,7 +4,7 @@ use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::error::CommError;
 use sztorm::InformationSet;
-use sztorm::protocol::{AgentMessage, EnvMessage, ProtocolSpecification};
+use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
 use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
@@ -106,7 +106,7 @@ impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contrac
     }
 }
 
-impl<Spec: ProtocolSpecification,S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec, StateType = S>>
+impl<Spec: DomainParameters,S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec, StateType = S>>
 CommunicatingAgent<ContractProtocolSpec> for ContractAgent<S, C, P>
 //Spec: ProtocolSpecification,
 where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType=EnvMessage<ContractProtocolSpec>, Error=CommError<Spec>>
