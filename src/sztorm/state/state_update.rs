@@ -95,7 +95,7 @@ mod tensor{
 
     impl From<&ContractAction> for tch::Tensor{
         fn from(value: &ContractAction) -> Self {
-            tch::Tensor::of_slice(&Into::<[f32;MIN_ACTION_SIZE]>::into(value))
+            tch::Tensor::from_slice(&Into::<[f32;MIN_ACTION_SIZE]>::into(value))
         }
     }
 

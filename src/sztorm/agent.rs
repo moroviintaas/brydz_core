@@ -1,8 +1,9 @@
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, GameTrace, GameTraceLine};
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, };
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::error::CommError;
 use sztorm::InformationSet;
+use sztorm::learning::{GameTrace, GameTraceLine};
 use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;

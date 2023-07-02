@@ -61,7 +61,7 @@ pub trait BuildStateHistoryTensor {
     }
 
     fn state_history_tensor(&self) -> Tensor{
-        Tensor::of_slice2(&self.state_history_array())
+        Tensor::from_slice2(&self.state_history_array())
     }
     
 }
