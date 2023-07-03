@@ -93,3 +93,26 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
         }
     }
 }
+
+#[cfg(test)]
+mod tests{
+    use karty::suits::Suit::Spades;
+    use sztorm::learning::ActorCriticPolicy;
+    use crate::bidding::Bid;
+    use crate::cards::trump::TrumpGen;
+    use crate::contract::{Contract, ContractParametersGen};
+    use crate::player::side::Side;
+    use crate::sztorm::state::ContractAgentInfoSetSimple;
+
+    #[test]
+    fn a2c_policy(){
+        //let comm_association = SideMap::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);
+        let contract = ContractParametersGen::new(Side::East, Bid::init(TrumpGen::Colored(Spades), 2).unwrap());
+        let initial_contract = Contract::new(contract);
+        let initial_state_south = ContractAgentInfoSetSimple::new(Side::South, hand_south, initial_contract.clone(), None);
+        //let policy = ActorCriticPolicy::
+        assert!(false);
+
+
+    }
+}
