@@ -1,4 +1,4 @@
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, };
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, RewardedAgent, Reward};
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::error::CommError;
@@ -17,8 +17,11 @@ pub struct ContractAgent<S: InformationSet<ContractProtocolSpec>, C: CommEndpoin
     //trace: SmallVec<[ContractTraceStep<S>;HAND_SIZE]>,
     trace: GameTrace<ContractProtocolSpec, S>,
     last_action: Option<<S::ActionIteratorType as IntoIterator>::Item>,
-    last_action_accumulated_reward: S::RewardType,
+    //last_action_accumulated_reward: S::RewardType,
     last_action_state: Option<S>,
+    constructed_universal_reward: <ContractProtocolSpec as DomainParameters>::UniversalReward,
+    actual_universal_score: <ContractProtocolSpec as DomainParameters>::UniversalReward,
+    //universal_rewards_stack: Vec<ContractProtocolSpec::UniversalReward>,
 
 }
 
@@ -32,8 +35,10 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
             //trace: Default::default(),
             trace: GameTrace::new(),
             last_action: None,
-            last_action_accumulated_reward: Default::default(),
-            last_action_state: None
+            //last_action_accumulated_reward: Default::default(),
+            constructed_universal_reward: Reward::neutral(),
+            last_action_state: None,
+            actual_universal_score: Reward::neutral(),
         }
     }
     pub fn reset_state_and_trace(&mut self, state: S) {
@@ -44,7 +49,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
         //self.trace = Default::default();
         self.trace.clear();
         self.last_action = None;
-        self.last_action_accumulated_reward = Default::default();
+        //self.last_action_accumulated_reward = Default::default();
     }
 
     pub fn game_trace(&self) -> &GameTrace<ContractProtocolSpec, S>{
@@ -85,13 +90,20 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
         //debug!("Agent {} taking action", self.id());
         if let Some(prev_action) = self.last_action.take(){
             //self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
+            let prev_subjective_score = match &self.last_action_state{
+                None => Reward::neutral(),
+                Some(state) => state.current_subjective_score()
+            };
+            let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
+            self.actual_universal_score = self.actual_universal_score + &push_universal_reward;
             self.trace.push_line(GameTraceLine::new(self.last_action_state.take().unwrap(),
                                                     prev_action,
                                                     self.state.current_subjective_score()
-                                                        - std::mem::take(&mut self.last_action_accumulated_reward)));
+                                                        - prev_subjective_score,
+                                                    push_universal_reward));
 
         }
-        self.last_action_accumulated_reward = self.state.current_subjective_score();
+        //self.last_action_accumulated_reward = self.state.current_subjective_score();
         let action = self.policy.select_action_mut(&self.state);
         self.last_action = action;
         self.last_action_state = Some(self.state.clone());
@@ -99,14 +111,21 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
     }
 
     fn finalize(&mut self) {
+        let prev_subjective_score = match &self.last_action_state{
+                None => Reward::neutral(),
+                Some(state) => state.current_subjective_score()
+            };
+        let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
+        self.actual_universal_score = self.actual_universal_score + &push_universal_reward;
         if let Some(prev_action) = self.last_action.take(){
             self.trace.push_line(
                 GameTraceLine::new(self.last_action_state.take().unwrap(),
                                    prev_action,
                                    self.state.current_subjective_score()
-                                       - std::mem::take(&mut self.last_action_accumulated_reward)));
+                                       - prev_subjective_score,
+                                        push_universal_reward));
         }
-        self.last_action_accumulated_reward = self.state.current_subjective_score();
+        //self.last_action_accumulated_reward = self.state.current_subjective_score();
         self.last_action_state = Some(self.state.clone());
     }
 }
@@ -147,3 +166,21 @@ impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contrac
     }
 }
 
+impl<
+    S: InformationSet<ContractProtocolSpec>,
+    C: CommEndpoint,
+    P: Policy<ContractProtocolSpec>>
+RewardedAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
+    fn current_universal_reward(&self) -> &<ContractProtocolSpec as DomainParameters>::UniversalReward {
+        &self.constructed_universal_reward
+    }
+
+    fn set_current_universal_reward(&mut self, reward: <ContractProtocolSpec as DomainParameters>::UniversalReward) {
+        self.constructed_universal_reward = reward
+    }
+
+    fn current_universal_score(&self) -> &<ContractProtocolSpec as DomainParameters>::UniversalReward {
+        &self.actual_universal_score
+    }
+
+}
