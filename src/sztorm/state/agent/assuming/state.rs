@@ -160,7 +160,7 @@ impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssumi
         }
     }
 
-    fn current_score(&self) -> Self::RewardType {
+    fn current_subjective_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())
     }
 }

@@ -87,11 +87,11 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
             //self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
             self.trace.push_line(GameTraceLine::new(self.last_action_state.take().unwrap(),
                                                     prev_action,
-                                                    self.state.current_score()
+                                                    self.state.current_subjective_score()
                                                         - std::mem::take(&mut self.last_action_accumulated_reward)));
 
         }
-        self.last_action_accumulated_reward = self.state.current_score();
+        self.last_action_accumulated_reward = self.state.current_subjective_score();
         let action = self.policy.select_action_mut(&self.state);
         self.last_action = action;
         self.last_action_state = Some(self.state.clone());
@@ -103,10 +103,10 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
             self.trace.push_line(
                 GameTraceLine::new(self.last_action_state.take().unwrap(),
                                    prev_action,
-                                   self.state.current_score()
+                                   self.state.current_subjective_score()
                                        - std::mem::take(&mut self.last_action_accumulated_reward)));
         }
-        self.last_action_accumulated_reward = self.state.current_score();
+        self.last_action_accumulated_reward = self.state.current_subjective_score();
         self.last_action_state = Some(self.state.clone());
     }
 }
