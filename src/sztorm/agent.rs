@@ -175,9 +175,10 @@ RewardedAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
         &self.constructed_universal_reward
     }
 
-    fn set_current_universal_reward(&mut self, reward: <ContractProtocolSpec as DomainParameters>::UniversalReward) {
-        self.constructed_universal_reward = reward
+    fn current_universal_reward_add(&mut self, reward_fragment: &<ContractProtocolSpec as DomainParameters>::UniversalReward) {
+        self.constructed_universal_reward += reward_fragment;
     }
+
 
     fn current_universal_score(&self) -> &<ContractProtocolSpec as DomainParameters>::UniversalReward {
         &self.actual_universal_score
