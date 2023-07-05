@@ -1,7 +1,7 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AgentAuto, RandomPolicy};
+use sztorm::{AgentAuto, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
 use sztorm::automatons::rr::{EnvironmentRR};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
@@ -50,7 +50,7 @@ fn random_agents_sync_comm(){
 
     thread::scope(|s|{
         s.spawn(||{
-            simple_env.env_run_rr().unwrap();
+            simple_env.run_rr().unwrap();
         });
         s.spawn(||{
             agent_east.run_rr().unwrap();
@@ -67,6 +67,8 @@ fn random_agents_sync_comm(){
         s.spawn(||{
             agent_north.run_rr().unwrap();
         });
-    })
+    });
 
+    assert_eq!(agent_east.state().current_subjective_score() + agent_north.state().current_subjective_score(), 13);
+    assert_eq!(agent_east.current_universal_score() + agent_north.current_universal_score(), 13);
 }

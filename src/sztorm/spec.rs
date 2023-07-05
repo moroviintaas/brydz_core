@@ -13,5 +13,5 @@ impl DomainParameters for ContractProtocolSpec{
     type GameErrorType = BridgeCoreError;
     type UpdateType = ContractStateUpdate;
     type AgentId = Side;
-    type UniversalReward = i16;
+    type UniversalReward = i32;
 }

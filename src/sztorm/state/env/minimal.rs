@@ -4,7 +4,8 @@ use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::{ActionProcessor, EnvironmentState, State};
-use crate::player::side::Side;
+use sztorm::protocol::DomainParameters;
+use crate::player::side::{Side, SideMap};
 use crate::player::side::Side::*;
 use crate::sztorm::env::ContractProcessor;
 use crate::sztorm::spec::ContractProtocolSpec;
@@ -12,13 +13,14 @@ use crate::sztorm::spec::ContractProtocolSpec;
 #[derive(Clone)]
 pub struct ContractEnvStateMin{
     dummy_hand: Option<CardSet>,
-    contract: Contract
+    contract: Contract,
+    penalties: SideMap<<ContractProtocolSpec as DomainParameters>::UniversalReward>
 }
 
 impl ContractEnvStateMin{
 
     pub fn new(contract: Contract, dummy_hand: Option<CardSet>) -> Self{
-        Self{dummy_hand, contract}
+        Self{dummy_hand, contract, penalties: SideMap::new_symmetric(0) }
     }
 
     pub fn dummy_hand(&self) -> Option<&CardSet>{
@@ -31,6 +33,7 @@ impl ContractEnvStateMin{
     pub fn replace_contract(&mut self, contract: Contract){
         self.contract = contract
     }
+
 }
 
 impl ContractState for ContractEnvStateMin{
@@ -100,6 +103,22 @@ impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
             })
         }
     }
+
+    fn state_score_of_player(&self, agent: &Side) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+        self.contract.total_tricks_taken_axis(agent.axis()) as i32
+    }
+
+    fn penalty_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+        self.penalties[agent]
+    }
+
+    fn score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+        self.state_score_of_player(agent) + self.penalty_score_of_player(agent)
+    }
+
+    fn add_player_penalty_reward(&mut self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId, penalty_reward: &<ContractProtocolSpec as DomainParameters>::UniversalReward) {
+        self.penalties[agent] += penalty_reward
+    }
 }
 
 impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractProcessor{
@@ -112,5 +131,30 @@ impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractPro
             };
         state.update(state_update)?;
         Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
+    }
+
+    fn process_action_penalise_illegal(
+        &self,
+        state: &mut ContractEnvStateMin,
+        agent_id: &Side,
+        action: <ContractProtocolSpec as DomainParameters>::ActionType,
+        penalty_reward: <ContractProtocolSpec as DomainParameters>::UniversalReward)
+        -> Result<Vec<(Side, <ContractProtocolSpec as DomainParameters>::UpdateType)>, <ContractProtocolSpec as DomainParameters>::GameErrorType> {
+
+        let state_update =
+            if state.is_turn_of_dummy() && Some(*agent_id) == state.current_player(){
+                ContractStateUpdate::new(state.dummy_side(), action)
+            } else {
+                ContractStateUpdate::new(*agent_id, action)
+            };
+        match state.update(state_update){
+            Ok(_) => Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)]),
+            Err(err) => {
+                state.add_player_penalty_reward(agent_id, &penalty_reward);
+                Err(err)
+            }
+
+        }
+
     }
 }
