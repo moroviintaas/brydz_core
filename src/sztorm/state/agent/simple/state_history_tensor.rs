@@ -96,6 +96,7 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
 
 #[cfg(test)]
 mod tests{
+    /*
     use karty::suits::Suit::Spades;
     use sztorm::learning::ActorCriticPolicy;
     use crate::bidding::Bid;
@@ -103,7 +104,7 @@ mod tests{
     use crate::contract::{Contract, ContractParametersGen};
     use crate::player::side::Side;
     use crate::sztorm::state::ContractAgentInfoSetSimple;
-/*
+
     #[test]
     fn a2c_policy(){
         //let comm_association = SideMap::new(comm_env_north, comm_env_east, comm_env_south, comm_env_west);

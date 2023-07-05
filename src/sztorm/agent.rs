@@ -1,4 +1,4 @@
-use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, RewardedAgent, Reward};
+use sztorm::{CommunicatingAgent, ActingAgent, StatefulAgent, PolicyAgent, RewardedAgent, Reward, TracingAgent};
 use sztorm::Policy;
 use sztorm::CommEndpoint;
 use sztorm::error::CommError;
@@ -45,6 +45,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
         self.state = state.clone();
         self.reset_trace();
     }
+    /*
     fn reset_trace(&mut self){
         //self.trace = Default::default();
         self.trace.clear();
@@ -55,19 +56,9 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
     pub fn game_trace(&self) -> &GameTrace<ContractProtocolSpec, S>{
         &self.trace
     }
-    /*
-    pub fn trace(&self) -> &SmallVec<[ContractTraceStep<S> ;HAND_SIZE]>{
-        &self.trace
-    }
 
      */
 
-        /*
-    pub fn policy_mut(&mut self) -> &mut P{
-        &mut self.policy
-    }
-
-         */
 }
 
 impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> StatefulAgent<ContractProtocolSpec> for ContractAgent< S, C, P>{
@@ -88,21 +79,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
 
     fn take_action(&mut self) -> Option<ContractAction> {
         //debug!("Agent {} taking action", self.id());
-        if let Some(prev_action) = self.last_action.take(){
-            //self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
-            let prev_subjective_score = match &self.last_action_state{
-                None => Reward::neutral(),
-                Some(state) => state.current_subjective_score()
-            };
-            let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
-            self.actual_universal_score = self.actual_universal_score + &push_universal_reward;
-            self.trace.push_line(GameTraceLine::new(self.last_action_state.take().unwrap(),
-                                                    prev_action,
-                                                    self.state.current_subjective_score()
-                                                        - prev_subjective_score,
-                                                    push_universal_reward));
-
-        }
+        self.commit_trace();
         //self.last_action_accumulated_reward = self.state.current_subjective_score();
         let action = self.policy.select_action_mut(&self.state);
         self.last_action = action;
@@ -111,20 +88,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
     }
 
     fn finalize(&mut self) {
-        let prev_subjective_score = match &self.last_action_state{
-                None => Reward::neutral(),
-                Some(state) => state.current_subjective_score()
-            };
-        let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
-        self.actual_universal_score = self.actual_universal_score + &push_universal_reward;
-        if let Some(prev_action) = self.last_action.take(){
-            self.trace.push_line(
-                GameTraceLine::new(self.last_action_state.take().unwrap(),
-                                   prev_action,
-                                   self.state.current_subjective_score()
-                                       - prev_subjective_score,
-                                        push_universal_reward));
-        }
+        self.commit_trace();
         //self.last_action_accumulated_reward = self.state.current_subjective_score();
         self.last_action_state = Some(self.state.clone());
     }
@@ -184,4 +148,35 @@ RewardedAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
         &self.actual_universal_score
     }
 
+}
+
+
+impl<S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>>
+TracingAgent<ContractProtocolSpec, S> for ContractAgent<S, C, P> {
+    fn reset_trace(&mut self) {
+        self.trace.clear();
+        self.last_action = None;
+    }
+
+    fn game_trajectory(&self) -> &GameTrace<ContractProtocolSpec, S> {
+        &self.trace
+    }
+
+    fn commit_trace(&mut self) {
+        if let Some(prev_action) = self.last_action.take(){
+            //self.trace.push((self.last_action_state.take().unwrap(), prev_action, self.state.current_score()- std::mem::take(&mut self.last_action_accumulated_reward)))
+            let prev_subjective_score = match &self.last_action_state{
+                None => Reward::neutral(),
+                Some(state) => state.current_subjective_score()
+            };
+            let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
+            self.actual_universal_score = self.actual_universal_score + &push_universal_reward;
+            self.trace.push_line(GameTraceLine::new(self.last_action_state.take().unwrap(),
+                                                    prev_action,
+                                                    self.state.current_subjective_score()
+                                                        - prev_subjective_score,
+                                                    push_universal_reward));
+
+        }
+    }
 }
