@@ -2,7 +2,7 @@ use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
 use sztorm::{AgentAuto, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
-use sztorm::automatons::rr::{EnvironmentRR};
+use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
 use crate::contract::{Contract, ContractParametersGen};
@@ -50,7 +50,7 @@ fn random_agents_sync_comm(){
 
     thread::scope(|s|{
         s.spawn(||{
-            simple_env.run_rr().unwrap();
+            simple_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
             agent_east.run_rr().unwrap();

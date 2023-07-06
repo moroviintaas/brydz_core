@@ -128,11 +128,11 @@ where S: State<ContractProtocolSpec> {
     }
 
     fn actual_state_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
-        todo!()
+        self.state.state_score_of_player(agent)
     }
 
     fn actual_penalty_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
-        todo!()
+        self.penalties[agent]
     }
 
     fn actual_score_of_player(&self, agent: &Side) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
