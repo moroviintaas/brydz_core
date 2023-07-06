@@ -5,7 +5,7 @@ use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::{ActionProcessor, EnvironmentState, EnvironmentStateUniScore, State};
 use sztorm::protocol::DomainParameters;
-use crate::player::side::{Side, SideMap};
+use crate::player::side::{Side};
 use crate::player::side::Side::*;
 use crate::sztorm::env::ContractProcessor;
 use crate::sztorm::spec::ContractProtocolSpec;
@@ -14,13 +14,12 @@ use crate::sztorm::spec::ContractProtocolSpec;
 pub struct ContractEnvStateMin{
     dummy_hand: Option<CardSet>,
     contract: Contract,
-    penalties: SideMap<<ContractProtocolSpec as DomainParameters>::UniversalReward>
 }
 
 impl ContractEnvStateMin{
 
     pub fn new(contract: Contract, dummy_hand: Option<CardSet>) -> Self{
-        Self{dummy_hand, contract, penalties: SideMap::new_symmetric(0) }
+        Self{dummy_hand, contract }
     }
 
     pub fn dummy_hand(&self) -> Option<&CardSet>{

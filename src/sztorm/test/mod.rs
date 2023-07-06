@@ -1,7 +1,7 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AgentAuto, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
+use sztorm::{AutomaticAgent, AutomaticAgentRewarded, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
 use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
@@ -53,19 +53,19 @@ fn random_agents_sync_comm(){
             simple_env.run_round_robin_uni_rewards().unwrap();
         });
         s.spawn(||{
-            agent_east.run_rr().unwrap();
+            agent_east.run_rewarded().unwrap();
         });
 
         s.spawn(||{
-            agent_south.run_rr().unwrap();
+            agent_south.run_rewarded().unwrap();
         });
 
         s.spawn(||{
-            agent_west.run_rr().unwrap();
+            agent_west.run_rewarded().unwrap();
         });
 
         s.spawn(||{
-            agent_north.run_rr().unwrap();
+            agent_north.run_rewarded().unwrap();
         });
     });
 

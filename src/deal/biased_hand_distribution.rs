@@ -85,10 +85,10 @@ impl BiasedHandDistribution{
             return Err(FuzzyCardSetErrorGen::OutOfUncertainCardsForSide(*side));
         }
         if uncertain_card_nums[side] > needed_cards{
-            return Ok(false)
+            Ok(false)
         }
         else{
-            return  Ok(true)
+            Ok(true)
         }
 
 
@@ -104,7 +104,7 @@ impl BiasedHandDistribution{
         -> Result<(), FuzzyCardSetErrorGen<Card>>{
 
         for side in SIDES{
-            if self.check_if_auto_alloc_uncertain(&side, &card_set_to_insert, &numbers_of_uncertain)?{
+            if self.check_if_auto_alloc_uncertain(&side, card_set_to_insert, numbers_of_uncertain)?{
                 self.alloc_all_uncertain_to_side(&side,
                                                  card_set_to_insert ,
                                                  cards_with_zero,
@@ -131,28 +131,21 @@ impl BiasedHandDistribution{
 
         for c in cards_to_pick_from{
 
-            if !used_cards_register.contains(&c){
-                match self.side_probabilities[side][&c]{
-                    FProbability::Uncertain(_) => {
-                        card_set_to_insert[side].insert_card(*c)?;
-                        used_cards_register.insert_card(*c)?;
-                        for s in SIDES{
-                            match self.side_probabilities[&s][&c]{
-                                FProbability::Uncertain(_) => {
-                                    numbers_of_uncertain[&s] = match numbers_of_uncertain[&s].checked_sub(1){
-                                        None => {
-                                            //panic!("Probably bad use of alloc_all_uncertain_to_side, number of uncertain dropping below 0");
-                                            return Err(FuzzyCardSetErrorGen::OutOfUncertainCardsForSide(s))
-                                        }
-                                        Some(i) => i
-                                    }
-                                },
-                                _ => {}
+            if !used_cards_register.contains(c){
+                if let FProbability::Uncertain(_) = self.side_probabilities[side][c] {
+                    card_set_to_insert[side].insert_card(*c)?;
+                    used_cards_register.insert_card(*c)?;
+                    for s in SIDES{
+                        if let FProbability::Uncertain(_) = self.side_probabilities[&s][c] {
+                            numbers_of_uncertain[&s] = match numbers_of_uncertain[&s].checked_sub(1){
+                                None => {
+                                    //panic!("Probably bad use of alloc_all_uncertain_to_side, number of uncertain dropping below 0");
+                                    return Err(FuzzyCardSetErrorGen::OutOfUncertainCardsForSide(s))
+                                }
+                                Some(i) => i
                             }
                         }
-
-                    },
-                    _ => {}
+                    }
                 }
             }
         }
@@ -282,7 +275,7 @@ impl BiasedHandDistribution{
         // phase 2: alloc these with zero
 
         for c in &cards_with_zero{
-            if !cards_distributed.contains(&c){
+            if !cards_distributed.contains(c){
                 for side in SIDES{
                     self.distribute_uncertain_cards_when_sure(&side,
                                                               &mut card_sets, &mut cards_distributed,
@@ -293,20 +286,17 @@ impl BiasedHandDistribution{
                 }
 
 
-                let side = self.pick_side_for_card(&c, &closed_sides, rng)?;
+                let side = self.pick_side_for_card(c, &closed_sides, rng)?;
                 card_sets[&side].insert_card(*c)?;
                 cards_distributed.insert_card(*c)?;
                 for s in SIDES{
-                    match self.side_probabilities[&s][&c]{
-                        FProbability::Uncertain(_) => {
-                            numbers_of_uncertain[&s] = match numbers_of_uncertain[&s].checked_sub(1){
-                                None => {
-                                    return Err(FuzzyCardSetErrorGen::OutOfUncertainCardsForSide(s))
-                                }
-                                Some(i) => i
+                    if let FProbability::Uncertain(_) = self.side_probabilities[&s][c] {
+                        numbers_of_uncertain[&s] = match numbers_of_uncertain[&s].checked_sub(1){
+                            None => {
+                               return Err(FuzzyCardSetErrorGen::OutOfUncertainCardsForSide(s))
                             }
-                        },
-                        _ => {}
+                            Some(i) => i
+                        }
                     }
                 }
                 if card_sets[&side].len() >= HAND_SIZE{

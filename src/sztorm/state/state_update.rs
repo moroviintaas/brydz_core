@@ -29,6 +29,7 @@ impl Display for ContractAction{
 impl Action for ContractAction{}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(clippy::manual_slice_size_calculation)]
 #[cfg_attr(feature = "speedy", derive(speedy::Writable, speedy::Readable))]
 pub struct ContractStateUpdate {
     agent: Side,

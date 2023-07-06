@@ -42,7 +42,7 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
         }
     }
     pub fn reset_state_and_trace(&mut self, state: S) {
-        self.state = state.clone();
+        self.state = state;
         self.reset_trace();
     }
     /*
@@ -170,7 +170,7 @@ TracingAgent<ContractProtocolSpec, S> for ContractAgent<S, C, P> {
                 Some(state) => state.current_subjective_score()
             };
             let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
-            self.actual_universal_score = self.actual_universal_score + &push_universal_reward;
+            self.actual_universal_score  += push_universal_reward;
             self.trace.push_line(GameTraceLine::new(self.last_action_state.take().unwrap(),
                                                     prev_action,
                                                     self.state.current_subjective_score()
