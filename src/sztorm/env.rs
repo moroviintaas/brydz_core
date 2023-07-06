@@ -1,4 +1,4 @@
-use sztorm::{CommEndpoint, DomainEnvironment, EnvironmentStateUniScore, ScoreEnvironment};
+use sztorm::{CommEndpoint, DomainEnvironment, EnvironmentStateUniScore, Reward, ScoreEnvironment};
 use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
@@ -13,12 +13,18 @@ use crate::sztorm::spec::ContractProtocolSpec;
 
 pub struct ContractEnv<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>{
     state: S,
-    comm: SideMap<C>
+    comm: SideMap<C>,
+    penalties: SideMap<<ContractProtocolSpec as DomainParameters>::UniversalReward>
 }
 
 impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> ContractEnv<S, C>{
     pub fn new(state: S, comm: SideMap<C>) -> Self{
-        Self{state, comm}
+        Self{
+            state,
+            comm,
+            penalties: SideMap::new_symmetric(
+                <ContractProtocolSpec as DomainParameters>::UniversalReward::neutral())
+        }
     }
     pub fn replace_state(&mut self, state: S){
         self.state = state;
@@ -114,7 +120,8 @@ where S: State<ContractProtocolSpec> {
         match self.state.update(state_update){
             Ok(_) => Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter()),
             Err(err) => {
-                self.state.add_player_penalty_reward(agent, &penalty_reward);
+                //self.state.add_player_penalty_reward(agent, &penalty_reward);
+                self.penalties[agent] += &penalty_reward;
                 Err(err)
             }
         }

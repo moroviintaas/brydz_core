@@ -3,7 +3,7 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use sztorm::{ActionProcessor, ActionProcessorPenalising, EnvironmentState, EnvironmentStateUniScore, State};
+use sztorm::{ActionProcessor, EnvironmentState, EnvironmentStateUniScore, State};
 use sztorm::protocol::DomainParameters;
 use crate::player::side::{Side, SideMap};
 use crate::player::side::Side::*;
@@ -112,7 +112,7 @@ impl EnvironmentStateUniScore<ContractProtocolSpec> for ContractEnvStateMin{
     fn state_score_of_player(&self, agent: &Side) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
         self.contract.total_tricks_taken_axis(agent.axis()) as i32
     }
-
+/*
     fn penalty_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
         self.penalties[agent]
     }
@@ -124,6 +124,8 @@ impl EnvironmentStateUniScore<ContractProtocolSpec> for ContractEnvStateMin{
     fn add_player_penalty_reward(&mut self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId, penalty_reward: &<ContractProtocolSpec as DomainParameters>::UniversalReward) {
         self.penalties[agent] += penalty_reward
     }
+
+ */
 }
 
 impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractProcessor{
@@ -140,7 +142,7 @@ impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractPro
 
 
 }
-
+/*
 impl ActionProcessorPenalising<ContractProtocolSpec, ContractEnvStateMin > for ContractProcessor{
     fn process_action_penalise_illegal(
         &self,
@@ -166,4 +168,4 @@ impl ActionProcessorPenalising<ContractProtocolSpec, ContractEnvStateMin > for C
         }
 
     }
-}
+}*/
