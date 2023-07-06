@@ -1,4 +1,4 @@
-use sztorm::{CommEndpoint, DomainEnvironment};
+use sztorm::{CommEndpoint, DomainEnvironment, EnvironmentStateUniScore, ScoreEnvironment};
 use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
 use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
@@ -93,6 +93,12 @@ where S: State<ContractProtocolSpec> {
         Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter())
     }
 
+
+
+
+}
+impl<S: EnvironmentState<ContractProtocolSpec> + ContractState + EnvironmentStateUniScore<ContractProtocolSpec> , C: CommEndpoint> ScoreEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
+where S: State<ContractProtocolSpec> {
     fn process_action_penalise_illegal(
         &mut self,
         agent: &<ContractProtocolSpec as DomainParameters>::AgentId,
@@ -114,10 +120,20 @@ where S: State<ContractProtocolSpec> {
         }
     }
 
+    fn actual_state_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+        todo!()
+    }
+
+    fn actual_penalty_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+        todo!()
+    }
+
     fn actual_score_of_player(&self, agent: &Side) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
         self.state.state_score_of_player(agent)
     }
+
 }
+
 impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> DomainEnvironment<ContractProtocolSpec> for ContractEnv<S, C>{
     //type DomainParameter<Spec> = ContractProtocolSpec;
 }
