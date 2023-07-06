@@ -1,7 +1,7 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AutomaticAgent, AutomaticAgentRewarded, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
+use sztorm::{AutomaticAgentRewarded, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
 use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
