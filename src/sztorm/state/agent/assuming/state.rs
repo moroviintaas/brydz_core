@@ -2,7 +2,7 @@ use log::debug;
 use smallvec::SmallVec;
 use karty::cards::Card2SymTrait;
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
-use sztorm::state::agent::InformationSet;
+use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::State;
 use crate::contract::{Contract, ContractMechanics};
 use crate::deal::BiasedHandDistribution;
@@ -98,7 +98,7 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;
-    type RewardType = u32;
+    //type RewardType = u32;
 
     fn available_actions(&self) -> Self::ActionIteratorType {
         match self.contract.current_side(){
@@ -161,6 +161,11 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {
             }
         }
     }
+
+
+}
+impl ScoringInformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {
+    type RewardType = u32;
 
     fn current_subjective_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())

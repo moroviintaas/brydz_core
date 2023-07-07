@@ -7,7 +7,7 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
 use log::debug;
 use karty::cards::Card2SymTrait;
-use sztorm::state::agent::InformationSet;
+use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use crate::deal::BiasedHandDistribution;
 use crate::sztorm::spec::ContractProtocolSpec;
 use sztorm::state::State;
@@ -83,7 +83,7 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;
-    type RewardType = u32;
+    //type RewardType = u32;
 
     fn available_actions(&self) -> Self::ActionIteratorType {
         match self.contract.current_side(){
@@ -146,6 +146,11 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
             }
         }
     }
+
+
+}
+impl ScoringInformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+    type RewardType = u32;
 
     fn current_subjective_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())

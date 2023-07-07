@@ -3,14 +3,14 @@ use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
 use sztorm::agent::{AutomaticAgentRewarded, RandomPolicy, RewardedAgent, StatefulAgent};
 use sztorm::env::RoundRobinUniversalEnvironment;
-use sztorm::state::agent::InformationSet;
+use sztorm::state::agent::{ScoringInformationSet};
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
 use crate::contract::{Contract, ContractParametersGen};
 use crate::deal::fair_bridge_deal;
 use crate::player::side::{Side, SideMap};
 use crate::player::side::Side::*;
-use crate::sztorm::agent::ContractAgent;
+use crate::sztorm::agent::TracingContractAgent;
 use crate::sztorm::comm::ContractEnvSyncComm;
 use crate::sztorm::env::ContractEnv;
 use crate::sztorm::spec::ContractProtocolSpec;
@@ -44,10 +44,10 @@ fn random_agents_sync_comm(){
     let random_policy = RandomPolicy::<ContractProtocolSpec, ContractAgentInfoSetSimple>::new();
     let policy_dummy = RandomPolicy::<ContractProtocolSpec, ContractDummyState>::new();
 
-    let mut agent_east = ContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
-    let mut agent_south = ContractAgent::new(initial_state_south, comm_south, random_policy.clone() );
-    let mut agent_west = ContractAgent::new(initial_state_west, comm_west, policy_dummy);
-    let mut agent_north = ContractAgent::new(initial_state_north, comm_north, random_policy );
+    let mut agent_east = TracingContractAgent::new(initial_state_east, comm_east, random_policy.clone() );
+    let mut agent_south = TracingContractAgent::new(initial_state_south, comm_south, random_policy.clone() );
+    let mut agent_west = TracingContractAgent::new(initial_state_west, comm_west, policy_dummy);
+    let mut agent_north = TracingContractAgent::new(initial_state_north, comm_north, random_policy );
 
     thread::scope(|s|{
         s.spawn(||{

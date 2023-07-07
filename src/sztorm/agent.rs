@@ -2,14 +2,14 @@ use sztorm::agent::{ActingAgent, CommunicatingAgent, DistinctAgent, GameTrace, G
 use sztorm::{comm::CommEndpoint, Reward};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
-use sztorm::state::agent::InformationSet;
+use sztorm::state::agent::{ScoringInformationSet};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 
-pub struct ContractAgent<
-    S: InformationSet<ContractProtocolSpec>,
+pub struct TracingContractAgent<
+    S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>{
 
@@ -29,7 +29,7 @@ pub struct ContractAgent<
 
 //#[allow(type_alias_bounds)]
 //pub type ContractTraceStep<S: InformationSet<ContractProtocolSpec>> = (S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );
-impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> ContractAgent<S, C, P>{
+impl< S: ScoringInformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> TracingContractAgent<S, C, P>{
 
 
     pub fn new(state: S, comm: C, policy: P) -> Self{
@@ -63,10 +63,10 @@ impl< S: InformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<Contra
 
 }
 
-impl<S: InformationSet<ContractProtocolSpec>,
+impl<S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
-StatefulAgent<ContractProtocolSpec> for ContractAgent< S, C, P>{
+StatefulAgent<ContractProtocolSpec> for TracingContractAgent< S, C, P>{
 
     type State = S;
 
@@ -79,10 +79,10 @@ StatefulAgent<ContractProtocolSpec> for ContractAgent< S, C, P>{
     }
 }
 
-impl< S: InformationSet<ContractProtocolSpec>,
+impl< S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec, StateType = S>>
-ActingAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
+ActingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 
 
 
@@ -103,10 +103,10 @@ ActingAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
     }
 }
 
-impl<S: InformationSet<ContractProtocolSpec>,
+impl<S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec, StateType = S>>
-PolicyAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
+PolicyAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 
     type Policy = P;
 
@@ -120,10 +120,10 @@ PolicyAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
 }
 
 impl<Spec: DomainParameters,
-    S: InformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec, StateType = S>>
-CommunicatingAgent<ContractProtocolSpec> for ContractAgent<S, C, P>
+CommunicatingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>
 //Spec: ProtocolSpecification,
 where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType=EnvMessage<ContractProtocolSpec>, Error=CommError<Spec>>
 {
@@ -139,10 +139,10 @@ where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType
 }
 
 impl<
-    S: InformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
-DistinctAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
+DistinctAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 
 
     fn id(&self) -> &Side {
@@ -151,10 +151,10 @@ DistinctAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
 }
 
 impl<
-    S: InformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
-RewardedAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
+RewardedAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
     fn current_universal_reward(&self) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
         self.constructed_universal_reward
     }
@@ -171,10 +171,10 @@ RewardedAgent<ContractProtocolSpec> for ContractAgent<S, C, P>{
 }
 
 
-impl<S: InformationSet<ContractProtocolSpec>,
+impl<S: ScoringInformationSet<ContractProtocolSpec>,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
-TracingAgent<ContractProtocolSpec, S> for ContractAgent<S, C, P> {
+TracingAgent<ContractProtocolSpec, S> for TracingContractAgent<S, C, P> {
     fn reset_trace(&mut self) {
         self.trace.clear();
         self.last_action = None;

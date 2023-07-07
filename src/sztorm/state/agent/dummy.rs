@@ -5,7 +5,7 @@ use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
-use sztorm::state::agent::InformationSet;
+use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::State;
 use crate::meta::HAND_SIZE;
 use crate::sztorm::spec::ContractProtocolSpec;
@@ -55,7 +55,7 @@ impl InformationSet<ContractProtocolSpec> for ContractDummyState {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;
-    type RewardType = u32;
+    //type RewardType = u32;
 
     fn available_actions(&self) -> Self::ActionIteratorType {
         match self.contract.current_side(){
@@ -77,6 +77,11 @@ impl InformationSet<ContractProtocolSpec> for ContractDummyState {
             ContractAction::PlaceCard(_) => false
         }
     }
+
+}
+
+impl ScoringInformationSet<ContractProtocolSpec> for ContractDummyState{
+    type RewardType = u32;
 
     fn current_subjective_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())
