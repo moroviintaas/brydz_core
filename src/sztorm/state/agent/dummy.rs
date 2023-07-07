@@ -5,6 +5,8 @@ use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 use log::debug;
+use sztorm::state::agent::InformationSet;
+use sztorm::state::State;
 use crate::meta::HAND_SIZE;
 use crate::sztorm::spec::ContractProtocolSpec;
 
@@ -22,9 +24,7 @@ impl ContractDummyState {
     }
 }
 
-impl sztorm::State<ContractProtocolSpec> for ContractDummyState {
-    //type UpdateType = ContractStateUpdate;
-    //type Error = BridgeCoreError;
+impl State<ContractProtocolSpec> for ContractDummyState {
 
     fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
         //debug!("Agent {} received state update: {:?}", self.side, &update);
@@ -51,7 +51,7 @@ impl sztorm::State<ContractProtocolSpec> for ContractDummyState {
     }
 }
 
-impl sztorm::InformationSet<ContractProtocolSpec> for ContractDummyState {
+impl InformationSet<ContractProtocolSpec> for ContractDummyState {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;

@@ -3,8 +3,9 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use sztorm::{ActionProcessor, EnvironmentState, EnvironmentStateUniScore, State};
+use sztorm::env::{ActionProcessor, EnvironmentState, EnvironmentStateUniScore};
 use sztorm::protocol::DomainParameters;
+use sztorm::state::State;
 use crate::player::side::{Side};
 use crate::player::side::Side::*;
 use crate::sztorm::env::ContractProcessor;
@@ -45,7 +46,7 @@ impl ContractState for ContractEnvStateMin{
     }
 }
 
-impl sztorm::State<ContractProtocolSpec> for ContractEnvStateMin{
+impl State<ContractProtocolSpec> for ContractEnvStateMin{
 
     fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
         debug!("Updating environment with {:?}", &update);

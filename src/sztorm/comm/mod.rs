@@ -1,4 +1,4 @@
-use sztorm::SyncComm;
+use sztorm::comm::SyncComm;
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
 use crate::sztorm::spec::ContractProtocolSpec;

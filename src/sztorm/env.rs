@@ -1,12 +1,11 @@
-use sztorm::{CommEndpoint, DomainEnvironment, EnvironmentStateUniScore, Reward, ScoreEnvironment};
-use sztorm::{BroadcastingEnv, CommunicatingEnv, EnvironmentWithAgents, StatefulEnvironment};
-use sztorm::EnvironmentState;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::sztorm::state::{ContractAction,  ContractState, ContractStateUpdate};
 use std::iter::IntoIterator;
 use log::warn;
+use sztorm::{comm::CommEndpoint, Reward};
+use sztorm::env::{BroadcastingEnv, CommunicatingEnv, DomainEnvironment, EnvironmentState, EnvironmentStateUniScore, EnvironmentWithAgents, ScoreEnvironment, StatefulEnvironment};
 use sztorm::protocol::{AgentMessage, DomainParameters, EnvMessage};
-use sztorm::State;
+use sztorm::state::State;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side::*;
 use crate::sztorm::spec::ContractProtocolSpec;
@@ -17,7 +16,10 @@ pub struct ContractEnv<S: EnvironmentState<ContractProtocolSpec> + ContractState
     penalties: SideMap<<ContractProtocolSpec as DomainParameters>::UniversalReward>
 }
 
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> ContractEnv<S, C>{
+impl<
+    S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    C: CommEndpoint>
+ContractEnv<S, C>{
     pub fn new(state: S, comm: SideMap<C>) -> Self{
         Self{
             state,
@@ -31,7 +33,8 @@ impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>
     }
 }
 
-impl< S: EnvironmentState<ContractProtocolSpec> + ContractState,
+impl<
+    S: EnvironmentState<ContractProtocolSpec> + ContractState,
     C: CommEndpoint<
         OutwardType=EnvMessage<ContractProtocolSpec>,
         InwardType=AgentMessage<ContractProtocolSpec>>>
@@ -40,7 +43,12 @@ CommunicatingEnv<ContractProtocolSpec> for ContractEnv< S, C>{
     type CommunicationError = C::Error;
     //type AgentId = Side;
 
-    fn send_to(&mut self, agent_id: &Side, message: EnvMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
+    fn send_to(
+        &mut self,
+        agent_id: &Side,
+        message: EnvMessage<ContractProtocolSpec>)
+        -> Result<(), Self::CommunicationError> {
+
         self.comm[agent_id].send(message)
     }
 
@@ -59,6 +67,7 @@ impl<S: EnvironmentState<ContractProtocolSpec> + ContractState,
         InwardType=AgentMessage<ContractProtocolSpec>>>
 BroadcastingEnv<ContractProtocolSpec> for ContractEnv<S, C>
 where <C as CommEndpoint>::OutwardType: Clone{
+
     fn send_to_all(&mut self, message: EnvMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
         for s in SIDES{
             match self.comm[&s].send(message.clone()){
@@ -70,7 +79,11 @@ where <C as CommEndpoint>::OutwardType: Clone{
     }
 }
 
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> EnvironmentWithAgents<ContractProtocolSpec> for ContractEnv<S, C>{
+impl<
+    S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    C: CommEndpoint>
+EnvironmentWithAgents<ContractProtocolSpec> for ContractEnv<S, C>{
+
     type PlayerIterator = [Side; 4];
 
     fn players(&self) -> Self::PlayerIterator {
@@ -78,7 +91,10 @@ impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>
     }
 }
 
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState + ContractState, C: CommEndpoint> StatefulEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
+impl<
+    S: EnvironmentState<ContractProtocolSpec> + ContractState + ContractState,
+    C: CommEndpoint>
+StatefulEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
 where S: State<ContractProtocolSpec> {
     type State = S;
     type UpdatesIterator = <[(Side, ContractStateUpdate);4] as IntoIterator>::IntoIter;
@@ -103,7 +119,11 @@ where S: State<ContractProtocolSpec> {
 
 
 }
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState + EnvironmentStateUniScore<ContractProtocolSpec> , C: CommEndpoint> ScoreEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
+impl<
+    S: EnvironmentState<ContractProtocolSpec>
+        + ContractState + EnvironmentStateUniScore<ContractProtocolSpec> ,
+    C: CommEndpoint>
+ScoreEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
 where S: State<ContractProtocolSpec> {
     fn process_action_penalise_illegal(
         &mut self,
@@ -141,7 +161,10 @@ where S: State<ContractProtocolSpec> {
 
 }
 
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> DomainEnvironment<ContractProtocolSpec> for ContractEnv<S, C>{
+impl<
+    S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    C: CommEndpoint>
+DomainEnvironment<ContractProtocolSpec> for ContractEnv<S, C>{
     //type DomainParameter<Spec> = ContractProtocolSpec;
 }
 

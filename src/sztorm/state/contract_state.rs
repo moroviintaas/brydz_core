@@ -1,4 +1,4 @@
-use sztorm::State;
+use sztorm::state::State;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
 

@@ -1,5 +1,4 @@
-
-use sztorm::AgentIdentifier;
+use sztorm::agent::AgentIdentifier;
 use crate::player::side::Side;
 
 

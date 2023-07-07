@@ -1,5 +1,5 @@
 use karty::hand::CardSet;
-use sztorm::InformationSet;
+use sztorm::state::agent::InformationSet;
 use crate::contract::Contract;
 use crate::deal::BiasedHandDistribution;
 use crate::player::side::Side;

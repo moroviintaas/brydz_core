@@ -7,8 +7,10 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
 use log::debug;
 use karty::cards::Card2SymTrait;
+use sztorm::state::agent::InformationSet;
 use crate::deal::BiasedHandDistribution;
 use crate::sztorm::spec::ContractProtocolSpec;
+use sztorm::state::State;
 
 #[cfg(feature = "neuro")]
 mod state_history_tensor;
@@ -28,7 +30,7 @@ impl ContractAgentInfoSetSimple {
 }
 
 
-impl sztorm::State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+impl State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
     //type UpdateType = ContractStateUpdate;
     //type Error = BridgeCoreError;
 
@@ -77,7 +79,7 @@ impl sztorm::State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
     }
 }
 
-impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;
@@ -401,7 +403,7 @@ mod tests{
     use karty::cards::{*};
     use karty::hand::CardSet;
     use karty::suits::Suit::Hearts;
-    use sztorm::State;
+    use sztorm::state::State;
     use crate::bidding::Bid;
     use crate::cards::trump::TrumpGen;
     use crate::contract::{Contract, ContractParametersGen};

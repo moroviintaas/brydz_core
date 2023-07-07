@@ -2,6 +2,8 @@ use log::debug;
 use smallvec::SmallVec;
 use karty::cards::Card2SymTrait;
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
+use sztorm::state::agent::InformationSet;
+use sztorm::state::State;
 use crate::contract::{Contract, ContractMechanics};
 use crate::deal::BiasedHandDistribution;
 use crate::error::BridgeCoreError;
@@ -45,7 +47,7 @@ impl ContractAgentInfoSetAssuming{
     }
 }
 
-impl sztorm::State<ContractProtocolSpec> for ContractAgentInfoSetAssuming{
+impl State<ContractProtocolSpec> for ContractAgentInfoSetAssuming{
     fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
         //debug!("Agent {} received state update: {:?}", self.side, &update);
         let (side, action) = update.into_tuple();
@@ -92,7 +94,7 @@ impl sztorm::State<ContractProtocolSpec> for ContractAgentInfoSetAssuming{
 
 }
 
-impl sztorm::InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {
+impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;

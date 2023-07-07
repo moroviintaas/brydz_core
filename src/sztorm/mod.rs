@@ -6,5 +6,4 @@ pub mod spec;
 pub mod comm;
 #[cfg(test)]
 mod test;
-
-pub use sztorm as prelude;
+pub use sztorm as re_export;

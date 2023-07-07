@@ -1,8 +1,9 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use sztorm::{AutomaticAgentRewarded, InformationSet, RandomPolicy, RewardedAgent, StatefulAgent};
-use sztorm::automatons::rr::{RoundRobinUniversalEnvironment};
+use sztorm::agent::{AutomaticAgentRewarded, RandomPolicy, RewardedAgent, StatefulAgent};
+use sztorm::env::RoundRobinUniversalEnvironment;
+use sztorm::state::agent::InformationSet;
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
 use crate::contract::{Contract, ContractParametersGen};
