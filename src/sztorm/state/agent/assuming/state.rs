@@ -88,10 +88,6 @@ impl State<ContractProtocolSpec> for ContractAgentInfoSetAssuming{
         }
     }
 
-    fn is_finished(&self) -> bool {
-        self.contract.is_completed()
-    }
-
 }
 
 impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {

@@ -84,9 +84,6 @@ impl State<ContractProtocolSpec> for ContractEnvStateMin{
         }
     }
 
-    fn is_finished(&self) -> bool {
-        self.contract.is_completed()
-    }
 }
 
 impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
@@ -102,6 +99,9 @@ impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
                 false => self.contract.current_side()
             })
         }
+    }
+    fn is_finished(&self) -> bool {
+        self.contract.is_completed()
     }
 
 }

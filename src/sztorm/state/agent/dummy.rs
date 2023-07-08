@@ -46,9 +46,7 @@ impl State<ContractProtocolSpec> for ContractDummyState {
         }
     }
 
-    fn is_finished(&self) -> bool {
-        self.contract.is_completed()
-    }
+
 }
 
 impl InformationSet<ContractProtocolSpec> for ContractDummyState {
