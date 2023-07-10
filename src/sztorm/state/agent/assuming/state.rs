@@ -10,7 +10,7 @@ use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet, StateWithSide};
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetAssuming {
@@ -133,9 +133,6 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetAssuming {
         }
     }
 
-    fn id(&self) -> &Side {
-        &self.side
-    }
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
@@ -185,6 +182,12 @@ impl CreatedContractInfoSet for ContractAgentInfoSetAssuming{
             contract,
             card_distribution: distribution
         }
+    }
+}
+
+impl StateWithSide for ContractAgentInfoSetAssuming{
+    fn id(&self) -> Side {
+        self.side
     }
 }
 

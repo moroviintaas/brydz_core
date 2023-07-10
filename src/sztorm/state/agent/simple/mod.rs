@@ -4,7 +4,7 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet, StateWithSide};
 use log::debug;
 use karty::cards::Card2SymTrait;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
@@ -120,9 +120,6 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
         }
     }
 
-    fn id(&self) -> &Side {
-        &self.side
-    }
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
@@ -171,6 +168,12 @@ impl CreatedContractInfoSet for ContractAgentInfoSetSimple{
             dummy_hand,
             contract,
         }
+    }
+}
+
+impl StateWithSide for ContractAgentInfoSetSimple{
+    fn id(&self) -> Side {
+        self.side
     }
 }
 

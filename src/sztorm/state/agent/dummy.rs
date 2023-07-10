@@ -3,7 +3,7 @@ use karty::hand::{HandTrait, CardSet};
 use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::State;
@@ -65,9 +65,6 @@ impl InformationSet<ContractProtocolSpec> for ContractDummyState {
         }
     }
 
-    fn id(&self) -> &Side{
-        &self.side
-    }
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
@@ -83,5 +80,11 @@ impl ScoringInformationSet<ContractProtocolSpec> for ContractDummyState{
 
     fn current_subjective_score(&self) -> Self::RewardType {
         self.contract.total_tricks_taken_axis(self.side.axis())
+    }
+}
+
+impl StateWithSide for ContractDummyState{
+    fn id(&self) -> Side {
+        self.side
     }
 }

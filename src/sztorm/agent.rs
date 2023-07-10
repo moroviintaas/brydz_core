@@ -6,10 +6,10 @@ use sztorm::state::agent::{ScoringInformationSet};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::spec::ContractProtocolSpec;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate};
+use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 
 pub struct TracingContractAgent<
-    S: ScoringInformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>{
 
@@ -21,6 +21,7 @@ pub struct TracingContractAgent<
     last_action: Option<<S::ActionIteratorType as IntoIterator>::Item>,
     //last_action_accumulated_reward: S::RewardType,
     last_action_state: Option<S>,
+    //side: Side,
     constructed_universal_reward: <ContractProtocolSpec as DomainParameters>::UniversalReward,
     actual_universal_score: <ContractProtocolSpec as DomainParameters>::UniversalReward,
     //universal_rewards_stack: Vec<ContractProtocolSpec::UniversalReward>,
@@ -29,7 +30,11 @@ pub struct TracingContractAgent<
 
 //#[allow(type_alias_bounds)]
 //pub type ContractTraceStep<S: InformationSet<ContractProtocolSpec>> = (S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );
-impl< S: ScoringInformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy<ContractProtocolSpec>> TracingContractAgent<S, C, P>{
+impl<
+    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+    C: CommEndpoint,
+    P: Policy<ContractProtocolSpec>>
+TracingContractAgent<S, C, P>{
 
 
     pub fn new(state: S, comm: C, policy: P) -> Self{
@@ -63,7 +68,7 @@ impl< S: ScoringInformationSet<ContractProtocolSpec>, C: CommEndpoint, P: Policy
 
 }
 
-impl<S: ScoringInformationSet<ContractProtocolSpec>,
+impl<S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
 StatefulAgent<ContractProtocolSpec> for TracingContractAgent< S, C, P>{
@@ -79,7 +84,7 @@ StatefulAgent<ContractProtocolSpec> for TracingContractAgent< S, C, P>{
     }
 }
 
-impl< S: ScoringInformationSet<ContractProtocolSpec>,
+impl< S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec, StateType = S>>
 ActingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
@@ -103,7 +108,7 @@ ActingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
     }
 }
 
-impl<S: ScoringInformationSet<ContractProtocolSpec>,
+impl<S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec, StateType = S>>
 PolicyAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
@@ -120,7 +125,7 @@ PolicyAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 }
 
 impl<Spec: DomainParameters,
-    S: ScoringInformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec, StateType = S>>
 CommunicatingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>
@@ -139,19 +144,19 @@ where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType
 }
 
 impl<
-    S: ScoringInformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
 DistinctAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 
 
-    fn id(&self) -> &Side {
+    fn id(&self) -> Side {
         self.state().id()
     }
 }
 
 impl<
-    S: ScoringInformationSet<ContractProtocolSpec>,
+    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
 RewardedAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
@@ -171,7 +176,7 @@ RewardedAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 }
 
 
-impl<S: ScoringInformationSet<ContractProtocolSpec>,
+impl<S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
 TracingAgent<ContractProtocolSpec, S> for TracingContractAgent<S, C, P> {
