@@ -15,16 +15,16 @@ pub struct SuitExhaust {
 
 impl Register<(Side, Suit)> for SuitExhaust {
     fn register(&mut self, element: (Side, Suit)) {
-        self.array  |= 1u16 << (usize::from(element.0.index()*4) + element.1.position());
+        self.array  |= 1u16 << (usize::from(element.0.index()*4) + element.1.usize_index());
     }
 
     fn unregister(&mut self, element: &(Side, Suit)) {
-        let mask_neg  = 1u16 << (usize::from(element.0.index()*4) + element.1.position());
+        let mask_neg  = 1u16 << (usize::from(element.0.index()*4) + element.1.usize_index());
         let mask = mask_neg ^ u16::MAX;
         self.array &= mask;
     }
 
     fn is_registered(&self, element: &(Side, Suit)) -> bool {
-        !matches!(self.array & (1u16 << (usize::from(element.0.index()*4) + element.1.position())), 0)
+        !matches!(self.array & (1u16 << (usize::from(element.0.index()*4) + element.1.usize_index())), 0)
     }
 }

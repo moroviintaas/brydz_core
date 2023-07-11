@@ -16,14 +16,14 @@ impl Serialize for FuzzyCardSet{
 
                     match self.probabilities[suit][i]{
                         FProbability::One => {
-                            suit_string += &Figure::from_position(i).unwrap().repr_char().to_string();
+                            suit_string += &Figure::from_usize_index(i).unwrap().repr_char().to_string();
                         }
                         FProbability::Zero => {}
                         FProbability::Uncertain(p) => {
-                            suit_string = suit_string + "[" + &format!("{:.2}", p) + "]" + &Figure::from_position(i).unwrap().repr_char().to_string();
+                            suit_string = suit_string + "[" + &format!("{:.2}", p) + "]" + &Figure::from_usize_index(i).unwrap().repr_char().to_string();
                         }
                         FProbability::Bad(p) => {
-                            suit_string = suit_string + "[" + &format!("{:.2}", p) + "]" + &Figure::from_position(i).unwrap().repr_char().to_string();
+                            suit_string = suit_string + "[" + &format!("{:.2}", p) + "]" + &Figure::from_usize_index(i).unwrap().repr_char().to_string();
                         }
                     }
                 }

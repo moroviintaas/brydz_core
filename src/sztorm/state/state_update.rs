@@ -82,7 +82,7 @@ mod tensor{
         fn from(value: &ContractAction) -> Self {
             match value{
                 ContractAction::ShowHand(_) => [0,0],
-                ContractAction::PlaceCard(c) => [c.suit().position() as u8 +1, c.figure().position() as u8 + 1]
+                ContractAction::PlaceCard(c) => [c.suit().usize_index() as u8 +1, c.figure().usize_index() as u8 + 1]
             }
         }
     }
@@ -90,7 +90,7 @@ mod tensor{
         fn from(value: &ContractAction) -> Self {
             match value{
                 ContractAction::ShowHand(_) => [0.0,0.0],
-                ContractAction::PlaceCard(c) => [c.suit().position() as f32 +1.0, c.figure().position() as f32 + 1.0]
+                ContractAction::PlaceCard(c) => [c.suit().usize_index() as f32 +1.0, c.figure().usize_index() as f32 + 1.0]
             }
         }
     }
@@ -109,12 +109,12 @@ mod tensor{
             match self{
                 ContractAction::ShowHand(h) => {
                     for c in h.into_iter(){
-                        crd[c.position()] = 1.0;
+                        crd[c.usize_index()] = 1.0;
                     }
                     crd[DECK_SIZE] = 0.0;
                 }
                 ContractAction::PlaceCard(c) => {
-                    crd[c.position()] = 1.0;
+                    crd[c.usize_index()] = 1.0;
                     crd[DECK_SIZE] = 1.0;
                 }
             }

@@ -228,23 +228,23 @@ mod tensor{
             array[TRICK_COMPLETION] = state.contract.current_trick().count_cards();
             (array[LEFT_CARD], array[LEFT_CARD+1]) = match state.contract.current_trick()[state.side]{
                 None => (0, 0),
-                Some(c) => (c.suit().position() as u8 + 1, c.figure().position() as u8 + 1)
+                Some(c) => (c.suit().usize_index() as u8 + 1, c.figure().usize_index() as u8 + 1)
             };
             (array[LEFT_CARD], array[LEFT_CARD+1]) = match state.contract.current_trick()[state.side.next()]{
                 None => (0, 0),
-                Some(c) => (c.suit().position() as u8 + 1, c.figure().position() as u8 + 1)
+                Some(c) => (c.suit().usize_index() as u8 + 1, c.figure().usize_index() as u8 + 1)
             };
             (array[PARTNER_CARD], array[PARTNER_CARD+1]) = match state.contract.current_trick()[state.side.partner()]{
                 None => (0, 0),
-                Some(c) => (c.suit().position() as u8 + 1, c.figure().position() as u8 + 1)
+                Some(c) => (c.suit().usize_index() as u8 + 1, c.figure().usize_index() as u8 + 1)
             };
             (array[RIGHT_CARD], array[RIGHT_CARD+1]) = match state.contract.current_trick()[state.side.prev()]{
                 None => (0, 0),
-                Some(c) => (c.suit().position() as u8 + 1, c.figure().position() as u8 + 1)
+                Some(c) => (c.suit().usize_index() as u8 + 1, c.figure().usize_index() as u8 + 1)
             };
 
             array[BID_OFFSET] = match state.contract.contract_spec().bid().trump(){
-                    TrumpGen::Colored(s) => s.position() as u8 + 1,
+                    TrumpGen::Colored(s) => s.usize_index() as u8 + 1,
                     TrumpGen::NoTrump => 0
             };
             array[BID_OFFSET+1] = state.contract.contract_spec().bid().number();
@@ -259,7 +259,7 @@ mod tensor{
             };
             for card in STANDARD_DECK_CDHS{
                 if state.hand.contains(&card){
-                   array[card.position()] = SURE; //sure
+                   array[card.usize_index()] = SURE; //sure
                    /*not needed
                    for i in 1..=3{
                        array[(i*DECK_SIZE)+card.position()] = QUInt8::from(0);
@@ -269,23 +269,23 @@ mod tensor{
                         None => {
                             //dummy's hand not shown yet
                             for i in 1..=3{
-                                array[(i*DECK_SIZE) + card.position()] = ONE_IN_THREE;
+                                array[(i*DECK_SIZE) + card.usize_index()] = ONE_IN_THREE;
                             }
                         }
                         Some(dhand) => {
                             if dhand.contains(&card){
-                                array[(DECK_SIZE*dummy_offset) + card.position()] = SURE;
+                                array[(DECK_SIZE*dummy_offset) + card.usize_index()] = SURE;
                             } else {
                                 //this is tricky
                                 if state.contract.suits_exhausted().is_registered(&(unknown_side_1, card.suit())){
-                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = SURE;
+                                    array[(DECK_SIZE*unknown_offset_2) + card.usize_index()] = SURE;
                                 }
                                 else if state.contract.suits_exhausted().is_registered(&(unknown_side_2, card.suit())){
-                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = SURE;
+                                    array[(DECK_SIZE*unknown_offset_1) + card.usize_index()] = SURE;
                                 }
                                 else{
-                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = ONE_IN_TWO;
-                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = ONE_IN_TWO;
+                                    array[(DECK_SIZE*unknown_offset_1) + card.usize_index()] = ONE_IN_TWO;
+                                    array[(DECK_SIZE*unknown_offset_2) + card.usize_index()] = ONE_IN_TWO;
                                 }
 
                             }
@@ -316,23 +316,23 @@ mod tensor{
             array[TRICK_COMPLETION] = (state.contract.current_trick().count_cards()) as f32;
             (array[LEFT_CARD], array[LEFT_CARD+1]) = match state.contract.current_trick()[state.side]{
                 None => (0.0, 0.0),
-                Some(c) => (c.suit().position() as f32 + 1.0, c.figure().position() as f32 + 1.0)
+                Some(c) => (c.suit().usize_index() as f32 + 1.0, c.figure().usize_index() as f32 + 1.0)
             };
             (array[LEFT_CARD], array[LEFT_CARD+1]) = match state.contract.current_trick()[state.side.next()]{
                 None => (0.0, 0.0),
-                Some(c) => (c.suit().position() as f32 + 1.0, c.figure().position() as f32 + 1.0)
+                Some(c) => (c.suit().usize_index() as f32 + 1.0, c.figure().usize_index() as f32 + 1.0)
             };
             (array[PARTNER_CARD], array[PARTNER_CARD+1]) = match state.contract.current_trick()[state.side.partner()]{
                 None => (0.0, 0.0),
-                Some(c) => (c.suit().position() as f32 + 1.0, c.figure().position() as f32 + 1.0)
+                Some(c) => (c.suit().usize_index() as f32 + 1.0, c.figure().usize_index() as f32 + 1.0)
             };
             (array[RIGHT_CARD], array[RIGHT_CARD+1]) = match state.contract.current_trick()[state.side.prev()]{
                 None => (0.0, 0.0),
-                Some(c) => (c.suit().position() as f32 + 1.0, c.figure().position() as f32 + 1.0)
+                Some(c) => (c.suit().usize_index() as f32 + 1.0, c.figure().usize_index() as f32 + 1.0)
             };
 
             array[BID_OFFSET] = match state.contract.contract_spec().bid().trump(){
-                    TrumpGen::Colored(s) => s.position() as f32 + 1.0,
+                    TrumpGen::Colored(s) => s.usize_index() as f32 + 1.0,
                     TrumpGen::NoTrump => 0.0
             };
             array[BID_OFFSET+1] = state.contract.contract_spec().bid().number() as f32;
@@ -347,7 +347,7 @@ mod tensor{
             };
             for card in STANDARD_DECK_CDHS{
                 if state.hand.contains(&card){
-                   array[card.position()] = 1.0; //sure
+                   array[card.usize_index()] = 1.0; //sure
                    /*not needed
                    for i in 1..=3{
                        array[(i*DECK_SIZE)+card.position()] = QUInt8::from(0);
@@ -357,23 +357,23 @@ mod tensor{
                         None => {
                             //dummy's hand not shown yet
                             for i in 1..=3{
-                                array[(i*DECK_SIZE) + card.position()] = 1.0/3.0;
+                                array[(i*DECK_SIZE) + card.usize_index()] = 1.0/3.0;
                             }
                         }
                         Some(dhand) => {
                             if dhand.contains(&card){
-                                array[(DECK_SIZE*dummy_offset) + card.position()] = 1.0;
+                                array[(DECK_SIZE*dummy_offset) + card.usize_index()] = 1.0;
                             } else {
                                 //this is tricky
                                 if state.contract.suits_exhausted().is_registered(&(unknown_side_1, card.suit())){
-                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = 1.0;
+                                    array[(DECK_SIZE*unknown_offset_2) + card.usize_index()] = 1.0;
                                 }
                                 else if state.contract.suits_exhausted().is_registered(&(unknown_side_2, card.suit())){
-                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = 1.0;
+                                    array[(DECK_SIZE*unknown_offset_1) + card.usize_index()] = 1.0;
                                 }
                                 else{
-                                    array[(DECK_SIZE*unknown_offset_1) + card.position()] = 0.5;
-                                    array[(DECK_SIZE*unknown_offset_2) + card.position()] = 0.5;
+                                    array[(DECK_SIZE*unknown_offset_1) + card.usize_index()] = 0.5;
+                                    array[(DECK_SIZE*unknown_offset_2) + card.usize_index()] = 0.5;
                                 }
 
                             }

@@ -33,6 +33,6 @@ impl TensorInterpreter<ContractAction> for ContractActionInterpreter{
 
     fn interpret_tensor(&self, tensor: &Tensor) -> Result<ContractAction, Self::Error> {
         let av: Vec<i64> = tensor.try_into().unwrap();
-        Ok(ContractAction::PlaceCard(Card::from_position(av[0] as usize).unwrap()))
+        Ok(ContractAction::PlaceCard(Card::from_usize_index(av[0] as usize).unwrap()))
     }
 }

@@ -358,7 +358,7 @@ impl Distribution<BiasedHandDistribution> for Standard{
             let mut probabilities = SideMap::new_symmetric(SuitMap::new_from_f(|_|[0.0f32; HAND_SIZE]));
             let mut sums_per_side = SideMap::new_symmetric(0.0f32);
             for i in 0..DECK_SIZE-1{
-                let s = Suit::from_position(i/13).unwrap();
+                let s = Suit::from_usize_index(i/13).unwrap();
                 let f = i%13;
                 //let mut inner_iteration = 0;
                 loop{

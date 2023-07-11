@@ -23,7 +23,7 @@ impl<R: Rng, S: SuitTrait> RandomSymbol<R> for TrumpGen<S>{
     fn random(rng: &mut R) -> Self {
         match rng.gen_range(0..=S::SYMBOL_SPACE){
             special if special == S::SYMBOL_SPACE => NoTrump,
-            i => Colored(S::from_position(i).unwrap())
+            i => Colored(S::from_usize_index(i).unwrap())
         }
     }
 }

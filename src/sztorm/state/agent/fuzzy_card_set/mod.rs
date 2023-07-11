@@ -44,7 +44,7 @@ impl FuzzyCardSet{
 
     #[allow(dead_code)]
     fn probability_mut(&mut self, card: &Card) -> &mut FProbability{
-        &mut self.probabilities[card.suit()][card.figure().position()]
+        &mut self.probabilities[card.suit()][card.figure().usize_index()]
     }
 
     pub fn empty() -> Self{
@@ -153,7 +153,7 @@ impl FuzzyCardSet{
      */
 
     pub fn card_probability(&self, card: &Card) -> FProbability{
-        self.probabilities[card.suit()][card.figure().position()]
+        self.probabilities[card.suit()][card.figure().usize_index()]
     }
 
 
@@ -437,7 +437,7 @@ impl FuzzyCardSet{
     pub fn set_zero_card_probability(&mut self, card: &Card) -> Result<f32, FuzzyCardSetErrorGen<Card>>{
         match self[card]{
             FProbability::One => {
-                self.probabilities[card.suit()][card.figure().position()] = FProbability::Zero;
+                self.probabilities[card.suit()][card.figure().usize_index()] = FProbability::Zero;
                 self.expected_card_number -= 1;
                 Ok(1.0)
             }
@@ -448,7 +448,7 @@ impl FuzzyCardSet{
                 let uncertain_sum_before = self.sum_uncertain();
                 let new_uncertain = uncertain_sum_before - remaining_probability_to_remove;
 
-                self.probabilities[card.suit()][card.figure().position()] = FProbability::Zero;
+                self.probabilities[card.suit()][card.figure().usize_index()] = FProbability::Zero;
 
                 let scale = new_uncertain / uncertain_sum_before;
 
@@ -536,7 +536,7 @@ impl Index<&Card> for FuzzyCardSet{
     /// assert_eq!(FuzzyCardSet::new_check_epsilon(SuitMap::new(cards_spades, cards_hearts, cards_diamonds, cards_clubs),13 ).unwrap()[&TWO_DIAMONDS], FProbability::One);
     /// ```
     fn index(&self, index: &Card) -> &Self::Output {
-        &self.probabilities[index.suit()][index.figure().position()]
+        &self.probabilities[index.suit()][index.figure().usize_index()]
     }
 }
 

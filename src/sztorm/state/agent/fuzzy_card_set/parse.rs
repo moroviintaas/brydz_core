@@ -68,7 +68,7 @@ pub fn parse_fuzzy_card_set(s: &str) -> IResult<&str, FuzzyCardSet>{
             parse_probable_figure,
             ProbaArray::default,
             |mut set: ProbaArray, (probability, fig)|{
-                set[fig.position()] = probability;
+                set[fig.usize_index()] = probability;
                 set
             }
         ),
@@ -77,7 +77,7 @@ pub fn parse_fuzzy_card_set(s: &str) -> IResult<&str, FuzzyCardSet>{
             parse_probable_figure,
             ProbaArray::default,
             |mut set: ProbaArray, (probability, fig)|{
-                set[fig.position()] = probability;
+                set[fig.usize_index()] = probability;
                 set
             }
         ),
@@ -86,7 +86,7 @@ pub fn parse_fuzzy_card_set(s: &str) -> IResult<&str, FuzzyCardSet>{
             parse_probable_figure,
             ProbaArray::default,
             |mut set: ProbaArray, (probability, fig)|{
-                set[fig.position()] = probability;
+                set[fig.usize_index()] = probability;
                 set
             }
         ),
@@ -95,7 +95,7 @@ pub fn parse_fuzzy_card_set(s: &str) -> IResult<&str, FuzzyCardSet>{
             parse_probable_figure,
             ProbaArray::default,
             |mut set: ProbaArray, (probability, fig)|{
-                set[fig.position()] = probability;
+                set[fig.usize_index()] = probability;
                 set
             }
         )

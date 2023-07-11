@@ -13,7 +13,7 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
         match self.contract.contract_spec().bid().trump(){
             TrumpGen::Colored(c) => {
                 result[1] = 1.0;
-                result[2] = c.position() as f32;
+                result[2] = c.usize_index() as f32;
             }
             TrumpGen::NoTrump => {
                 result[1] = 0.0;
@@ -41,9 +41,9 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
         }*/
         for c in STANDARD_DECK_CDHS{
             if self.hand.contains(&c){
-                cards[c.position()] = 1.0;
+                cards[c.usize_index()] = 1.0;
             } else {
-                cards[c.position()] = 0.0;
+                cards[c.usize_index()] = 0.0;
             }
 
 
@@ -59,7 +59,7 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
                 let mut result = [0.0; DECK_SIZE+1];
                 for card in STANDARD_DECK_CDHS{
                     if dh.contains(&card){
-                        result[card.position()] = 1.0;
+                        result[card.usize_index()] = 1.0;
                     }
                 }
                 result[DECK_SIZE] = 1.0;
@@ -77,7 +77,7 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
             Ordering::Equal => {
                 let mut mask = [0.0; DECK_SIZE+1];
                 if let Some(c) = self.contract.current_trick()[self.side.next_i(relative_side)] {
-                    mask[c.position()] = 1.0;
+                    mask[c.usize_index()] = 1.0;
                     mask[DECK_SIZE] = 1.0;
                 }
                 mask
@@ -86,7 +86,7 @@ impl BuildStateHistoryTensor for ContractAgentInfoSetSimple{
                 let trick = self.contract.completed_tricks()[trick_number];
                 let card = trick[self.side. next_i(relative_side)].unwrap();
                 let mut mask = [0.0; DECK_SIZE+1];
-                mask[card.position()] = 1.0;
+                mask[card.usize_index()] = 1.0;
                 mask[DECK_SIZE] = 1.0;
                 mask
             }
