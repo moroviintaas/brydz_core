@@ -1,4 +1,4 @@
-use sztorm::agent::{ActingAgent, CommunicatingAgent, DistinctAgent, GameTrace, GameTraceLine, Policy, PolicyAgent, RewardedAgent, StatefulAgent, TracingAgent};
+use sztorm::agent::{ActingAgent, Agent, CommunicatingAgent, GameTrace, GameTraceLine, Policy, PolicyAgent, RewardedAgent, StatefulAgent, TracingAgent};
 use sztorm::{comm::CommEndpoint, Reward};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
@@ -147,7 +147,7 @@ impl<
     S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
     C: CommEndpoint,
     P: Policy<ContractProtocolSpec>>
-DistinctAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
+Agent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 
 
     fn id(&self) -> Side {
