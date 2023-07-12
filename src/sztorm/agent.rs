@@ -92,10 +92,8 @@ ActingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 
 
     fn take_action(&mut self) -> Option<ContractAction> {
-        //debug!("Agent {} taking action", self.id());
         self.commit_trace();
-        //self.last_action_accumulated_reward = self.state.current_subjective_score();
-        let action = self.policy.select_action_mut(&self.state);
+        let action = self.policy.select_action(&self.state);
         self.last_action = action;
         self.last_action_state = Some(self.state.clone());
         action
