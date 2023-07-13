@@ -103,13 +103,13 @@ where S: State<ContractProtocolSpec> {
         &self.state
     }
 
-    fn process_action(&mut self, agent: &Side, action: ContractAction) -> Result<Self::UpdatesIterator, BridgeCoreError> {
+    fn process_action(&mut self, agent: &Side, action: &ContractAction) -> Result<Self::UpdatesIterator, BridgeCoreError> {
 
         let state_update =
         if self.state.is_turn_of_dummy() && Some(*agent) == self.state.current_player(){
-            ContractStateUpdate::new(self.state.dummy_side(), action)
+            ContractStateUpdate::new(self.state.dummy_side(), action.clone())
         } else {
-            ContractStateUpdate::new(agent.to_owned(), action)
+            ContractStateUpdate::new(agent.to_owned(), action.clone())
         };
         self.state.update(state_update)?;
         Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter())
