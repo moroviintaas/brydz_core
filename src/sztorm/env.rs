@@ -141,14 +141,14 @@ where S: State<ContractProtocolSpec> {
     fn process_action_penalise_illegal(
         &mut self,
         agent: &<ContractProtocolSpec as DomainParameters>::AgentId,
-        action: <ContractProtocolSpec as DomainParameters>::ActionType,
+        action: &<ContractProtocolSpec as DomainParameters>::ActionType,
         penalty_reward: <ContractProtocolSpec as DomainParameters>::UniversalReward)
         -> Result<Self::UpdatesIterator, <ContractProtocolSpec as DomainParameters>::GameErrorType> {
         let state_update =
         if self.state.is_turn_of_dummy() && Some(*agent) == self.state.current_player(){
-            ContractStateUpdate::new(self.state.dummy_side(), action)
+            ContractStateUpdate::new(self.state.dummy_side(), *action)
         } else {
-            ContractStateUpdate::new(agent.to_owned(), action)
+            ContractStateUpdate::new(agent.to_owned(), *action)
         };
         match self.state.update(state_update){
             Ok(_) => Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter()),
