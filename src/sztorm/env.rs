@@ -1,10 +1,23 @@
 use crate::player::side::{Side, SideMap, SIDES};
-use crate::sztorm::state::{ContractAction,  ContractState, ContractStateUpdate};
+use crate::sztorm::state::{
+    ContractAction,
+    ContractState,
+    ContractStateUpdate};
 use std::iter::IntoIterator;
 use log::warn;
 use sztorm::{comm::CommEndpoint, Reward};
-use sztorm::env::{BroadcastingEnv, CommunicatingEnv, DomainEnvironment, EnvironmentState, EnvironmentStateUniScore, EnvironmentWithAgents, ScoreEnvironment, StatefulEnvironment};
-use sztorm::protocol::{AgentMessage, DomainParameters, EnvMessage};
+use sztorm::env::{
+    BroadcastingEnv,
+    CommunicatingEnv,
+    EnvironmentState,
+    EnvironmentStateUniScore,
+    EnvironmentWithAgents,
+    ScoreEnvironment,
+    StatefulEnvironment};
+use sztorm::protocol::{
+    AgentMessage,
+    DomainParameters,
+    EnvMessage};
 use sztorm::state::State;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side::*;
@@ -161,45 +174,8 @@ where S: State<ContractProtocolSpec> {
 
 }
 
-impl<
-    S: EnvironmentState<ContractProtocolSpec> + ContractState,
-    C: CommEndpoint>
-DomainEnvironment<ContractProtocolSpec> for ContractEnv<S, C>{
-    //type DomainParameter<Spec> = ContractProtocolSpec;
-}
 
 pub struct ContractProcessor{
 
 }
 
-
-
-/*
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint> ConstructedEnvironment<ContractProtocolSpec, C> for ContractEnv<S, C>{
-    fn construct(state: S, mut env_comms: HashMap<Side, C>) -> Result<Self, SetupError<ContractProtocolSpec>> {
-
-        let comm = SideMap::new(
-            match env_comms.remove(&North){
-                None => return Err(SetupError::MissingId(North)),
-                Some(c) => c
-            },
-            match env_comms.remove(&East){
-                None => return Err(SetupError::MissingId(East)),
-                Some(c) => c
-            },
-            match env_comms.remove(&South){
-                None => return Err(SetupError::MissingId(South)),
-                Some(c) => c
-            },
-            match env_comms.remove(&West){
-                None => return Err(SetupError::MissingId(West)),
-                Some(c) => c
-            },
-
-        );
-        Ok(Self{comm, state})
-
-
-
-    }
-}*/
