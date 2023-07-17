@@ -5,25 +5,25 @@ use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
 use sztorm::state::agent::{ScoringInformationSet};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
-use crate::sztorm::spec::ContractProtocolSpec;
+use crate::sztorm::spec::ContractDP;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 
 pub struct TracingContractAgent<
-    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+    S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec>>{
+    P: Policy<ContractDP>>{
 
     state: S,
     comm: C,
     policy: P,
     //trace: SmallVec<[ContractTraceStep<S>;HAND_SIZE]>,
-    trace: GameTrace<ContractProtocolSpec, S>,
+    trace: GameTrace<ContractDP, S>,
     last_action: Option<<S::ActionIteratorType as IntoIterator>::Item>,
     //last_action_accumulated_reward: S::RewardType,
     last_action_state: Option<S>,
     //side: Side,
-    constructed_universal_reward: <ContractProtocolSpec as DomainParameters>::UniversalReward,
-    actual_universal_score: <ContractProtocolSpec as DomainParameters>::UniversalReward,
+    constructed_universal_reward: <ContractDP as DomainParameters>::UniversalReward,
+    actual_universal_score: <ContractDP as DomainParameters>::UniversalReward,
     //universal_rewards_stack: Vec<ContractProtocolSpec::UniversalReward>,
 
 }
@@ -31,9 +31,9 @@ pub struct TracingContractAgent<
 //#[allow(type_alias_bounds)]
 //pub type ContractTraceStep<S: InformationSet<ContractProtocolSpec>> = (S, <S::ActionIteratorType as IntoIterator>::Item, S::RewardType );
 impl<
-    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+    S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec>>
+    P: Policy<ContractDP>>
 TracingContractAgent<S, C, P>{
 
 
@@ -52,26 +52,14 @@ TracingContractAgent<S, C, P>{
         self.state = state;
         self.reset_trace();
     }
-    /*
-    fn reset_trace(&mut self){
-        //self.trace = Default::default();
-        self.trace.clear();
-        self.last_action = None;
-        //self.last_action_accumulated_reward = Default::default();
-    }
 
-    pub fn game_trace(&self) -> &GameTrace<ContractProtocolSpec, S>{
-        &self.trace
-    }
-
-     */
 
 }
 
-impl<S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+impl<S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec>>
-StatefulAgent<ContractProtocolSpec> for TracingContractAgent< S, C, P>{
+    P: Policy<ContractDP>>
+StatefulAgent<ContractDP> for TracingContractAgent< S, C, P>{
 
     type State = S;
 
@@ -84,10 +72,10 @@ StatefulAgent<ContractProtocolSpec> for TracingContractAgent< S, C, P>{
     }
 }
 
-impl< S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+impl< S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec, StateType = S>>
-ActingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
+    P: Policy<ContractDP, StateType = S>>
+ActingAgent<ContractDP> for TracingContractAgent<S, C, P>{
 
 
 
@@ -106,10 +94,10 @@ ActingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
     }
 }
 
-impl<S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+impl<S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec, StateType = S>>
-PolicyAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
+    P: Policy<ContractDP, StateType = S>>
+PolicyAgent<ContractDP> for TracingContractAgent<S, C, P>{
 
     type Policy = P;
 
@@ -123,29 +111,29 @@ PolicyAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 }
 
 impl<Spec: DomainParameters,
-    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+    S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec, StateType = S>>
-CommunicatingAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>
+    P: Policy<ContractDP, StateType = S>>
+CommunicatingAgent<ContractDP> for TracingContractAgent<S, C, P>
 //Spec: ProtocolSpecification,
-where C: CommEndpoint<OutwardType=AgentMessage<ContractProtocolSpec>, InwardType=EnvMessage<ContractProtocolSpec>, Error=CommError<Spec>>
+where C: CommEndpoint<OutwardType=AgentMessage<ContractDP>, InwardType=EnvMessage<ContractDP>, Error=CommError<Spec>>
 {
     type CommunicationError = C::Error;
 
-    fn send(&mut self, message: AgentMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
+    fn send(&mut self, message: AgentMessage<ContractDP>) -> Result<(), Self::CommunicationError> {
         self.comm.send(message)
     }
 
-    fn recv(&mut self) -> Result<EnvMessage<ContractProtocolSpec>, Self::CommunicationError> {
+    fn recv(&mut self) -> Result<EnvMessage<ContractDP>, Self::CommunicationError> {
         self.comm.recv()
     }
 }
 
 impl<
-    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+    S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec>>
-Agent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
+    P: Policy<ContractDP>>
+Agent<ContractDP> for TracingContractAgent<S, C, P>{
 
 
     fn id(&self) -> Side {
@@ -154,36 +142,36 @@ Agent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
 }
 
 impl<
-    S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+    S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec>>
-RewardedAgent<ContractProtocolSpec> for TracingContractAgent<S, C, P>{
-    fn current_universal_reward(&self) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+    P: Policy<ContractDP>>
+RewardedAgent<ContractDP> for TracingContractAgent<S, C, P>{
+    fn current_universal_reward(&self) -> <ContractDP as DomainParameters>::UniversalReward {
         self.constructed_universal_reward
     }
 
-    fn current_universal_reward_add(&mut self, reward_fragment: &<ContractProtocolSpec as DomainParameters>::UniversalReward) {
+    fn current_universal_reward_add(&mut self, reward_fragment: &<ContractDP as DomainParameters>::UniversalReward) {
         self.constructed_universal_reward += reward_fragment;
     }
 
 
-    fn current_universal_score(&self) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+    fn current_universal_score(&self) -> <ContractDP as DomainParameters>::UniversalReward {
         self.actual_universal_score + self.constructed_universal_reward
     }
 
 }
 
 
-impl<S: ScoringInformationSet<ContractProtocolSpec> + StateWithSide,
+impl<S: ScoringInformationSet<ContractDP> + StateWithSide,
     C: CommEndpoint,
-    P: Policy<ContractProtocolSpec>>
-TracingAgent<ContractProtocolSpec, S> for TracingContractAgent<S, C, P> {
+    P: Policy<ContractDP>>
+TracingAgent<ContractDP, S> for TracingContractAgent<S, C, P> {
     fn reset_trace(&mut self) {
         self.trace.clear();
         self.last_action = None;
     }
 
-    fn game_trajectory(&self) -> &GameTrace<ContractProtocolSpec, S> {
+    fn game_trajectory(&self) -> &GameTrace<ContractDP, S> {
         &self.trace
     }
 

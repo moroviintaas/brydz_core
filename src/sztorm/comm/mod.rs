@@ -1,7 +1,7 @@
 use sztorm::comm::SyncComm;
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage};
-use crate::sztorm::spec::ContractProtocolSpec;
+use crate::sztorm::spec::ContractDP;
 
-pub type ContractAgentSyncComm = SyncComm<AgentMessage<ContractProtocolSpec>, EnvMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
-pub type ContractEnvSyncComm = SyncComm<EnvMessage<ContractProtocolSpec>, AgentMessage<ContractProtocolSpec>, CommError<ContractProtocolSpec>>;
+pub type ContractAgentSyncComm = SyncComm<AgentMessage<ContractDP>, EnvMessage<ContractDP>, CommError<ContractDP>>;
+pub type ContractEnvSyncComm = SyncComm<EnvMessage<ContractDP>, AgentMessage<ContractDP>, CommError<ContractDP>>;

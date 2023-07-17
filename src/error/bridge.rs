@@ -7,7 +7,7 @@ use crate::error::bidding::BiddingErrorGen;
 #[cfg(feature="sztorm")]
 use sztorm::error::{InternalGameError, SztormError};
 #[cfg(feature="sztorm")]
-use crate::sztorm::spec::ContractProtocolSpec;
+use crate::sztorm::spec::ContractDP;
 
 
 use crate::error::contract::ContractErrorGen;
@@ -71,27 +71,15 @@ impl<Card: Card2SymTrait> std::error::Error for BridgeCoreErrorGen<Card>{}
 
 
 pub type BridgeCoreError = BridgeCoreErrorGen<Card>;
-/*
-impl<F: Figure, S: Suit>  From<std::io::Error> for BridgeError<F, S>{
-    fn from(e: std::io::Error) -> Self {
-        Self::IO(e.kind())
-    }
-}
-*/
-/*#[cfg_attr(feature = "sztorm", derive(Writable, Readable))]
-impl Into<TurError<ContractProtocolSpec>> for BridgeCoreError {
-    fn into(self) -> TurError<ContractProtocolSpec> {
-        TurError::GameError()
-    }
-}*/
+
 #[cfg(feature = "sztorm")]
-impl From<BridgeCoreError> for SztormError<ContractProtocolSpec>{
+impl From<BridgeCoreError> for SztormError<ContractDP>{
     fn from(value: BridgeCoreError) -> Self {
         Self::Game(value)
     }
 }
 
 #[cfg(feature = "sztorm")]
-impl  InternalGameError<ContractProtocolSpec> for BridgeCoreError{
+impl  InternalGameError<ContractDP> for BridgeCoreError{
 
 }

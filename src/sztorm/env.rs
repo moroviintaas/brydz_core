@@ -1,9 +1,7 @@
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::sztorm::state::{
     ContractAction,
-    ContractState,
-    ContractStateUpdate};
-use std::iter::IntoIterator;
+    ContractState};
 use log::warn;
 use sztorm::{comm::CommEndpoint, Reward};
 use sztorm::env::{
@@ -18,19 +16,17 @@ use sztorm::protocol::{
     AgentMessage,
     DomainParameters,
     EnvMessage};
-use sztorm::state::State;
 use crate::error::BridgeCoreError;
-use crate::player::side::Side::*;
-use crate::sztorm::spec::ContractProtocolSpec;
+use crate::sztorm::spec::ContractDP;
 
-pub struct ContractEnv<S: EnvironmentState<ContractProtocolSpec> + ContractState, C: CommEndpoint>{
+pub struct ContractEnv<S: EnvironmentState<ContractDP> + ContractState, C: CommEndpoint>{
     state: S,
     comm: SideMap<C>,
-    penalties: SideMap<<ContractProtocolSpec as DomainParameters>::UniversalReward>
+    penalties: SideMap<<ContractDP as DomainParameters>::UniversalReward>
 }
 
 impl<
-    S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    S: EnvironmentState<ContractDP> + ContractState,
     C: CommEndpoint>
 ContractEnv<S, C>{
     pub fn new(state: S, comm: SideMap<C>) -> Self{
@@ -38,7 +34,7 @@ ContractEnv<S, C>{
             state,
             comm,
             penalties: SideMap::new_symmetric(
-                <ContractProtocolSpec as DomainParameters>::UniversalReward::neutral())
+                <ContractDP as DomainParameters>::UniversalReward::neutral())
         }
     }
     pub fn replace_state(&mut self, state: S){
@@ -47,11 +43,11 @@ ContractEnv<S, C>{
 }
 
 impl<
-    S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    S: EnvironmentState<ContractDP> + ContractState,
     C: CommEndpoint<
-        OutwardType=EnvMessage<ContractProtocolSpec>,
-        InwardType=AgentMessage<ContractProtocolSpec>>>
-CommunicatingEnv<ContractProtocolSpec> for ContractEnv< S, C>{
+        OutwardType=EnvMessage<ContractDP>,
+        InwardType=AgentMessage<ContractDP>>>
+CommunicatingEnv<ContractDP> for ContractEnv< S, C>{
 
     type CommunicationError = C::Error;
     //type AgentId = Side;
@@ -59,29 +55,29 @@ CommunicatingEnv<ContractProtocolSpec> for ContractEnv< S, C>{
     fn send_to(
         &mut self,
         agent_id: &Side,
-        message: EnvMessage<ContractProtocolSpec>)
+        message: EnvMessage<ContractDP>)
         -> Result<(), Self::CommunicationError> {
 
         self.comm[agent_id].send(message)
     }
 
-    fn recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractProtocolSpec>, Self::CommunicationError> {
+    fn recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractDP>, Self::CommunicationError> {
         self.comm[agent_id].recv()
     }
 
-    fn try_recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractProtocolSpec>, Self::CommunicationError> {
+    fn try_recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractDP>, Self::CommunicationError> {
         self.comm[agent_id].try_recv()
     }
 }
 
-impl<S: EnvironmentState<ContractProtocolSpec> + ContractState,
+impl<S: EnvironmentState<ContractDP> + ContractState,
     C: CommEndpoint<
-        OutwardType=EnvMessage<ContractProtocolSpec>,
-        InwardType=AgentMessage<ContractProtocolSpec>>>
-BroadcastingEnv<ContractProtocolSpec> for ContractEnv<S, C>
+        OutwardType=EnvMessage<ContractDP>,
+        InwardType=AgentMessage<ContractDP>>>
+BroadcastingEnv<ContractDP> for ContractEnv<S, C>
 where <C as CommEndpoint>::OutwardType: Clone{
 
-    fn send_to_all(&mut self, message: EnvMessage<ContractProtocolSpec>) -> Result<(), Self::CommunicationError> {
+    fn send_to_all(&mut self, message: EnvMessage<ContractDP>) -> Result<(), Self::CommunicationError> {
         for s in SIDES{
             match self.comm[&s].send(message.clone()){
                 Ok(_) => {},
@@ -93,9 +89,9 @@ where <C as CommEndpoint>::OutwardType: Clone{
 }
 
 impl<
-    S: EnvironmentState<ContractProtocolSpec> + ContractState,
+    S: EnvironmentState<ContractDP> + ContractState,
     C: CommEndpoint>
-EnvironmentWithAgents<ContractProtocolSpec> for ContractEnv<S, C>{
+EnvironmentWithAgents<ContractDP> for ContractEnv<S, C>{
 
     type PlayerIterator = [Side; 4];
 
@@ -105,51 +101,51 @@ EnvironmentWithAgents<ContractProtocolSpec> for ContractEnv<S, C>{
 }
 
 impl<
-    S: EnvironmentState<ContractProtocolSpec> + ContractState + ContractState,
+    S: EnvironmentState<ContractDP> + ContractState + ContractState,
     C: CommEndpoint>
-StatefulEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
-where S: State<ContractProtocolSpec> {
+StatefulEnvironment<ContractDP> for ContractEnv<S, C>
+where S: EnvironmentState<ContractDP> {
     type State = S;
-    type UpdatesIterator = <[(Side, ContractStateUpdate);4] as IntoIterator>::IntoIter;
+    //type Updates = <[(Side, ContractStateUpdate);4] as IntoIterator>::IntoIter;
 
     fn state(&self) -> &Self::State {
         &self.state
     }
 
-    fn process_action(&mut self, agent: &Side, action: &ContractAction) -> Result<Self::UpdatesIterator, BridgeCoreError> {
+    fn process_action(&mut self, agent: &Side, action: &ContractAction)
+        -> Result<<Self::State as EnvironmentState<ContractDP>>::Updates, BridgeCoreError> {
 
-        let state_update =
-        if self.state.is_turn_of_dummy() && Some(*agent) == self.state.current_player(){
-            ContractStateUpdate::new(self.state.dummy_side(), action.clone())
-        } else {
-            ContractStateUpdate::new(agent.to_owned(), action.clone())
-        };
-        self.state.update(state_update)?;
-        Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter())
+        self.state.forward(*agent, *action)
     }
-
-
-
-
 }
+
+
 impl<
-    S: EnvironmentState<ContractProtocolSpec>
-        + ContractState + EnvironmentStateUniScore<ContractProtocolSpec> ,
+    S: EnvironmentState<ContractDP>
+        + ContractState + EnvironmentStateUniScore<ContractDP> ,
     C: CommEndpoint>
-ScoreEnvironment<ContractProtocolSpec> for ContractEnv<S, C>
-where S: State<ContractProtocolSpec> {
+ScoreEnvironment<ContractDP> for ContractEnv<S, C>
+where S: EnvironmentState<ContractDP> {
     fn process_action_penalise_illegal(
         &mut self,
-        agent: &<ContractProtocolSpec as DomainParameters>::AgentId,
-        action: &<ContractProtocolSpec as DomainParameters>::ActionType,
-        penalty_reward: <ContractProtocolSpec as DomainParameters>::UniversalReward)
-        -> Result<Self::UpdatesIterator, <ContractProtocolSpec as DomainParameters>::GameErrorType> {
+        agent: &<ContractDP as DomainParameters>::AgentId,
+        action: &<ContractDP as DomainParameters>::ActionType,
+        penalty_reward: <ContractDP as DomainParameters>::UniversalReward)
+
+        -> Result<
+            <<Self as StatefulEnvironment<ContractDP>>::State as EnvironmentState<ContractDP>>::Updates, <ContractDP as DomainParameters>::GameErrorType> {
+
+        /*
         let state_update =
         if self.state.is_turn_of_dummy() && Some(*agent) == self.state.current_player(){
             ContractStateUpdate::new(self.state.dummy_side(), *action)
         } else {
             ContractStateUpdate::new(agent.to_owned(), *action)
         };
+
+
+
+
         match self.state.update(state_update){
             Ok(_) => Ok([(North,state_update),(East,state_update),(South,state_update), (West, state_update)].into_iter()),
             Err(err) => {
@@ -158,17 +154,25 @@ where S: State<ContractProtocolSpec> {
                 Err(err)
             }
         }
+        */
+
+        self.state.forward(*agent, *action).map_err(|e|{
+            self.penalties[agent] += &penalty_reward;
+            e
+        })
+
+
     }
 
-    fn actual_state_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+    fn actual_state_score_of_player(&self, agent: &<ContractDP as DomainParameters>::AgentId) -> <ContractDP as DomainParameters>::UniversalReward {
         self.state.state_score_of_player(agent)
     }
 
-    fn actual_penalty_score_of_player(&self, agent: &<ContractProtocolSpec as DomainParameters>::AgentId) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+    fn actual_penalty_score_of_player(&self, agent: &<ContractDP as DomainParameters>::AgentId) -> <ContractDP as DomainParameters>::UniversalReward {
         self.penalties[agent]
     }
 
-    fn actual_score_of_player(&self, agent: &Side) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+    fn actual_score_of_player(&self, agent: &Side) -> <ContractDP as DomainParameters>::UniversalReward {
         self.state.state_score_of_player(agent)
     }
 

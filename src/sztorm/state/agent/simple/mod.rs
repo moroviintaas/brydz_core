@@ -9,8 +9,7 @@ use log::debug;
 use karty::cards::Card2SymTrait;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use crate::deal::BiasedHandDistribution;
-use crate::sztorm::spec::ContractProtocolSpec;
-use sztorm::state::State;
+use crate::sztorm::spec::ContractDP;
 
 #[cfg(feature = "neuro")]
 mod state_history_tensor;
@@ -29,7 +28,7 @@ impl ContractAgentInfoSetSimple {
     }
 }
 
-
+/*
 impl State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
     //type UpdateType = ContractStateUpdate;
     //type Error = BridgeCoreError;
@@ -77,7 +76,9 @@ impl State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
 
 }
 
-impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+
+ */
+impl InformationSet<ContractDP> for ContractAgentInfoSetSimple {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
     //type Id = Side;
@@ -142,9 +143,49 @@ impl InformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
         }
     }
 
+    fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
+        //debug!("Agent {} received state update: {:?}", self.side, &update);
+        let (side, action) = update.into_tuple();
+        match action{
+            ContractAction::ShowHand(dhand) => match side{
+                s if s == self.contract.dummy() => match self.dummy_hand{
+                    Some(_) => panic!("Behavior when dummy shows hand second time"),
+                    None => {
+                        self.dummy_hand = Some(dhand);
+                        Ok(())
+                    }
+
+                }
+                _ => panic!("Non defined behaviour when non dummy shows hand.")
+
+            }
+            ContractAction::PlaceCard(card) => {
+                let actual_side = match self.contract.dummy() == self.contract.current_side(){
+                    false => side,
+                    true => match side == self.contract.dummy().partner(){
+                        true => self.contract.dummy(),
+                        false => side
+                    }
+                };
+                debug!("Agent {:?}: actual_side: {:?}", &self.side, &actual_side);
+                self.contract.insert_card(actual_side, card)?;
+                if actual_side == self.side{
+                    self.hand.remove_card(&card)?
+                }
+                if actual_side == self.contract.dummy(){
+                    if let Some(ref mut dh) = self.dummy_hand{
+                        dh.remove_card(&card)?
+                    }
+                }
+                Ok(())
+
+            }
+        }
+    }
+
 
 }
-impl ScoringInformationSet<ContractProtocolSpec> for ContractAgentInfoSetSimple {
+impl ScoringInformationSet<ContractDP> for ContractAgentInfoSetSimple {
     type RewardType = u32;
 
     fn current_subjective_score(&self) -> Self::RewardType {
@@ -409,7 +450,7 @@ mod tests{
     use karty::cards::{*};
     use karty::hand::CardSet;
     use karty::suits::Suit::Hearts;
-    use sztorm::state::State;
+    use sztorm::state::agent::InformationSet;
     use crate::bidding::Bid;
     use crate::cards::trump::TrumpGen;
     use crate::contract::{Contract, ContractParametersGen};

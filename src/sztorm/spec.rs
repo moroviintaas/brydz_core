@@ -4,11 +4,11 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};
 
 #[derive(Clone, Copy, Debug)]
-pub struct ContractProtocolSpec{
+pub struct ContractDP {
 
 }
 
-impl DomainParameters for ContractProtocolSpec{
+impl DomainParameters for ContractDP {
     type ActionType = ContractAction;
     type GameErrorType = BridgeCoreError;
     type UpdateType = ContractStateUpdate;

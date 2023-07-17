@@ -4,13 +4,11 @@ use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
-use sztorm::env::generic::ActionProcessor;
 use sztorm::protocol::DomainParameters;
-use sztorm::state::State;
 use crate::player::side::{Side};
 use crate::player::side::Side::*;
-use crate::sztorm::env::ContractProcessor;
-use crate::sztorm::spec::ContractProtocolSpec;
+use crate::sztorm::spec::ContractDP;
+use crate::sztorm::state::ContractAction::{PlaceCard, ShowHand};
 
 #[derive(Clone)]
 pub struct ContractEnvStateMin{
@@ -46,7 +44,7 @@ impl ContractState for ContractEnvStateMin{
         self.contract.current_side()
     }
 }
-
+/*
 impl State<ContractProtocolSpec> for ContractEnvStateMin{
 
     fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
@@ -86,8 +84,9 @@ impl State<ContractProtocolSpec> for ContractEnvStateMin{
     }
 
 }
-
-impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
+*/
+impl EnvironmentState<ContractDP> for ContractEnvStateMin{
+    type Updates = [(Side, ContractStateUpdate);4];
 
     fn current_player(&self) -> Option<Side> {
         match self.contract.is_completed(){
@@ -105,17 +104,73 @@ impl EnvironmentState<ContractProtocolSpec> for ContractEnvStateMin{
         self.contract.is_completed()
     }
 
+    fn forward(&mut self, side: Side, action: ContractAction) -> Result<Self::Updates, BridgeCoreError> {
+        /*
+        let real_side = match self.is_turn_of_dummy(){
+            true => self.dummy_side(),
+            false => agent
+        };
+
+         */
+
+        debug!("Translating environment state by agent {:} using action {:?}", &side, &action);
+        match action{
+            ShowHand(dhand) => match side{
+                s if s == self.contract.dummy() => match self.dummy_hand{
+                    Some(_) => panic!("Behavior when dummy shows hand second time"),
+                    None => {
+                        self.dummy_hand = Some(dhand);
+                        let update =
+                            ContractStateUpdate::new(self.dummy_side(), ShowHand(dhand));
+                        Ok([
+                            (North, update.clone()),
+                            (East, update.clone()),
+                            (South, update.clone()),
+                            (West, update.clone())])
+                    }
+
+                }
+                _ => panic!("Non defined behaviour when non dummy shows hand.")
+
+            }
+            PlaceCard(card) => {
+                let actual_side = match self.contract.dummy() == self.contract.current_side(){
+                    false => side,
+                    true => match side == self.contract.dummy().partner(){
+                        true => self.contract.dummy(),
+                        false => side
+                    }
+                };
+                self.contract.insert_card(actual_side, card)?;
+                if side == self.contract.dummy(){
+                    if let Some(ref mut dh) = self.dummy_hand{
+                        dh.remove_card(&card)?
+                    }
+                }
+                let update = ContractStateUpdate::new(actual_side, PlaceCard(card));
+                Ok([
+                            (North, update.clone()),
+                            (East, update.clone()),
+                            (South, update.clone()),
+                            (West, update.clone())])
+
+            }
+        }
+
+
+
+    }
 }
 
-impl EnvironmentStateUniScore<ContractProtocolSpec> for ContractEnvStateMin{
+impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateMin{
 
 
-    fn state_score_of_player(&self, agent: &Side) -> <ContractProtocolSpec as DomainParameters>::UniversalReward {
+    fn state_score_of_player(&self, agent: &Side) -> <ContractDP as DomainParameters>::UniversalReward {
         self.contract.total_tricks_taken_axis(agent.axis()) as i32
     }
 
 }
-
+/*
 impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractProcessor{
     fn process_action(&self, state: &mut ContractEnvStateMin, agent_id: &Side, action: &ContractAction) -> Result<Vec<(Side, ContractStateUpdate)>, BridgeCoreError> {
         let state_update =
@@ -130,3 +185,5 @@ impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractPro
 
 
 }
+
+ */
