@@ -1,4 +1,4 @@
-use sztorm::agent::{ActingAgent, Agent, CommunicatingAgent, GameTrace, GameTraceLine, Policy, PolicyAgent, RewardedAgent, StatefulAgent, TracingAgent};
+use sztorm::agent::{ActingAgent, Agent, CommunicatingAgent, AgentTrajectory, AgentTrace, Policy, PolicyAgent, RewardedAgent, StatefulAgent, TracingAgent};
 use sztorm::{comm::CommEndpoint, Reward};
 use sztorm::error::CommError;
 use sztorm::protocol::{AgentMessage, EnvMessage, DomainParameters};
@@ -17,7 +17,7 @@ pub struct TracingContractAgent<
     comm: C,
     policy: P,
     //trace: SmallVec<[ContractTraceStep<S>;HAND_SIZE]>,
-    trace: GameTrace<ContractDP, S>,
+    trace: AgentTrajectory<ContractDP, S>,
     last_action: Option<<S::ActionIteratorType as IntoIterator>::Item>,
     //last_action_accumulated_reward: S::RewardType,
     last_action_state: Option<S>,
@@ -40,7 +40,7 @@ TracingContractAgent<S, C, P>{
     pub fn new(state: S, comm: C, policy: P) -> Self{
         Self{state, comm, policy,
             //trace: Default::default(),
-            trace: GameTrace::new(),
+            trace: AgentTrajectory::new(),
             last_action: None,
             //last_action_accumulated_reward: Default::default(),
             constructed_universal_reward: Reward::neutral(),
@@ -171,7 +171,7 @@ TracingAgent<ContractDP, S> for TracingContractAgent<S, C, P> {
         self.last_action = None;
     }
 
-    fn game_trajectory(&self) -> &GameTrace<ContractDP, S> {
+    fn game_trajectory(&self) -> &AgentTrajectory<ContractDP, S> {
         &self.trace
     }
 
@@ -185,7 +185,7 @@ TracingAgent<ContractDP, S> for TracingContractAgent<S, C, P> {
             let push_universal_reward = std::mem::replace(&mut self.constructed_universal_reward, Reward::neutral());
             self.actual_universal_score  += push_universal_reward;
             self.trace.push_line(
-                GameTraceLine::new(
+                AgentTrace::new(
                     self.last_action_state.take().unwrap(),
                     prev_action,
                     self.state.current_subjective_score() - prev_subjective_score,
