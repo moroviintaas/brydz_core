@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
-use std::ops::{Index, IndexMut, Sub};
+use std::ops::{Sub};
 use rand::Rng;
 use karty::random::RandomSymbol;
 use crate::player::axis::Axis;
@@ -194,29 +194,7 @@ impl<T1, T2> SideMap<(T1, T2)>{
 
 
 
-impl<T> Index<&Side> for SideMap<T>{
-    type Output = T;
 
-    fn index(&self, index: &Side) -> &Self::Output {
-        match index{
-            East => &self.east,
-            South => &self.south,
-            West => &self.west,
-            North => &self.north
-        }
-    }
-}
-
-impl<T> IndexMut<&Side> for SideMap<T>{
-    fn index_mut(&mut self, index: &Side) -> &mut Self::Output {
-        match index{
-            East => &mut self.east,
-            South => &mut self.south,
-            West => &mut self.west,
-            North => &mut self.north
-        }
-    }
-}
 
 impl<T:Copy> Copy for SideMap<T>{}
 /*
