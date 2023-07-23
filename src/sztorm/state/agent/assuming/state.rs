@@ -156,10 +156,14 @@ impl InformationSet<ContractDP> for ContractAgentInfoSetAssuming {
 
 }
 impl ScoringInformationSet<ContractDP> for ContractAgentInfoSetAssuming {
-    type RewardType = u32;
+    type RewardType = i32;
 
     fn current_subjective_score(&self) -> Self::RewardType {
-        self.contract.total_tricks_taken_axis(self.side.axis())
+        self.contract.total_tricks_taken_axis(self.side.axis()) as i32
+    }
+
+    fn penalty_for_illegal() -> Self::RewardType {
+        -100
     }
 }
 
