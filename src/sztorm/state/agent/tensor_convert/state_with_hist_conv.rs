@@ -1,7 +1,7 @@
 use tch::Tensor;
 use karty::cards::Card;
 use karty::symbol::CardSymbol;
-use sztorm::agent::learning::{TensorBuilder, TensorInterpreter};
+use sztorm_rl::tensor_repr::{TensorBuilder, TensorInterpreter};
 use crate::sztorm::state::{BuildStateHistoryTensor, ContractAction, ContractAgentInfoSetSimple, ConvertError};
 use crate::sztorm::state::agent::assuming::ContractAgentInfoSetAssuming;
 
