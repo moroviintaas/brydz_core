@@ -105,13 +105,7 @@ impl EnvironmentState<ContractDP> for ContractEnvStateMin{
     }
 
     fn forward(&mut self, side: Side, action: ContractAction) -> Result<Self::Updates, BridgeCoreError> {
-        /*
-        let real_side = match self.is_turn_of_dummy(){
-            true => self.dummy_side(),
-            false => agent
-        };
 
-         */
 
         debug!("Translating environment state by agent {:} using action {:?}", &side, &action);
         match action{
@@ -123,10 +117,10 @@ impl EnvironmentState<ContractDP> for ContractEnvStateMin{
                         let update =
                             ContractStateUpdate::new(self.dummy_side(), ShowHand(dhand));
                         Ok([
-                            (North, update.clone()),
-                            (East, update.clone()),
-                            (South, update.clone()),
-                            (West, update.clone())])
+                            (North, update),
+                            (East, update),
+                            (South, update),
+                            (West, update)])
                     }
 
                 }
@@ -149,10 +143,10 @@ impl EnvironmentState<ContractDP> for ContractEnvStateMin{
                 }
                 let update = ContractStateUpdate::new(actual_side, PlaceCard(card));
                 Ok([
-                            (North, update.clone()),
-                            (East, update.clone()),
-                            (South, update.clone()),
-                            (West, update.clone())])
+                            (North, update),
+                            (East, update),
+                            (South, update),
+                            (West, update)])
 
             }
         }
@@ -170,20 +164,3 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateMin{
     }
 
 }
-/*
-impl ActionProcessor<ContractProtocolSpec, ContractEnvStateMin > for ContractProcessor{
-    fn process_action(&self, state: &mut ContractEnvStateMin, agent_id: &Side, action: &ContractAction) -> Result<Vec<(Side, ContractStateUpdate)>, BridgeCoreError> {
-        let state_update =
-            if state.is_turn_of_dummy() && Some(*agent_id) == state.current_player(){
-                ContractStateUpdate::new(state.dummy_side(), action.clone())
-            } else {
-                ContractStateUpdate::new(*agent_id, action.clone())
-            };
-        state.update(state_update)?;
-        Ok(vec![(North,state_update),(East,state_update),(South,state_update), (West, state_update)])
-    }
-
-
-}
-
- */

@@ -6,4 +6,6 @@ pub mod spec;
 pub mod comm;
 #[cfg(test)]
 mod test;
+pub mod world;
+
 pub use sztorm as re_export;

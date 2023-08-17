@@ -660,6 +660,10 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
         self.first_player
     }
 
+    pub fn first_card(&self) -> Option<&Card>{
+        self[self.first_player].as_ref()
+    }
+
 }
 
 impl<Card: Card2SymTrait> Default for TrickGen<Card>{

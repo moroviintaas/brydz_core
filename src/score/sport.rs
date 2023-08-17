@@ -170,7 +170,7 @@ for ScoreTableSport{
 
         }
         else{
-            Err(BridgeCoreErrorGen::Deal(ContractErrorGen::DealIncomplete))
+            Err(BridgeCoreErrorGen::Contract(ContractErrorGen::DealIncomplete))
         }
     }
 

@@ -15,9 +15,11 @@ pub enum ContractErrorGen<Card: Card2SymTrait>{
     IndexedOverCurrentTrick(usize),
     DummyReplaceAttempt,
     DummyNotPlaced,
+    DummyCardSetMissmatch,
     CurrentSidePresume(Side, Side),
     UndoOnEmptyContract,
-    UsedExhaustedSuit(Side, Card::Suit)
+    UsedExhaustedSuit(Side, Card::Suit),
+    IgnoredCalledSuit(Side, Card::Suit)
 
 }
 impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{
@@ -30,6 +32,6 @@ pub type ContractError = ContractErrorGen<Card>;
 
 impl<Card: Card2SymTrait> From<ContractErrorGen<Card>> for BridgeCoreErrorGen<Card>{
     fn from(e: ContractErrorGen<Card>) -> Self {
-        Self::Deal(e)
+        Self::Contract(e)
     }
 }

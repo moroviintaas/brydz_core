@@ -39,7 +39,7 @@ impl<S: SuitTrait> Display for BiddingErrorGen<S>{
 #[derive(Debug, Clone, PartialEq)]
 #[cfg_attr(feature = "speedy", derive(Writable, Readable))]
 pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
-    Deal(ContractErrorGen<Card>),
+    Contract(ContractErrorGen<Card>),
     Bidding(BiddingErrorGen<Card::Suit>),
     Score(ScoreError),
     Trick(TrickErrorGen<Card>),
@@ -54,7 +54,7 @@ pub enum BridgeCoreErrorGen<Card: Card2SymTrait>{
 impl<Card: Card2SymTrait> Display for BridgeCoreErrorGen<Card> {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self{
-            BridgeCoreErrorGen::Deal(deal_error)=> match f.alternate(){
+            BridgeCoreErrorGen::Contract(deal_error)=> match f.alternate(){
                 true => write!(f, "BridgeError::DealError {{ {deal_error:#} }} " ),
                 false => write!(f, "BridgeError::DealError {{ {deal_error} }} " ),
             }
