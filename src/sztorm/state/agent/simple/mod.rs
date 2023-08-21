@@ -13,6 +13,10 @@ use crate::sztorm::spec::ContractDP;
 
 #[cfg(feature = "neuro")]
 mod state_history_tensor;
+#[cfg(feature = "neuro")]
+mod state_tensor;
+#[cfg(feature = "neuro")]
+pub use state_tensor::*;
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
