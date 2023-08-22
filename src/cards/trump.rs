@@ -5,6 +5,7 @@ use rand::Rng;
 use karty::random::RandomSymbol;
 use karty::suits::{SuitTrait, Suit};
 use karty::suits::Suit::{Clubs, Diamonds, Hearts, Spades};
+use karty::symbol::CardSymbol;
 
 #[cfg(feature="speedy")]
 use crate::speedy::{Readable, Writable};
@@ -27,6 +28,8 @@ impl<R: Rng, S: SuitTrait> RandomSymbol<R> for TrumpGen<S>{
         }
     }
 }
+
+
 /*
 
 impl<S: SuitTrait> Distribution<TrumpGen<S>> for Standard
@@ -87,6 +90,27 @@ impl<ST: SuitTrait + Serialize> Serialize for TrumpGen<ST>{
 
     }
 }*/
+
+impl From<Trump> for f32{
+    fn from(value: Trump) -> Self {
+        match value{
+            Colored(s) => {
+                s.usize_index() as f32
+            }
+            NoTrump => 4.0
+        }
+    }
+}
+impl From<&Trump> for f32{
+    fn from(value: &Trump) -> Self {
+        match value{
+            Colored(s) => {
+                s.usize_index() as f32
+            }
+            NoTrump => 4.0
+        }
+    }
+}
 
 #[cfg(feature = "serde_dedicate")]
 mod serialize_dedicated{
