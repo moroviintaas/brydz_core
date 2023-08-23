@@ -47,6 +47,105 @@
 /// }
 /// ```
 pub struct ContractStateConverter{}
+pub(crate) mod contract_state_converter_common {
+    use karty::cards::{Card2SymTrait, DECK_SIZE, STANDARD_DECK_CDHS};
+    use karty::hand::HandTrait;
+    use karty::symbol::CardSymbol;
+    use crate::bidding::Doubling;
+    use crate::contract::ContractMechanics;
+    use crate::sztorm::state::{ContractInfoSet};
+
+    pub const SPARSE_DECK_SIZE: usize = 52;
+    pub const TRICK_REPRESENTATION_SIZE: usize = 2 * 4; //two numbers for suit and figure x 4 5 players
+    pub const TRICK_NUMBER: usize = 13;
+    pub const CONTRACT_TRUMP_OFFSET: usize = 1;
+    pub const CONTRACT_VALUE_OFFSET: usize = CONTRACT_TRUMP_OFFSET + 1;
+    pub const DOUBLING_OFFSET: usize = CONTRACT_VALUE_OFFSET + 1;
+    pub const DECLARER_DIST_OFFSET: usize = DOUBLING_OFFSET + 1;
+    pub const WHIST_DIST_OFFSET: usize = DECLARER_DIST_OFFSET + SPARSE_DECK_SIZE;
+    pub const DUMMY_DIST_OFFSET: usize = WHIST_DIST_OFFSET + SPARSE_DECK_SIZE;
+    pub const OFFSIDE_DIST_OFFSET: usize = DUMMY_DIST_OFFSET + SPARSE_DECK_SIZE;
+    pub const CURRENT_DUMMY_CARDS: usize = OFFSIDE_DIST_OFFSET + SPARSE_DECK_SIZE;
+    pub const CURRENT_OWN_CARDS: usize = CURRENT_DUMMY_CARDS + SPARSE_DECK_SIZE;
+    pub const TRICKS_OFFSET: usize = CURRENT_OWN_CARDS + SPARSE_DECK_SIZE;
+    pub const STATE_REPR_SIZE: usize = TRICKS_OFFSET + 13 * TRICK_REPRESENTATION_SIZE;
+
+    #[inline]
+    pub fn write_contract_params<T: ContractInfoSet>(state_repr: &mut [f32; STATE_REPR_SIZE], state: &T){
+        state_repr[0] = (state.side() - state.contract_data().contract_spec().declarer()) as f32;
+        state_repr[CONTRACT_TRUMP_OFFSET] = state.contract_data().contract_spec().bid().trump().into();
+        state_repr[CONTRACT_VALUE_OFFSET] = state.contract_data().contract_spec().bid().number() as f32;
+        state_repr[DOUBLING_OFFSET] = match state.contract_data().contract_spec().doubling(){
+            Doubling::None => 0.0,
+            Doubling::Double => 1.0,
+            Doubling::Redouble => 2.0
+        };
+    }
+    #[inline]
+    pub fn write_current_dummy<T: ContractInfoSet>(state_repr: &mut [f32; STATE_REPR_SIZE], state: &T){
+        if let Some(dhand) = state.dummy_hand(){
+            for card in STANDARD_DECK_CDHS{
+                if dhand.contains(&card){
+                    state_repr[CURRENT_DUMMY_CARDS + card.usize_index()] = 1.0;
+                }
+            }
+        } else {
+            for i in CURRENT_DUMMY_CARDS..CURRENT_DUMMY_CARDS+DECK_SIZE{
+                state_repr[i] = -1.0;
+            }
+        }
+    }
+    #[inline]
+    pub fn write_current_hand<T: ContractInfoSet>(state_repr: &mut [f32; STATE_REPR_SIZE], state: &T){
+        for card in STANDARD_DECK_CDHS{
+            if state.hand().contains(&card){
+                state_repr[CURRENT_OWN_CARDS + card.usize_index()] = 1.0;
+            }
+        }
+    }
+    #[inline]
+    pub fn write_tricks<T: ContractInfoSet>(state_repr: &mut [f32; STATE_REPR_SIZE], state: &T){
+        let declarer_side = state.contract_data().declarer();
+        let tricks_done = state.contract_data().completed_tricks().len();
+        //setting up completed tricks
+        for trick_num in 0..tricks_done{
+            let trick = &state.contract_data().completed_tricks()[trick_num];
+            for offset in 0..4{
+
+                state_repr[TRICKS_OFFSET + (trick_num * TRICK_REPRESENTATION_SIZE)  + (offset as usize * 2)]
+                    = match trick[declarer_side.next_i(offset)]{
+                    None => -1.0,
+                    Some(c) => c.suit().usize_index() as f32
+                };
+                state_repr[TRICKS_OFFSET + (trick_num * TRICK_REPRESENTATION_SIZE)  + (offset as usize * 2) + 1]
+                    = match trick[declarer_side.next_i(offset)]{
+                    None => -1.0,
+                    Some(c) => c.figure().usize_index() as f32
+                };
+            }
+
+        }
+        //setting not completed tricks with -1
+        for next_trick_num in tricks_done+1..TRICK_NUMBER{
+            for pos in 0..TRICK_REPRESENTATION_SIZE{
+                state_repr[TRICKS_OFFSET + (next_trick_num * TRICK_REPRESENTATION_SIZE) + pos] = -1.0;
+            }
+        }
+        //setting current trick
+        for offset in 0..4{
+            state_repr[TRICKS_OFFSET + (tricks_done * TRICK_REPRESENTATION_SIZE) + (offset as usize * 2)]
+                = match state.contract_data().current_trick()[declarer_side.next_i(offset)]{
+                None => -1.0,
+                Some(c) => c.suit().usize_index() as f32
+            };
+            state_repr[TRICKS_OFFSET + (tricks_done * TRICK_REPRESENTATION_SIZE) + (offset as usize * 2) + 1]
+                = match state.contract_data().current_trick()[declarer_side.next_i(offset)]{
+                None => -1.0,
+                Some(c) => c.figure().usize_index() as f32
+            };
+        }
+    }
+}
 
 
 //  0000:   ROLE {declarer: 0.0, whist: 1.0, dummy: 2.0, offside: 3.0}

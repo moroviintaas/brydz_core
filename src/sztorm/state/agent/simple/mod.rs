@@ -4,7 +4,7 @@ use crate::contract::{Contract, ContractMechanics};
 use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
-use crate::sztorm::state::{ContractAction, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet, StateWithSide};
+use crate::sztorm::state::{ContractAction, ContractInfoSet, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet, StateWithSide};
 use log::debug;
 use karty::cards::Card2SymTrait;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
@@ -32,56 +32,6 @@ impl ContractAgentInfoSetSimple {
     }
 }
 
-/*
-impl State<ContractProtocolSpec> for ContractAgentInfoSetSimple {
-    //type UpdateType = ContractStateUpdate;
-    //type Error = BridgeCoreError;
-
-    fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
-        //debug!("Agent {} received state update: {:?}", self.side, &update);
-        let (side, action) = update.into_tuple();
-        match action{
-            ContractAction::ShowHand(dhand) => match side{
-                s if s == self.contract.dummy() => match self.dummy_hand{
-                    Some(_) => panic!("Behavior when dummy shows hand second time"),
-                    None => {
-                        self.dummy_hand = Some(dhand);
-                        Ok(())
-                    }
-
-                }
-                _ => panic!("Non defined behaviour when non dummy shows hand.")
-
-            }
-            ContractAction::PlaceCard(card) => {
-                let actual_side = match self.contract.dummy() == self.contract.current_side(){
-                    false => side,
-                    true => match side == self.contract.dummy().partner(){
-                        true => self.contract.dummy(),
-                        false => side
-                    }
-                };
-                debug!("Agent {:?}: actual_side: {:?}", &self.side, &actual_side);
-                self.contract.insert_card(actual_side, card)?;
-                if actual_side == self.side{
-                    self.hand.remove_card(&card)?
-                }
-                if actual_side == self.contract.dummy(){
-                    if let Some(ref mut dh) = self.dummy_hand{
-                        dh.remove_card(&card)?
-                    }
-                }
-                Ok(())
-
-            }
-        }
-    }
-
-
-}
-
-
- */
 impl InformationSet<ContractDP> for ContractAgentInfoSetSimple {
     //type ActionType = ContractAction;
     type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
@@ -449,7 +399,23 @@ mod tensor{
 }
 
 
+impl ContractInfoSet for ContractAgentInfoSetSimple{
+    fn side(&self) -> Side {
+        self.side
+    }
 
+    fn contract_data(&self) -> &Contract {
+        &self.contract
+    }
+
+    fn dummy_hand(&self) -> Option<&CardSet> {
+        self.dummy_hand.as_ref()
+    }
+
+    fn hand(&self) -> &CardSet {
+        &self.hand
+    }
+}
 
 
 #[cfg(test)]

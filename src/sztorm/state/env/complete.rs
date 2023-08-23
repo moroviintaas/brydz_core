@@ -49,12 +49,12 @@ impl ContractEnvStateComplete{
 }
 
 impl ContractState for ContractEnvStateComplete{
-    fn dummy_side(&self) -> Side {
-        self.contract.dummy()
+    fn dummy_hand(&self) -> Option<&CardSet> {
+        Some(&self.dummy_hand)
     }
 
-    fn current_side(&self) -> Side {
-        self.contract.current_side()
+    fn contract_data(&self) -> &Contract {
+        &self.contract
     }
 }
 

@@ -36,12 +36,12 @@ impl ContractEnvStateMin{
 }
 
 impl ContractState for ContractEnvStateMin{
-    fn dummy_side(&self) -> Side {
-        self.contract.dummy()
+    fn dummy_hand(&self) -> Option<&CardSet> {
+        self.dummy_hand.as_ref()
     }
 
-    fn current_side(&self) -> Side {
-        self.contract.current_side()
+    fn contract_data(&self) -> &Contract {
+        &self.contract
     }
 }
 /*

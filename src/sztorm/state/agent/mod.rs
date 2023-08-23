@@ -3,7 +3,7 @@ mod dummy;
 mod hand_info;
 //#[cfg(feature = "fuzzy")]
 mod fuzzy_card_set;
-mod renewable_state;
+mod traits;
 mod assuming;
 mod tensor_convert;
 mod state_id;
@@ -12,7 +12,7 @@ pub use simple::*;
 pub use dummy::*;
 pub use hand_info::*;
 pub use fuzzy_card_set::*;
-pub use renewable_state::*;
+pub use traits::*;
 pub use tensor_convert::*;
 pub use state_id::*;
 
