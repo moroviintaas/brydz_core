@@ -4,30 +4,8 @@ use karty::hand::CardSet;
 use sztorm::{Action};
 use sztorm::state::StateUpdate;
 use crate::player::side::Side;
+use crate::sztorm::state::ContractAction;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[cfg_attr(feature = "speedy", derive(speedy::Writable, speedy::Readable))]
-pub enum ContractAction{
-    ShowHand(CardSet),
-    PlaceCard(Card)
-}
-
-impl Display for ContractAction{
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match f.alternate(){
-            true => match self{
-                ContractAction::ShowHand(h) => write!(f, "Hand|{h:#}|"),
-                ContractAction::PlaceCard(c) => write!(f, "{c:#}")
-            }
-            false => match self {
-                ContractAction::ShowHand(h) => write!(f, "Hand|{h:}|"),
-                ContractAction::PlaceCard(c) => write!(f, "{c:}")
-            }
-        }
-    }
-}
-
-impl Action for ContractAction{}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[allow(clippy::manual_slice_size_calculation)]

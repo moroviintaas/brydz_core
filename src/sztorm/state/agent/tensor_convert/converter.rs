@@ -1,3 +1,8 @@
+use tch::Tensor;
+use sztorm::state::agent::InformationSet;
+use sztorm_rl::tensor_repr::ConvStateToTensor;
+use crate::sztorm::spec::ContractDP;
+
 /// ```
 /// use brydz_core::bidding::{Bid, Doubling};
 /// use brydz_core::cards::trump::TrumpGen;
@@ -47,6 +52,16 @@
 /// }
 /// ```
 pub struct ContractStateConverter{}
+/*
+impl<S: InformationSet<ContractDP>, T: ConvStateToTensor<S>>
+ConvStateToTensor<Box<dyn InformationSet<ContractDP, ActionIteratorType=S::ActionIteratorType>>> for T{
+    fn make_tensor(&self, t: &Box<dyn InformationSet<ContractDP, ActionIteratorType=S::ActionIteratorType>>) -> Tensor {
+        self.make_tensor(t.as_ref())
+    }
+}
+
+ */
+
 pub(crate) mod contract_state_converter_common {
     use karty::cards::{Card2SymTrait, DECK_SIZE, STANDARD_DECK_CDHS};
     use karty::hand::HandTrait;

@@ -36,6 +36,8 @@ impl<T: CreatedContractInfoSet> CreatedContractInfoSet for Box<T>{
     }
 }
 
+//#[cfg(feature = "neuro")]
+//pub trait ContractInfoSetFull: CreatedContractInfoSet + RenewableContractInfoSet
 /*
 pub trait StandardContractInfoSet: CreatedContractInfoSet + RenewableContractInfoSet{}
 
