@@ -1,6 +1,6 @@
 use smallvec::SmallVec;
 use karty::hand::{HandSuitedTrait, HandTrait, CardSet};
-use crate::contract::{Contract, ContractMechanics};
+use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
@@ -8,7 +8,7 @@ use crate::sztorm::state::{ContractAction, ContractInfoSet, ContractStateUpdate,
 use log::debug;
 use karty::cards::Card2SymTrait;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
-use crate::deal::BiasedHandDistribution;
+use crate::deal::{BiasedHandDistribution, DescriptionDeckDeal};
 use crate::sztorm::spec::ContractDP;
 
 #[cfg(feature = "neuro")]
@@ -17,6 +17,7 @@ mod state_history_tensor;
 mod state_tensor;
 #[cfg(feature = "neuro")]
 pub use state_tensor::*;
+use sztorm::state::ConstructedState;
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -397,6 +398,24 @@ mod tensor{
     }
 
 }
+
+impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetSimple{
+    fn from_base_ref(base: &(Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (side, params, descript) = &base;
+
+        let contract = Contract::new(params.clone());
+        Self::new(*side, descript.cards[side] , contract, None)
+    }
+
+    fn from_base_consume(base: (Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (side, params, descript) = base;
+
+        let contract = Contract::new(params);
+        Self::new(side, descript.cards[&side] , contract, None)
+    }
+}
+
+
 
 
 impl ContractInfoSet for ContractAgentInfoSetSimple{

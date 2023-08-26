@@ -1,10 +1,12 @@
 use karty::hand::{HandTrait, CardSet};
-use crate::contract::{Contract, ContractMechanics};
+use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
 use sztorm::protocol::DomainParameters;
+use sztorm::state::ConstructedState;
+use crate::deal::DescriptionDeckDeal;
 use crate::player::side::{Side};
 use crate::player::side::Side::*;
 use crate::sztorm::spec::ContractDP;
@@ -163,4 +165,22 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateMin{
         self.contract.total_tricks_taken_axis(agent.axis()) as i32
     }
 
+}
+
+impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateMin{
+    fn from_base_ref(base: &(ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (params, _descript) = &base;
+
+
+
+        let contract = Contract::new(params.clone());
+        Self::new(contract, None)
+    }
+
+    fn from_base_consume(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let ( params, _descript) = base;
+
+        let contract = Contract::new(params);
+        Self::new(contract, None)
+    }
 }

@@ -5,7 +5,9 @@ use karty::error::{CardSetErrorGen};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
 use sztorm::protocol::DomainParameters;
-use crate::contract::{Contract, ContractMechanics};
+use sztorm::state::ConstructedState;
+use crate::contract::{Contract, ContractMechanics, ContractParameters};
+use crate::deal::DescriptionDeckDeal;
 use crate::error::{BridgeCoreError, ContractErrorGen};
 use crate::player::side::Side;
 use crate::player::side::Side::*;
@@ -193,4 +195,33 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateComplete{
         self.contract.total_tricks_taken_axis(agent.axis()) as i32
     }
 
+}
+
+impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateComplete{
+    fn from_base_ref(base: &(ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (params, descript) = &base;
+
+
+
+        let contract = Contract::new(params.clone());
+        let declarer = params.declarer();
+        Self::new( contract,
+                   descript.cards[&declarer],
+                   descript.cards[&declarer.next_i(1)],
+        descript.cards[&declarer.next_i(2)],
+        descript.cards[&declarer.next_i(3)])
+    }
+
+    fn from_base_consume(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let ( params, descript) = base;
+
+
+        let declarer = params.declarer();
+        let contract = Contract::new(params);
+        Self::new( contract,
+                   descript.cards[&declarer],
+                   descript.cards[&declarer.next_i(1)],
+        descript.cards[&declarer.next_i(2)],
+        descript.cards[&declarer.next_i(3)])
+    }
 }

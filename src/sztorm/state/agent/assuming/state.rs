@@ -1,10 +1,12 @@
+use std::ops::Deref;
 use log::debug;
 use smallvec::SmallVec;
 use karty::cards::Card2SymTrait;
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
-use crate::contract::{Contract, ContractMechanics};
-use crate::deal::BiasedHandDistribution;
+use sztorm::state::ConstructedState;
+use crate::contract::{Contract, ContractMechanics, ContractParameters};
+use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};
 use crate::error::BridgeCoreError;
 use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
@@ -29,6 +31,7 @@ impl ContractAgentInfoSetAssuming{
     pub fn new_fair(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self{
         Self{side, hand, dummy_hand, contract, card_distribution: Default::default()}
     }
+
     pub fn side(&self) -> &Side{
         &self.side
     }
@@ -208,5 +211,30 @@ impl ContractInfoSet for ContractAgentInfoSetAssuming{
 
     fn hand(&self) -> &CardSet {
         &self.hand
+    }
+}
+impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
+    fn from_base_ref(base: &(Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (side, params, descript) = &base;
+
+        let distr = match &descript.probabilities{
+            DealDistribution::Fair => Default::default(),
+            DealDistribution::Biased(biased) => biased.deref().clone()
+        };
+
+        let contract = Contract::new(params.clone());
+        Self::new(*side, descript.cards[&side], contract, None, distr)
+    }
+
+    fn from_base_consume(base: (Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (side, params, descript) = base;
+
+         let distr = match descript.probabilities{
+            DealDistribution::Fair => Default::default(),
+            DealDistribution::Biased(biased) => biased.deref().clone()
+        };
+
+        let contract = Contract::new(params);
+        Self::new(side, descript.cards[&side] , contract, None, distr)
     }
 }
