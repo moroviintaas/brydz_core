@@ -9,7 +9,7 @@ edition = "2021"
 serde = {version = "1.0.136", features = ["derive"], optional = true}
 serde_json = {version = "1.0.79"}
 rand = "0.8.5"
-itertools = "0.10.3"
+itertools = "0.11.0"
 arrayvec = {version = "0.7.2", features = ["serde"]}
 ron = {version = "0.8.0" , optional = true}
 nom = "7.1.0"
@@ -27,6 +27,7 @@ serde-big-array = "0.5.1"
 tch = {version = "0.13.0", optional = true}
 approx = "0.5.1"
 thiserror = "1.0.40"
+statrs = {version = "0.16.0", optional = true}
 
 
 [features]
@@ -36,7 +37,7 @@ serde = ["dep:serde", "parse"]
 serde_derive = ["dep:serde", "serde", "dep:ron"]
 serde_dedicate = ["dep:serde", "serde", "dep:ron"]
 serde_ron = ["dep:serde", "serde", "dep:ron"]
-sztorm = ["dep:sztorm", "dep:smallvec", "dep:log", "dep:num-rational"]
+sztorm = ["dep:sztorm", "dep:smallvec", "dep:log", "dep:num-rational", "statrs"]
 neuro = ["dep:sztorm_rl", "dep:tch", "sztorm"]
 parse = []
 

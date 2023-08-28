@@ -1,6 +1,8 @@
 use karty::symbol::CardSymbol;
-use rand::{prelude::SliceRandom, thread_rng};
-use karty::hand::HandTrait;
+use rand::{prelude::SliceRandom, Rng, thread_rng};
+use rand::rngs::ThreadRng;
+use karty::cards::STANDARD_DECK;
+use karty::hand::{CardSet, HandTrait};
 
 use crate::player::side::{Side, SideMap};
 use crate::player::side::Side::{East, North, South, West};
@@ -74,6 +76,22 @@ pub fn fair_bridge_deal<H: HandTrait>() -> SideMap<H>{
         result.west.insert_card(v.pop().unwrap()).unwrap();
     }
     result
+}
+
+
+pub fn distribute_standard_deck_on_4<R: Rng + ?Sized>(rng: &mut R) -> SideMap<CardSet>{
+    let mut cards = STANDARD_DECK;
+    let mut result = SideMap::<CardSet>::new_symmetric(CardSet::empty());
+    cards.shuffle(rng);
+    for i in 0..cards.len()/4{
+        result.north.insert_card(cards[i*4]).unwrap();
+        result.east.insert_card(cards[(i*4) + 1]).unwrap();
+        result.south.insert_card(cards[(i*4) + 2]).unwrap();
+        result.west.insert_card(cards[(i*4) + 3]).unwrap();
+
+    }
+    result
+
 }
 
 
