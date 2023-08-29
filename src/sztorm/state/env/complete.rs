@@ -198,21 +198,8 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateComplete{
 }
 
 impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateComplete{
-    fn from_base_ref(base: &(ContractParameters, DescriptionDeckDeal,)) -> Self {
-        let (params, descript) = &base;
 
-
-
-        let contract = Contract::new(params.clone());
-        let declarer = params.declarer();
-        Self::new( contract,
-                   descript.cards[&declarer],
-                   descript.cards[&declarer.next_i(1)],
-        descript.cards[&declarer.next_i(2)],
-        descript.cards[&declarer.next_i(3)])
-    }
-
-    fn from_base_consume(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn construct_from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
         let ( params, descript) = base;
 
 
@@ -223,5 +210,18 @@ impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> fo
                    descript.cards[&declarer.next_i(1)],
         descript.cards[&declarer.next_i(2)],
         descript.cards[&declarer.next_i(3)])
+    }
+}
+
+impl ConstructedState<ContractDP, (&ContractParameters, &DescriptionDeckDeal,)> for ContractEnvStateComplete {
+    fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal)) -> Self {
+        let (params, descript) = base;
+        let contract = Contract::new(params.clone());
+        let declarer = params.declarer();
+        Self::new(contract,
+                  descript.cards[&declarer],
+                  descript.cards[&declarer.next_i(1)],
+                  descript.cards[&declarer.next_i(2)],
+                  descript.cards[&declarer.next_i(3)])
     }
 }

@@ -214,19 +214,8 @@ impl ContractInfoSet for ContractAgentInfoSetAssuming{
     }
 }
 impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
-    fn from_base_ref(base: &(Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
-        let (side, params, descript) = &base;
 
-        let distr = match &descript.probabilities{
-            DealDistribution::Fair => Default::default(),
-            DealDistribution::Biased(biased) => biased.deref().clone()
-        };
-
-        let contract = Contract::new(params.clone());
-        Self::new(*side, descript.cards[&side], contract, None, distr)
-    }
-
-    fn from_base_consume(base: (Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
          let distr = match descript.probabilities{
@@ -236,5 +225,18 @@ impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDea
 
         let contract = Contract::new(params);
         Self::new(side, descript.cards[&side] , contract, None, distr)
+    }
+}
+impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
+    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal)) -> Self {
+        let (side, params, descript) = base;
+
+        let distr = match &descript.probabilities{
+            DealDistribution::Fair => Default::default(),
+            DealDistribution::Biased(biased) => biased.deref().clone()
+        };
+
+        let contract = Contract::new(params.clone());
+        Self::new(*side, descript.cards[&side], contract, None, distr)
     }
 }

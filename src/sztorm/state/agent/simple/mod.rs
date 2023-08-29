@@ -400,21 +400,22 @@ mod tensor{
 }
 
 impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetSimple{
-    fn from_base_ref(base: &(Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
-        let (side, params, descript) = &base;
 
-        let contract = Contract::new(params.clone());
-        Self::new(*side, descript.cards[side] , contract, None)
-    }
-
-    fn from_base_consume(base: (Side,  ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params);
         Self::new(side, descript.cards[&side] , contract, None)
     }
 }
+impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal)> for ContractAgentInfoSetSimple{
+    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal)) -> Self {
+        let (side, params, descript) = base;
 
+        let contract = Contract::new(params.clone());
+        Self::new(*side, descript.cards[side] , contract, None)
+    }
+}
 
 
 

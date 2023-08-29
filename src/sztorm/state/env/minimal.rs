@@ -168,19 +168,19 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateMin{
 }
 
 impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateMin{
-    fn from_base_ref(base: &(ContractParameters, DescriptionDeckDeal,)) -> Self {
-        let (params, _descript) = &base;
 
-
-
-        let contract = Contract::new(params.clone());
-        Self::new(contract, None)
-    }
-
-    fn from_base_consume(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn construct_from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
         let ( params, _descript) = base;
 
         let contract = Contract::new(params);
+        Self::new(contract, None)
+    }
+}
+
+impl ConstructedState<ContractDP, (&ContractParameters, &DescriptionDeckDeal)> for ContractEnvStateMin{
+    fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal)) -> Self {
+        let (params, _descript) = base;
+        let contract = Contract::new(params.clone());
         Self::new(contract, None)
     }
 }

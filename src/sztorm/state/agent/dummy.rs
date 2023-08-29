@@ -1,11 +1,13 @@
 use smallvec::{SmallVec, smallvec};
 use karty::hand::{HandTrait, CardSet};
-use crate::contract::{Contract, ContractMechanics};
+use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
+use sztorm::state::ConstructedState;
+use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;
 use crate::sztorm::spec::ContractDP;
 
@@ -110,5 +112,23 @@ impl ScoringInformationSet<ContractDP> for ContractDummyState{
 impl StateWithSide for ContractDummyState{
     fn id(&self) -> Side {
         self.side
+    }
+}
+
+impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractDummyState{
+
+    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
+        let (side, params, descript) = base;
+
+        let contract = Contract::new(params);
+        Self::new(side, descript.cards[&side] , contract)
+    }
+}
+impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal)> for ContractDummyState{
+    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal)) -> Self {
+        let (side, params, descript) = base;
+
+        let contract = Contract::new(params.clone());
+        Self::new(*side, descript.cards[side] , contract)
     }
 }
