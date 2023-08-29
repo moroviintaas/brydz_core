@@ -51,23 +51,6 @@ impl FuzzyCardSet{
         Self{probabilities: SuitMap::new_from_f(|_| Default::default()), expected_card_number: 0}
     }
 
-    /*
-    pub fn insert_card(card: Card, probability: FProbability){
-        //let previous_probability
-    }
-
-     */
-    /*
-    pub fn new_unchecked(probabilities: [f32; DECK_SIZE], expected_card_number: u8) -> Self{
-        Self{probabilities, expected_card_number: expected_card_number as f32}
-    }
-
-     */
-    /*
-    pub fn new_unchecked(probabilities: SuitMap<[f32; Figure::SYMBOL_SPACE]>, expected_card_number: u8) -> Self{
-        Self{probabilities, expected_card_number: expected_card_number as f32}
-    }
-    */
 
     pub fn new_from_f32_derive_sum(probabilities: SuitMap<[f32; Figure::SYMBOL_SPACE]>) -> Result<Self, FuzzyCardSetErrorGen<Card>>{
         let mut tmp = SuitMap::new_from_f(|_|[FProbability::Zero; Figure::SYMBOL_SPACE]);
@@ -88,21 +71,7 @@ impl FuzzyCardSet{
     }
 
     fn new_derive_sum(probabilities: SuitMap<[FProbability; Figure::SYMBOL_SPACE]>) -> Result<Self, FuzzyCardSetErrorGen<Card>>{
-        /*let mut tmp = SuitMap::new_from_f(|_|[FProbability::Zero; Figure::SYMBOL_SPACE]);
-        /*let sum = SUITS.iter().fold(0.0, |acc, x|{
-            acc + probabilities[*x].iter().sum::<f32>()
 
-        });*/
-
-        let mut sum = 0.0;
-        for s in SUITS{
-            for i in 0..probabilities[&s].len(){
-                sum += probabilities[&s][i];
-                tmp[&s][i] = probabilities[&s][i].try_into()?;
-            }
-        }*/
-        //let mut sf = Self{probabilities, expected_card_number: 0.0};
-        //sf.expected_card_number = sf.sum_probabilities();
 
         let mut global_sum = 0.0;
         for suit in SUITS{

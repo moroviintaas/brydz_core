@@ -7,6 +7,7 @@ mod traits;
 mod assuming;
 mod tensor_convert;
 mod state_id;
+mod all_knowing;
 
 pub use simple::*;
 pub use dummy::*;
@@ -15,6 +16,7 @@ pub use fuzzy_card_set::*;
 pub use traits::*;
 pub use tensor_convert::*;
 pub use state_id::*;
+pub use all_knowing::*;
 
 use thiserror::Error;
 
