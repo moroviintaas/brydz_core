@@ -82,8 +82,42 @@ impl<T> SideMap<T>{
         best
     }
 
-    pub fn rotate(&mut self, rhs: i8){
-        todo!()
+    /// Rotates map setting `point_before` to `point_after`.
+    /// # Example:
+    /// ```
+    /// use brydz_core::player::side::Side::{East, North, South, West};
+    /// use brydz_core::player::side::SideMap;
+    /// let mut sm = SideMap::new(0,1,2,3);
+    /// //What was at [North] will be now at [East]
+    /// sm.rotate(North, East);
+    /// assert_eq!(sm, SideMap::new(3,0,1,2));
+    /// sm.rotate(North, West);
+    /// assert_eq!(sm, SideMap::new(0,1,2,3));
+    /// sm.rotate(North, South);
+    /// assert_eq!(sm, SideMap::new(2,3,0,1));
+    /// ```
+    pub fn rotate(&mut self, point_before: Side, point_after: Side){
+        let rhs = point_after - point_before;
+
+        match rhs {
+            0 => {},
+            1 => {
+                std::mem::swap(&mut self.north, &mut self.east);
+                std::mem::swap(&mut self.north, &mut self.south);
+                std::mem::swap(&mut self.north, &mut self.west);
+            },
+            2 => {
+                std::mem::swap(&mut self.north, &mut self.south);
+                std::mem::swap(&mut self.east, &mut self.west);
+            },
+            3 => {
+                std::mem::swap(&mut self.north, &mut self.west);
+                std::mem::swap(&mut self.north, &mut self.south);
+                std::mem::swap(&mut self.north, &mut self.east);
+            },
+            _ => panic!("Should not happen")
+        }
+
     }
 
     pub fn fold_on_ref<B, F>(&self, init: B, f: F) -> B
