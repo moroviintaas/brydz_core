@@ -178,7 +178,7 @@ impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> fo
 }
 
 impl ConstructedState<ContractDP, (&ContractParameters, &DescriptionDeckDeal)> for ContractEnvStateMin{
-    fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal)) -> Self {
+    fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (params, _descript) = base;
         let contract = Contract::new(params.clone());
         Self::new(contract, None)

@@ -409,7 +409,7 @@ impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDea
     }
 }
 impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal)> for ContractAgentInfoSetSimple{
-    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal)) -> Self {
+    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params.clone());

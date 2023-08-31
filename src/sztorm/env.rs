@@ -40,6 +40,10 @@ ContractEnv<S, C>{
     pub fn replace_state(&mut self, state: S){
         self.state = state;
     }
+
+    pub fn comms_mut(&mut self) -> &mut SideMap<C>{
+        &mut self.comm
+    }
 }
 
 impl<

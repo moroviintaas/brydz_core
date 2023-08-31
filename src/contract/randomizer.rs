@@ -22,6 +22,19 @@ pub struct ContractRandomizer{
 
 }
 
+impl Default for ContractRandomizer{
+    fn default() -> Self {
+        Self{
+            contract_value_distr: RandUni::new(1,8),
+            trump_distribution: Multinomial::new(&[1.0, 1.0, 1.0, 1.0, 1.0], 1).unwrap(),
+
+            declarer_side: None,
+            doubling: None,
+        }
+    }
+
+}
+
 impl ContractRandomizer{
     /*
     pub fn new(min_contract: u8, max_contract: u8, clubs_p: f32, diamonds_p: f32,

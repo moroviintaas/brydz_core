@@ -6,6 +6,7 @@ use crate::bidding::{Doubling};
 use crate::player::side::Side;
 use crate::bidding::Bid;
 use crate::error::BiddingErrorGen;
+use crate::player::role::PlayRole;
 
 
 #[derive(Debug, Eq, PartialEq,  Clone)]
@@ -34,6 +35,15 @@ impl<S: SuitTrait> ContractParametersGen<S> {
     pub fn declarer(&self) -> Side{
         self.declarer
     }
+    pub fn whist(&self) -> Side{
+        self.declarer.next()
+    }
+    pub fn dummy(&self) -> Side{
+        self.declarer.next_i(2)
+    }
+    pub fn offside(&self) -> Side{
+        self.declarer.next_i(3)
+    }
 
     pub fn double(&mut self) -> Result<(), BiddingErrorGen<S>>{
         match self.doubling{
@@ -55,6 +65,16 @@ impl<S: SuitTrait> ContractParametersGen<S> {
             Doubling::Redouble => Err(ReDoubleAfterReDouble),
             Doubling::None => Err(ReDoubleWithoutDouble)
         }
+    }
+
+    pub fn map_side_to_role(&self, side: Side) -> PlayRole{
+        let i = side - self.declarer;
+        PlayRole::Declarer.next_i(i)
+    }
+
+    pub fn map_role_to_side(&self, role: PlayRole) -> Side{
+        let i = (role - PlayRole::Declarer).index();
+        self.declarer.next_i(i)
     }
 
 }

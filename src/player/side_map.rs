@@ -82,6 +82,10 @@ impl<T> SideMap<T>{
         best
     }
 
+    pub fn rotate(&mut self, rhs: i8){
+        todo!()
+    }
+
     pub fn fold_on_ref<B, F>(&self, init: B, f: F) -> B
     where
         Self: Sized,

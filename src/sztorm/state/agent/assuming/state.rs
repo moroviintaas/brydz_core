@@ -230,7 +230,7 @@ impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDea
     }
 }
 impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
-    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal)) -> Self {
+    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let distr = match &descript.probabilities{

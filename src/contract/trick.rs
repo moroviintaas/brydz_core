@@ -401,7 +401,7 @@ impl<Card: Card2SymTrait> TrickGen<Card>{
     /// use brydz_core::cards::trump::{Trump, TrumpGen};
     /// use brydz_core::cards::trump::TrumpGen::{Colored, NoTrump};
     /// use brydz_core::cards::deck::Deck;
-    /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, FirstDefender, SecondDefender};
+    /// use brydz_core::player::role::PlayRole::{Declarer, Dummy, Whist, Offside};
     /// use brydz_core::contract::{NoTrumpTrickSolver, SmartTrickSolver, SOLVE_CLUBS, SOLVE_HEARTS, SOLVE_NT, TrickGen, TrickSolver, TrumpTrickSolver};
     /// use brydz_core::player::side::Side::{North, South, East, West};
     /// use brydz_core::contract::suit_exhaust::SuitExhaust;
