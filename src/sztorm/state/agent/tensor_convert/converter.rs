@@ -1,6 +1,6 @@
 use tch::Tensor;
 use sztorm::state::agent::InformationSet;
-use sztorm_rl::tensor_repr::ConvStateToTensor;
+use sztorm_rl::tensor_repr::{ConvStateToTensor, WayToTensor};
 use crate::sztorm::spec::ContractDP;
 
 /// ```
@@ -52,6 +52,12 @@ use crate::sztorm::spec::ContractDP;
 /// }
 /// ```
 pub struct ContractStateConverter{}
+
+impl WayToTensor for ContractStateConverter{
+    fn desired_shape() -> &'static [i64] {
+        &[420]
+    }
+}
 /*
 impl<S: InformationSet<ContractDP>, T: ConvStateToTensor<S>>
 ConvStateToTensor<Box<dyn InformationSet<ContractDP, ActionIteratorType=S::ActionIteratorType>>> for T{

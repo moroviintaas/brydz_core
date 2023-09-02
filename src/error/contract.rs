@@ -19,7 +19,8 @@ pub enum ContractErrorGen<Card: Card2SymTrait>{
     CurrentSidePresume(Side, Side),
     UndoOnEmptyContract,
     UsedExhaustedSuit(Side, Card::Suit),
-    IgnoredCalledSuit(Side, Card::Suit)
+    IgnoredCalledSuit(Side, Card::Suit),
+    CardNotInHand(Side, Card),
 
 }
 impl<Card: Card2SymTrait>Display for ContractErrorGen<Card>{

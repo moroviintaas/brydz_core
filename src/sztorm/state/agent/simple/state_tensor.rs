@@ -1,5 +1,5 @@
 use tch::Tensor;
-use sztorm_rl::tensor_repr::ConvStateToTensor;
+use sztorm_rl::tensor_repr::{ConvertToTensor, ConvStateToTensor};
 use crate::sztorm::state::{ContractAgentInfoSetSimple, ContractStateConverter};
 use crate::sztorm::state::contract_state_converter_common::*;
 
@@ -35,6 +35,12 @@ impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractStateConverter{
 
         Tensor::from_slice(&state_repr[..])
 
+    }
+}
+
+impl ConvertToTensor<ContractStateConverter> for ContractAgentInfoSetSimple{
+    fn to_tensor(&self, way: &ContractStateConverter) -> Tensor {
+        way.make_tensor(self)
     }
 }
 

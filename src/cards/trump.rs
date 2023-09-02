@@ -71,8 +71,12 @@ impl<S: SuitTrait> Ord for TrumpGen<S>{
 }
 
 impl <S: SuitTrait + Display> Display for TrumpGen<S>{
-    fn fmt(&self, _f: &mut Formatter<'_>) -> std::fmt::Result {
-        todo!()
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self{
+            Colored(c) => {write!(f, "Trump: {c:}")}
+            NoTrump => {write!(f, "NoTrump")}
+        }
+
     }
 }
 

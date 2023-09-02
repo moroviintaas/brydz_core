@@ -25,6 +25,7 @@ pub struct ContractEnvStateComplete{
     whist_hand: CardSet,
     offside_hand: CardSet,
     contract: Contract,
+    dummy_shown: bool,
 }
 
 impl Index<Side> for ContractEnvStateComplete{
@@ -46,7 +47,7 @@ impl ContractEnvStateComplete{
                declarer_hand: CardSet, whist_hand: CardSet,
                dummy_hand: CardSet, offside_hand: CardSet)
     -> Self{
-        Self{contract, declarer_hand, whist_hand, dummy_hand, offside_hand}
+        Self{contract, declarer_hand, whist_hand, dummy_hand, offside_hand, dummy_shown: false}
     }
 }
 
@@ -68,7 +69,7 @@ impl EnvironmentState<ContractDP> for ContractEnvStateComplete{
             true => None,
             false => Some(match self.contract.dummy() == self.contract.current_side(){
                 true => {
-                    if self.contract.completed_tricks().is_empty(){
+                    if !self.dummy_shown {
                         self.contract.current_side()
                     } else {
                         self.contract.current_side().partner()
@@ -110,13 +111,14 @@ impl EnvironmentState<ContractDP> for ContractEnvStateComplete{
     fn forward(&mut self, side: Side, action: ContractAction) -> Result<Self::Updates, BridgeCoreError> {
 
 
-        debug!("Translating environment state by agent {:} using action {:?}", &side, &action);
+        debug!("Translating environment state by agent {:} using action {}", &side, &action);
         match action{
             ShowHand(dhand) => match side{
                 s if s == self.contract.dummy() =>{
                     if dhand == self.dummy_hand{
                         let update =
                             ContractStateUpdate::new(self.dummy_side(), ShowHand(dhand));
+                        self.dummy_shown = true;
                         Ok([
                             (North, update),
                             (East, update),

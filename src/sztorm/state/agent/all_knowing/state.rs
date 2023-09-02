@@ -9,7 +9,8 @@ use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{DealDistribution, DescriptionDeckDeal};
-use crate::error::BridgeCoreError;
+use crate::error::{BridgeCoreError, BridgeCoreErrorGen};
+use crate::error::ContractErrorGen::CardNotInHand;
 use crate::meta::HAND_SIZE;
 use crate::player::side::{Side, SideMap};
 use crate::sztorm::spec::ContractDP;
@@ -131,7 +132,7 @@ impl InformationSet<ContractDP> for ContractAgentInfoSetAllKnowing{
                 debug!("Agent {:?}: actual_side: {:?}", &self.side, &actual_side);
                 if !self.deal[&actual_side].contains(&card){
                     //used card known to not be in players hand
-                    todo!()
+                    return Err(BridgeCoreErrorGen::Contract(CardNotInHand(actual_side, card)))
                 }
                 self.contract.insert_card(actual_side, card)?;
                 self.deal[&actual_side].remove_card(&card)?;

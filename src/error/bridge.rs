@@ -58,7 +58,7 @@ impl<Card: Card2SymTrait> Display for BridgeCoreErrorGen<Card> {
                 true => write!(f, "BridgeError::DealError {{ {deal_error:#} }} " ),
                 false => write!(f, "BridgeError::DealError {{ {deal_error} }} " ),
             }
-            _ => {todo!()}
+            _ => {write!(f, "error : {self:?}, //todo implement as thiserror")},
         }
 
     }
