@@ -4,10 +4,10 @@ use karty::hand::HandTrait;
 use karty::symbol::CardSymbol;
 use sztorm_rl::tensor_repr::ConvStateToTensor;
 use crate::contract::ContractMechanics;
-use crate::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractInfoSet, ContractStateConverter};
+use crate::sztorm::state::{ContractAgentInfoSetAllKnowing, ContractInfoSet, ContractInfoSetConvert420};
 use crate::sztorm::state::contract_state_converter_common::{DECLARER_DIST_OFFSET, STATE_REPR_SIZE, write_contract_params, write_current_dummy, write_current_hand, write_tricks};
 
-impl ConvStateToTensor<ContractAgentInfoSetAllKnowing> for ContractStateConverter{
+impl ConvStateToTensor<ContractAgentInfoSetAllKnowing> for ContractInfoSetConvert420 {
 
     fn make_tensor(&self, t: &ContractAgentInfoSetAllKnowing) -> Tensor {
 
