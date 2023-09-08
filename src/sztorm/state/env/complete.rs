@@ -1,5 +1,5 @@
 use std::ops::Index;
-use log::debug;
+use log::{debug, error};
 use karty::cards::Card2SymTrait;
 use karty::error::{CardSetErrorGen};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
@@ -42,12 +42,23 @@ impl Index<Side> for ContractEnvStateComplete{
     }
 }
 
+
+
 impl ContractEnvStateComplete{
     pub fn new(contract: Contract,
                declarer_hand: CardSet, whist_hand: CardSet,
                dummy_hand: CardSet, offside_hand: CardSet)
     -> Self{
         Self{contract, declarer_hand, whist_hand, dummy_hand, offside_hand, dummy_shown: false}
+    }
+    fn _index_mut(&mut self, index: Side) -> &mut CardSet{
+        match index - self.contract.declarer(){
+            0 => &mut self.declarer_hand,
+            1 => &mut self.whist_hand,
+            2 => &mut self.dummy_hand,
+            3 => &mut self.offside_hand,
+            _ => panic!("No such role")
+        }
     }
 }
 
@@ -162,18 +173,29 @@ impl EnvironmentState<ContractDP> for ContractEnvStateComplete{
                 }
                 if let Some(called_suit) = self.contract.current_trick().called_suit(){
                     if called_suit != card.suit() && self[actual_side].contains_in_suit(&called_suit){
+                        error!("Player {side:} ignored called suit: {called_suit} and played card {card:}");
                         return Err(ContractErrorGen::IgnoredCalledSuit(actual_side, called_suit).into());
                     }
                 }
 
 
                 self.contract.insert_card(actual_side, card)?;
+
+                /*
                 if side == self.contract.dummy(){
-                    /*if let Some(ref mut dh) = self.dummy_hand{
-                        dh.remove_card(&card)?
-                    }*/
                     self.dummy_hand.remove_card(&card)?;
                 }
+                if side == self.contract.declarer(){
+                    self.declarer_hand.remove_card(&card)?;
+                }
+                if side == self.contract.declarer().next(){
+                    self.whist_hand.remove_card(&card)?;
+                }
+                if side == self.contract.dummy().next(){
+                    self.offside_hand.remove_card(&card)?;
+                }*/
+
+                self._index_mut(actual_side).remove_card(&card)?;
                 let update = ContractStateUpdate::new(actual_side, PlaceCard(card));
                 Ok([
                             (North, update),
