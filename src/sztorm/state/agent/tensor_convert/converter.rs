@@ -51,6 +51,7 @@ use crate::sztorm::spec::ContractDP;
 ///     assert_eq!(v[i], -1.0);
 /// }
 /// ```
+#[derive(Default)]
 pub struct ContractInfoSetConvert420 {}
 
 impl WayToTensor for ContractInfoSetConvert420 {
@@ -58,6 +59,7 @@ impl WayToTensor for ContractInfoSetConvert420 {
         &[420]
     }
 }
+#[derive(Default)]
 pub struct ContractInfoSetConvert420Normalised {}
 impl WayToTensor for ContractInfoSetConvert420Normalised{
     fn desired_shape() -> &'static [i64] {

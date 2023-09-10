@@ -4,6 +4,7 @@ use karty::symbol::CardSymbol;
 use sztorm_rl::tensor_repr::{ConvertToTensor, WayToTensor};
 use crate::sztorm::state::ContractAction;
 
+#[derive(Default)]
 pub struct ContractActionWayToTensor{
 
 }
