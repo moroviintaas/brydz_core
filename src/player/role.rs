@@ -1,3 +1,4 @@
+use std::fmt::{Display, Formatter};
 use std::ops::Sub;
 pub use super::role_map::*;
 
@@ -52,6 +53,17 @@ impl PlayRole{
             },
             _ => panic!("Should not happen {self:?}, {i:}")
         }
+    }
+}
+
+impl Display for PlayRole{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}", match self{
+            PlayRole::Whist => "Whist",
+            PlayRole::Declarer => "Declarer",
+            PlayRole::Offside => "Offside",
+            PlayRole::Dummy => "Dummy",
+        })
     }
 }
 
