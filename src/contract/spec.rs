@@ -167,13 +167,13 @@ mod serde_for_contract_spec{
 
 #[cfg(test)]
 mod tests{
-    use karty::suits::Suit;
-    use karty::suits::Suit::*;
-    use crate::bidding::Bid;
-    use crate::bidding::Doubling::*;
-    use crate::cards::trump::TrumpGen;
-    use crate::contract::ContractParametersGen;
-    use crate::player::side::Side::{*};
+    
+    
+    
+    
+    
+    
+    
 
     #[test]
     #[cfg(feature = "serde_dedicate")]

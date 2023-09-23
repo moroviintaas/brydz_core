@@ -1,6 +1,6 @@
 use karty::symbol::CardSymbol;
 use rand::{prelude::SliceRandom, Rng, thread_rng};
-use rand::rngs::ThreadRng;
+
 use karty::cards::STANDARD_DECK;
 use karty::hand::{CardSet, HandTrait};
 

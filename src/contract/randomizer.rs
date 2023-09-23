@@ -1,6 +1,6 @@
 use rand::distributions::{Distribution, Uniform as RandUni};
-use rand::distributions::uniform::SampleRange;
-use rand::{Rng, thread_rng};
+
+use rand::{Rng};
 use rand::seq::SliceRandom;
 use statrs::distribution::Multinomial;
 use karty::suits::Suit;

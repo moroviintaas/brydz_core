@@ -246,10 +246,10 @@ pub mod consts {
 
 #[cfg(test)]
 mod tests{
-    use karty::suits::Suit;
-    use karty::suits::Suit::*;
-    use crate::bidding::Bid;
-    use crate::cards::trump::TrumpGen;
+    
+    
+    
+    
 
     #[test]
     #[cfg(feature = "serde_dedicate")]
