@@ -1,10 +1,10 @@
 use tch::Tensor;
 use karty::cards::{Card, DECK_SIZE};
 use karty::symbol::CardSymbol;
-use sztorm_rl::tensor_repr::ConvStateToTensor;
+use sztorm_rl::tensor_repr::{ConvertToTensor, ConvStateToTensor};
 use crate::contract::ContractMechanics;
 use crate::sztorm::state::agent::assuming::ContractAgentInfoSetAssuming;
-use crate::sztorm::state::{ContractInfoSet, ContractInfoSetConvert420};
+use crate::sztorm::state::{ContractInfoSet, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
 use crate::sztorm::state::contract_state_converter_common::{DECLARER_DIST_OFFSET, STATE_REPR_SIZE, write_contract_params, write_current_dummy, write_current_hand, write_tricks};
 
 impl ConvStateToTensor<ContractAgentInfoSetAssuming> for ContractInfoSetConvert420 {
@@ -29,5 +29,16 @@ impl ConvStateToTensor<ContractAgentInfoSetAssuming> for ContractInfoSetConvert4
 
         Tensor::from_slice(&state_repr[..])
 
+    }
+}
+impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetAssuming{
+    fn to_tensor(&self, way: &ContractInfoSetConvert420) -> Tensor {
+        way.make_tensor(self)
+    }
+}
+
+impl ConvertToTensor<ContractInfoSetConvertSparse> for ContractAgentInfoSetAssuming{
+    fn to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Tensor {
+        way.make_tensor(self)
     }
 }

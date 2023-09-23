@@ -1,3 +1,4 @@
+use karty::cards::Card;
 use karty::hand::CardSet;
 use sztorm::state::agent::{ScoringInformationSet};
 use crate::contract::{Contract, ContractMechanics};
@@ -13,6 +14,7 @@ pub trait ContractInfoSet{
         self.contract_data().dummy()
     }
     fn hand(&self) -> &CardSet;
+    fn hint_card_probability_for_player(&self, side: Side, card: &Card) -> f32;
 
 }
 

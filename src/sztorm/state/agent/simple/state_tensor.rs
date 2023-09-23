@@ -1,7 +1,7 @@
 use tch::Tensor;
 use sztorm_rl::tensor_repr::{ConvertToTensor, ConvStateToTensor};
-use crate::sztorm::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised};
-use crate::sztorm::state::contract_state_converter_common::*;
+use crate::sztorm::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised, ContractInfoSetConvertSparse};
+
 
 
 //  0000:   ROLE {declarer: 0.0, whist: 1.0, dummy: 2.0, offside: 3.0}
@@ -20,7 +20,7 @@ use crate::sztorm::state::contract_state_converter_common::*;
 impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420 {
 
     fn make_tensor(&self, t: &ContractAgentInfoSetSimple) -> Tensor {
-
+        use crate::sztorm::state::contract_state_converter_common::*;
 
         let mut state_repr = [0f32; STATE_REPR_SIZE];
         write_contract_params(&mut state_repr, t);
@@ -40,7 +40,7 @@ impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420
 
 impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420Normalised{
     fn make_tensor(&self, t: &ContractAgentInfoSetSimple) -> Tensor {
-
+        use crate::sztorm::state::contract_state_converter_common::*;
 
         let mut state_repr = [0f32; STATE_REPR_SIZE];
         write_contract_params_n(&mut state_repr, t);
@@ -60,6 +60,12 @@ impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420
 
 impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
     fn to_tensor(&self, way: &ContractInfoSetConvert420) -> Tensor {
+        way.make_tensor(self)
+    }
+}
+
+impl ConvertToTensor<ContractInfoSetConvertSparse> for ContractAgentInfoSetSimple{
+    fn to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Tensor {
         way.make_tensor(self)
     }
 }

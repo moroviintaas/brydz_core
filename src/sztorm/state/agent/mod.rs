@@ -17,6 +17,7 @@ pub use traits::*;
 pub use tensor_convert::*;
 pub use state_id::*;
 pub use all_knowing::*;
+pub use assuming::*;
 
 use thiserror::Error;
 

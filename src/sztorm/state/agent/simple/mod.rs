@@ -1,3 +1,4 @@
+use itertools::concat;
 use smallvec::SmallVec;
 use karty::hand::{HandSuitedTrait, HandTrait, CardSet};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
@@ -6,7 +7,8 @@ use crate::meta::HAND_SIZE;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractInfoSet, ContractStateUpdate, CreatedContractInfoSet, RenewableContractInfoSet, StateWithSide};
 use log::debug;
-use karty::cards::Card2SymTrait;
+use karty::cards::{Card, Card2SymTrait};
+use karty::register::Register;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use crate::deal::{BiasedHandDistribution, DescriptionDeckDeal};
 use crate::sztorm::spec::ContractDP;
@@ -31,6 +33,71 @@ impl ContractAgentInfoSetSimple {
     pub fn new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>) -> Self{
         Self{side, hand, dummy_hand, contract}
     }
+
+    /// ```
+    /// use brydz_core::bidding::{Bid, Doubling};
+    /// use brydz_core::cards::deck::Deck;
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::contract::{*};
+    /// use brydz_core::player::side::Side::*;
+    /// use brydz_core::sztorm::state::ContractAgentInfoSetSimple;
+    /// use karty::card_set;
+    /// use karty::cards::*;
+    /// use karty::suits::Suit::*;
+    /// let deck = Deck::new_sorted_by_figures();
+    /// let mut deal_1 = Contract::new(ContractParametersGen::new_d(North, Bid::init(TrumpGen::Colored(Diamonds), 1).unwrap(), Doubling::None));
+    ///
+    /// deal_1.insert_card(East, KING_SPADES).unwrap();
+    /// deal_1.insert_card(South, QUEEN_SPADES).unwrap();
+    /// deal_1.insert_card(West, JACK_SPADES).unwrap();
+    /// deal_1.insert_card(North, TWO_HEARTS).unwrap();
+    /// let i_s = ContractAgentInfoSetSimple::new(West, card_set![KING_HEARTS], deal_1, Some(card_set![TEN_HEARTS]));
+    /// assert!(i_s.possibly_has_card(West, &KING_HEARTS)); //has it
+    /// assert!(!i_s.possibly_has_card(West, &QUEEN_HEARTS)); // does not have
+    /// assert!(i_s.possibly_has_card(East, &QUEEN_HEARTS)); // hand not known, maybe
+    /// assert!(!i_s.possibly_has_card(East, &KING_SPADES)); // hand not known, card used
+    /// assert!(!i_s.possibly_has_card(North, &TWO_SPADES)); // hand not known, exhausted suit
+    /// assert!(i_s.possibly_has_card(North, &THREE_HEARTS)); //hand not known, maybe
+    /// assert!(!i_s.possibly_has_card(North, &KING_HEARTS)); //hand not known, card in own hand
+    /// assert!(!i_s.possibly_has_card(North, &TEN_HEARTS)); //hand not known, card in dummy hand
+    /// assert!(!i_s.possibly_has_card(South, &TWO_SPADES)); // dummy hand known, does not have
+    /// assert!(i_s.possibly_has_card(South, &TEN_HEARTS)); // dummy hand known, has
+    /// ```
+    pub fn possibly_has_card(&self, side: Side, card: &Card) -> bool{
+        if !self.contract.side_possibly_has_card(side, card){
+            return false;
+        }
+        if side == self.side && !self.hand.contains(card){
+            return false;
+        }
+        if side != self.side && self.hand.contains(card){
+            return false;
+        }
+        if let Some(d) = self.dummy_hand {
+            if side == self.contract.dummy() && !d.contains(card){
+                return false;
+            }
+            if side != self.contract.dummy() && d.contains(card){
+                return false;
+            }
+        }
+        true
+
+    }
+    pub fn surely_has_card(&self, side: Side, card: &Card) -> bool{
+        if side == self.side && self.hand.contains(card){
+            return true;
+        }
+        if let Some(d) = self.dummy_hand {
+            if side == self.contract.dummy() && d.contains(card){
+                return true;
+            }
+
+        }
+        false
+    }
+
+
 }
 
 impl InformationSet<ContractDP> for ContractAgentInfoSetSimple {
@@ -434,6 +501,40 @@ impl ContractInfoSet for ContractAgentInfoSetSimple{
 
     fn hand(&self) -> &CardSet {
         &self.hand
+    }
+
+    fn hint_card_probability_for_player(&self, side: Side, card: &Card) -> f32 {
+        if self.contract.card_used().is_registered(card){
+            return 0.0;
+        }
+        if self.side == side{
+            return match self.hand.contains(card){
+                true => 1.0,
+                false => 0.0
+            };
+        } else {
+            if self.hand.contains(card){
+                return 0.0; //this player has, other cant
+            }
+            if let Some(d) = self.dummy_hand{
+                //dummy shown
+                if side == self.contract.dummy(){
+                    //check dummys card
+                    return match d.contains(card){
+                        true => 1.0,
+                        false => 0.0
+                    }
+                }
+
+                //neither self nor dummy, card not marked as used
+                0.5
+
+            } else {
+                //dummy not shown, anyone except this can have
+                return 1.0/3.0;
+            }
+        }
+
     }
 }
 

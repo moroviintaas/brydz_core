@@ -1,8 +1,9 @@
-use std::ops::Deref;
+use std::ops::{Deref, Index};
 use log::debug;
 use smallvec::SmallVec;
-use karty::cards::Card2SymTrait;
+use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
+use karty::register::Register;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
@@ -47,6 +48,46 @@ impl ContractAgentInfoSetAssuming{
     pub fn distribution_assumption(&self) -> &BiasedHandDistribution{
         &self.card_distribution
     }
+
+    pub fn possibly_has_card(&self, side: Side, card: &Card) -> bool{
+        if !self.contract.side_possibly_has_card(side, card){
+            return false;
+        }
+        if self.card_distribution[side][card].is_zero(){
+            return false;
+        }
+        if side == self.side && !self.hand.contains(card){
+            return false;
+        }
+        if side != self.side && self.hand.contains(card){
+            return false;
+        }
+        if let Some(d) = self.dummy_hand {
+            if side == self.contract.dummy() && !d.contains(card){
+                return false;
+            }
+            if side != self.contract.dummy() && d.contains(card){
+                return false;
+            }
+        }
+        true
+
+    }
+    pub fn surely_has_card(&self, side: Side, card: &Card) -> bool{
+        if side == self.side && self.hand.contains(card){
+            return true;
+        }
+        if let Some(d) = self.dummy_hand {
+            if side == self.contract.dummy() && d.contains(card){
+                return true;
+            }
+
+        }
+        false
+    }
+
+
+
 }
 
 
@@ -213,6 +254,48 @@ impl ContractInfoSet for ContractAgentInfoSetAssuming{
 
     fn hand(&self) -> &CardSet {
         &self.hand
+    }
+
+    fn hint_card_probability_for_player(&self, side: Side, card: &Card) -> f32 {
+        if self.contract.card_used().is_registered(card){
+            return 0.0;
+        }
+        if self.side == side{
+            return match self.hand.contains(card){
+                true => 1.0,
+                false => 0.0
+            };
+        } else {
+            if self.hand.contains(card){
+                return 0.0; //this player has, other cant
+            }
+            if let Some(d) = self.dummy_hand{
+                //dummy shown
+                if side == self.contract.dummy(){
+                    //check dummys card
+                    return match d.contains(card){
+                        true => 1.0,
+                        false => 0.0
+                    }
+                }
+
+                //neither self nor dummy, card not marked as used
+                let initial_proba_this: f32 = self.card_distribution[self.side][card].into();
+                let initial_proba_dummy: f32 = self.card_distribution[self.contract.dummy()][card].into();
+                let remaining_proba = 1.0 - initial_proba_dummy - initial_proba_this;
+                assert!(remaining_proba >= 0.0);
+                let c_proba: f32 = self.card_distribution[side][card].into();
+                c_proba / remaining_proba
+
+
+            } else {
+                //dummy not shown, anyone except this can have
+                let initial_proba_this: f32 = self.card_distribution[self.side][card].into();
+                let remaining_proba = 1.0 -  initial_proba_this;
+                let c_proba: f32 = self.card_distribution[side][card].into();
+                return c_proba / remaining_proba;
+            }
+        }
     }
 }
 impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{

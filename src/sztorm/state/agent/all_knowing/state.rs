@@ -2,8 +2,9 @@
 use std::ops::Deref;
 use log::debug;
 use smallvec::SmallVec;
-use karty::cards::Card2SymTrait;
+use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
+use karty::register::Register;
 
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
@@ -44,6 +45,8 @@ impl ContractAgentInfoSetAllKnowing{
     pub fn initial_deal(&self) -> &SideMap<CardSet>{
         &self.initial_deal
     }
+
+
 
 }
 
@@ -176,6 +179,16 @@ impl ContractInfoSet for ContractAgentInfoSetAllKnowing{
 
     fn hand(&self) -> &CardSet {
         self.hand()
+    }
+
+    fn hint_card_probability_for_player(&self, side: Side, card: &Card) -> f32 {
+        if self.contract.card_used().is_registered(card){
+            return 0.0;
+        }
+        match self.deal[&side].contains(card){
+            true => 1.0,
+            false => 0.0
+        }
     }
 }
 

@@ -17,6 +17,22 @@ impl FProbability{
     pub fn is_uncertain(&self) -> bool{
         matches!(self, Self::Uncertain(_))
     }
+    pub fn is_zero(&self) -> bool{
+        match self{
+            FProbability::One => false,
+            FProbability::Zero => true,
+            FProbability::Uncertain(a) => a == &0.0,
+            FProbability::Bad(_) => false
+        }
+    }
+    pub fn is_one(&self) -> bool{
+        match self{
+            FProbability::One => true,
+            FProbability::Zero => false,
+            FProbability::Uncertain(a) => a == &1.0,
+            FProbability::Bad(_) => false
+        }
+    }
 }
 
 impl Mul<f32> for FProbability{
@@ -110,7 +126,18 @@ impl From<FProbability> for f32{
             FProbability::One => 1.0,
             FProbability::Zero => 0.0,
             FProbability::Uncertain(f) => f,
-            FProbability::Bad(b) => b
+            FProbability::Bad(b) => panic!("Bad number as probability: {b}")
+        }
+    }
+}
+
+impl From<FProbability> for f64{
+    fn from(value: FProbability) -> Self {
+         match value{
+            FProbability::One => 1.0,
+            FProbability::Zero => 0.0,
+            FProbability::Uncertain(f) => f.into(),
+            FProbability::Bad(b) => panic!("Bad number as probability: {b}")
         }
     }
 }

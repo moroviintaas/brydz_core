@@ -454,6 +454,35 @@ impl<Card: Card2SymTrait, Um: Register<Card>, Se: Register<(Side, Card::Suit)>> 
         &self.used_cards_memory
     }
 
+    /// ```
+    /// use brydz_core::bidding::{Bid, Doubling};
+    /// use brydz_core::cards::deck::Deck;
+    /// use brydz_core::cards::trump::TrumpGen;
+    /// use brydz_core::contract::{*};
+    /// use brydz_core::player::side::Side::*;
+    /// use karty::cards::*;
+    /// use karty::suits::Suit::*;
+    /// let deck = Deck::new_sorted_by_figures();
+    /// let mut deal_1 = Contract::new(ContractParametersGen::new_d(North, Bid::init(TrumpGen::Colored(Diamonds), 1).unwrap(), Doubling::None));
+    ///
+    /// deal_1.insert_card(East, KING_SPADES).unwrap();
+    /// deal_1.insert_card(South, QUEEN_SPADES).unwrap();
+    /// deal_1.insert_card(West, JACK_SPADES).unwrap();
+    /// deal_1.insert_card(North, TWO_HEARTS).unwrap();
+    /// assert!(deal_1.side_possibly_has_card(West,&TEN_SPADES));
+    /// assert!(!deal_1.side_possibly_has_card(West,&KING_SPADES));
+    /// assert!(!deal_1.side_possibly_has_card(North,&TWO_SPADES));
+    /// ```
+    pub fn side_possibly_has_card(&self, side: Side, card: &Card) -> bool{
+        if self.used_cards_memory.is_registered(card){
+            return false;
+        }
+        if self.exhaust_table.is_registered(&(side, card.suit())){
+            return false
+        }
+        true
+    }
+
 
 
 
