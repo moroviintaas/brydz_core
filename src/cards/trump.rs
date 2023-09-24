@@ -185,9 +185,9 @@ mod serialize_dedicated{
 
 #[cfg(test)]
 mod tests{
-    
-    
-    
+    use karty::suits::Suit;
+    use karty::suits::Suit::{Diamonds, Hearts};
+    use crate::cards::trump::TrumpGen;
 
     #[test]
     #[cfg(feature = "serde_dedicate")]
