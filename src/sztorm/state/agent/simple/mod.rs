@@ -1,4 +1,3 @@
-use itertools::concat;
 use smallvec::SmallVec;
 use karty::hand::{HandSuitedTrait, HandTrait, CardSet};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};

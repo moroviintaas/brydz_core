@@ -1,8 +1,8 @@
 use tch::Tensor;
-use sztorm_rl::tensor_repr::{ConvertToTensor, ConvStateToTensor, WayToTensor};
+use sztorm_rl::tensor_repr::{ConvStateToTensor, WayToTensor};
 use crate::player::side::SIDES;
 
-use crate::sztorm::state::{ContractAgentInfoSetSimple, ContractInfoSet};
+use crate::sztorm::state::{ContractInfoSet};
 
 #[derive(Default)]
 pub struct ContractInfoSetConvertSparse{}
@@ -50,14 +50,12 @@ pub(crate) mod contract_state_sparse_convert_with_init_assumption{
     //  0279-0330:      card placed partner [52 - 1.0 to flag card]
     //  0331-0382:      card placed partner [52 - 1.0 to flag card]
 
-    use karty::cards::{Card, STANDARD_DECK};
-    use karty::suits::Suit;
+    use karty::cards::{STANDARD_DECK};
     use karty::symbol::CardSymbol;
     use crate::bidding::Doubling;
     use crate::cards::trump::TrumpGen;
     use crate::contract::ContractMechanics;
     use crate::player::side::Side;
-    use crate::sztorm::state::contract_state_converter_common::TRICKS_OFFSET;
     use crate::sztorm::state::ContractInfoSet;
 
     pub const STATE_REPR_SIZE: usize = 383;
@@ -72,7 +70,9 @@ pub(crate) mod contract_state_sparse_convert_with_init_assumption{
     pub const CALLED_SUIT_OFFSET: usize = RIGHT_CARD_SET_OFFSET + SPARSE_DECK_SIZE;
     pub const TRICK_STARTING_SIDE_OFFSET: usize = CALLED_SUIT_OFFSET + 4;
     pub const LEFT_CARD_PLACED_OFFSET: usize = TRICK_STARTING_SIDE_OFFSET + 4;
+    #[allow(dead_code)]
     pub const PARTNER_CARD_PLACED_OFFSET: usize = LEFT_CARD_PLACED_OFFSET + SPARSE_DECK_SIZE;
+    #[allow(dead_code)]
     pub const RIGHT_CARD_PLACED_OFFSET: usize = PARTNER_CARD_PLACED_OFFSET + SPARSE_DECK_SIZE;
 
     #[cfg(test)]

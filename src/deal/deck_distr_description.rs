@@ -1,5 +1,5 @@
 use karty::hand::CardSet;
-use crate::deal::{BiasedHandDistribution, DealDistribution};
+use crate::deal::{DealDistribution};
 use crate::player::side::SideMap;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]

@@ -1,4 +1,4 @@
-use std::ops::{Deref, Index};
+use std::ops::{Deref};
 use log::debug;
 use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};

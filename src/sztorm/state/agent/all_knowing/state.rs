@@ -1,5 +1,3 @@
-
-use std::ops::Deref;
 use log::debug;
 use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
@@ -9,7 +7,7 @@ use karty::register::Register;
 use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
-use crate::deal::{DealDistribution, DescriptionDeckDeal};
+use crate::deal::{DescriptionDeckDeal};
 use crate::error::{BridgeCoreError, BridgeCoreErrorGen};
 use crate::error::ContractErrorGen::CardNotInHand;
 use crate::meta::HAND_SIZE;

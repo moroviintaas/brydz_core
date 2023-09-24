@@ -28,14 +28,9 @@ impl Action for ContractAction{}
 
 #[cfg(feature = "neuro")]
 mod neuro_impls{
-    use std::fmt::{Display, Formatter};
     use tch::Tensor;
-    use karty::cards::{Card, Card2SGen};
-    use karty::error::CardError;
-    use karty::figures::Figure;
-    use karty::suits::Suit;
+    use karty::cards::{Card};
     use karty::symbol::CardSymbol;
-    use sztorm::Action;
     use sztorm::error::ConvertError;
     use sztorm_rl::tensor_repr::ActionTensor;
     use crate::sztorm::state::ContractAction;
@@ -46,7 +41,7 @@ mod neuro_impls{
     impl ActionTensor for ContractAction{
         fn to_tensor(&self) -> Tensor {
             match self{
-                ContractAction::ShowHand(h) => panic!("Show hand is not expected to be converted to tensor - this is exclusive move of dummy"),
+                ContractAction::ShowHand(_) => panic!("Show hand is not expected to be converted to tensor - this is exclusive move of dummy"),
                 ContractAction::PlaceCard(c) => Tensor::from_slice(&[c.usize_index() as f32;1])
             }
         }
@@ -55,7 +50,7 @@ mod neuro_impls{
             let v: Vec<i64> = match Vec::try_from(t){
                 Ok(v) => v,
                 Err(e) => {
-                    return Err(ConvertError::ActionDeserialize(format!("{}", t)))
+                    return Err(ConvertError::ActionDeserialize(format!("{}: {e:}", t)))
                 }
             };
             let action_index = v[0];

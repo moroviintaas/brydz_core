@@ -16,7 +16,7 @@ impl WayToTensor for ContractActionWayToTensor{
 }
 
 impl ConvertToTensor<ContractActionWayToTensor> for ContractAction{
-    fn to_tensor(&self, way: &ContractActionWayToTensor) -> Tensor {
+    fn to_tensor(&self, _way: &ContractActionWayToTensor) -> Tensor {
         match self{
             ContractAction::ShowHand(_) => {panic!("Not prepared to convert show hand to tensor")}
             ContractAction::PlaceCard(c) => {

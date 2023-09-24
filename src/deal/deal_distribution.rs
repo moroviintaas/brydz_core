@@ -1,10 +1,8 @@
 use std::boxed::Box;
 use rand::distributions::Distribution;
 use rand::Rng;
-use rand::seq::SliceRandom;
-use karty::cards::STANDARD_DECK;
 use karty::hand::CardSet;
-use crate::deal::{BiasedHandDistribution, distribute_standard_deck_on_4, fair_bridge_deal};
+use crate::deal::{BiasedHandDistribution, distribute_standard_deck_on_4};
 use crate::player::side::SideMap;
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
