@@ -183,6 +183,12 @@ mod serialize_dedicated{
 }
 
 
+pub const TRUMP_CLUBS: Trump = Trump::Colored(Clubs);
+pub const TRUMP_DIAMONDS: Trump = Trump::Colored(Diamonds);
+pub const TRUMP_HEARTS: Trump = Trump::Colored(Hearts);
+pub const TRUMP_SPADES: Trump = Trump::Colored(Spades);
+pub const NO_TRUMP: Trump = Trump::NoTrump;
+
 #[cfg(test)]
 mod tests{
     use karty::suits::Suit;

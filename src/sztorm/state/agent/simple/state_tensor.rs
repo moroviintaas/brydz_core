@@ -64,6 +64,124 @@ impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
     }
 }
 
+/// ```
+/// use tch::Tensor;
+/// use brydz_core::bidding::Bid;
+/// use brydz_core::cards::trump::TRUMP_CLUBS;
+/// use brydz_core::contract::{Contract, ContractParameters};
+/// use brydz_core::player::side::Side;
+/// use brydz_core::player::side::Side::{East, North, South, West};
+/// use brydz_core::sztorm::state::{ContractAgentInfoSetSimple, ContractInfoSetConvertSparse, ContractStateUpdate};
+/// use brydz_core::sztorm::state::ContractAction::{PlaceCard, ShowHand};
+/// use karty::card_set;
+/// use karty::cards::*;
+/// use sztorm::state::agent::InformationSet;
+/// use sztorm_rl::tensor_repr::ConvertToTensor;
+/// let card_set = card_set!(
+///     THREE_CLUBS, FOUR_CLUBS, FIVE_CLUBS, NINE_CLUBS,
+///     QUEEN_CLUBS, KING_CLUBS, ACE_CLUBS, TWO_DIAMONDS,
+///     FOUR_DIAMONDS, QUEEN_DIAMONDS, TEN_SPADES, KING_SPADES, ACE_SPADES) ;
+/// let dummy_hand = card_set![
+///     TEN_CLUBS, JACK_CLUBS, SIX_DIAMONDS, KING_DIAMONDS,
+///     ACE_DIAMONDS, TWO_HEARTS, THREE_HEARTS, FIVE_HEARTS,
+///     SIX_HEARTS, TEN_HEARTS, JACK_HEARTS, KING_HEARTS, FIVE_SPADES
+/// ];
+/// let contract_params = ContractParameters::new(North, Bid::init(TRUMP_CLUBS, 3).unwrap());
+/// let contract = Contract::new(contract_params);
+/// let mut info_set = ContractAgentInfoSetSimple::new(Side::North, card_set, contract, None);
+/// info_set.update(ContractStateUpdate::new(East, PlaceCard(ACE_HEARTS))).unwrap();
+/// info_set.update(ContractStateUpdate::new(South, ShowHand(dummy_hand))).unwrap();
+/// let expected = vec![
+///     1.0, 0.0, 0.0, 0.0, //declarer
+///     1.0, 0.0, 0.0, 0.0, 0.0, // trump: clubs
+///     3.0/7.0, 0.0,    //value 3, doubling: no
+///     0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, // own clubs
+///     1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // own diwamonds
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // own hearts
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, // own spades
+///
+///     0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // left clubs
+///     0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, // left diamonds
+///     0.0, 0.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0, 0.0, // left hearts - (ace placed)
+///     0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.0, 0.0, // left spades
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, //partner clubs,
+///     0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, //partner diamonds,
+///     1.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, //partner hearts
+///     0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner spades
+///
+///     0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // right clubs
+///     0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, // right diamonds
+///     0.0, 0.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0, 0.0, // right hearts
+///     0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.0, 0.0, // right spades
+///
+///     0.0, 0.0, 1.0, 0.0, // called heart
+///     0.0, 1.0, 0.0, 0.0, // trick is started by player positioned one to the left
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //left placed card clubs
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //left placed card diam
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, //left placed card hearts (A)
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //left placed card spades
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card clubs
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card diam
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card hearts (A)
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card spades
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card clubs
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card diam
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card hearts (A)
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card spades
+/// ];
+/// let v: Vec<f32> = info_set.to_tensor(&ContractInfoSetConvertSparse{}).try_into().unwrap();
+/// assert_eq!(v, expected);
+/// info_set.update(ContractStateUpdate::new(North, PlaceCard(TWO_HEARTS))).unwrap();
+/// info_set.update(ContractStateUpdate::new(West, PlaceCard(FOUR_SPADES))).unwrap();
+/// let expected = vec![
+///     1.0, 0.0, 0.0, 0.0, //declarer
+///     1.0, 0.0, 0.0, 0.0, 0.0, // trump: clubs
+///     3.0/7.0, 0.0,    //value 3, doubling: no
+///     0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, 1.0, // own clubs
+///     1.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, // own diwamonds
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // own hearts
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 1.0, // own spades
+///
+///     0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // left clubs
+///     0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, // left diamonds
+///     0.0, 0.0, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.5, 0.0, 0.0, // left hearts - (ace placed)
+///     0.5, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.0, 0.0, // left spades
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, //partner clubs,
+///     0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, //partner diamonds,
+///     0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, //partner hearts
+///     0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner spades
+///
+///     0.5, 0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // right clubs
+///     0.0, 0.5, 0.0, 0.5, 0.0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.0, 0.0, 0.0, // right diamonds
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, // right hearts
+///     0.5, 0.5, 0.0, 0.0, 0.5, 0.5, 0.5, 0.5, 0.0, 0.5, 0.5, 0.0, 0.0, // right spades
+///
+///     0.0, 0.0, 1.0, 0.0, // called heart
+///     0.0, 1.0, 0.0, 0.0, // trick is started by player positioned one to the left
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //left placed card clubs
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //left placed card diam
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, //left placed card hearts (A)
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //left placed card spades
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card clubs
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card diam
+///     1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card hearts (A)
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //partner placed card spades
+///
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card clubs
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card diam
+///     0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card hearts (A)
+///     0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, //right placed card spades
+/// ];
+///  let v: Vec<f32> = info_set.to_tensor(&ContractInfoSetConvertSparse{}).try_into().unwrap();
+///  assert_eq!(v, expected);
+/// ```
 impl ConvertToTensor<ContractInfoSetConvertSparse> for ContractAgentInfoSetSimple{
     fn to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Tensor {
         way.make_tensor(self)

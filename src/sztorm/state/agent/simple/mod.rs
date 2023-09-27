@@ -506,6 +506,9 @@ impl ContractInfoSet for ContractAgentInfoSetSimple{
         if self.contract.card_used().is_registered(card){
             return 0.0;
         }
+        if self.contract.suits_exhausted().is_registered(&(side, card.suit())){
+            return 0.0;
+        }
         if self.side == side{
             return match self.hand.contains(card){
                 true => 1.0,
@@ -519,14 +522,19 @@ impl ContractInfoSet for ContractAgentInfoSetSimple{
                 //dummy shown
                 if side == self.contract.dummy(){
                     //check dummys card
-                    return match d.contains(card){
+                    match d.contains(card){
                         true => 1.0,
                         false => 0.0
+                    }
+                } else {
+                    match d.contains(card){
+                        true => 0.0,
+                        false => 0.5
                     }
                 }
 
                 //neither self nor dummy, card not marked as used
-                0.5
+                //0.5
 
             } else {
                 //dummy not shown, anyone except this can have
