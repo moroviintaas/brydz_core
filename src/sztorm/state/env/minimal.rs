@@ -4,7 +4,7 @@ use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
-use sztorm::protocol::DomainParameters;
+use sztorm::domain::DomainParameters;
 use sztorm::state::ConstructedState;
 use crate::deal::DescriptionDeckDeal;
 use crate::player::side::{Side};

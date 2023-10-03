@@ -1,4 +1,4 @@
-use sztorm::protocol::DomainParameters;
+use sztorm::domain::DomainParameters;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate};

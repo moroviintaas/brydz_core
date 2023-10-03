@@ -12,7 +12,7 @@ use sztorm::env::{
     EnvironmentWithAgents,
     ScoreEnvironment,
     StatefulEnvironment};
-use sztorm::protocol::{
+use sztorm::domain::{
     AgentMessage,
     DomainParameters,
     EnvMessage};
