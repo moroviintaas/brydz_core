@@ -64,4 +64,4 @@ mod neuro_impls{
 
 #[cfg(feature = "neuro")]
 pub use neuro_impls::*;
-use sztorm::Action;
+use sztorm::domain::Action;

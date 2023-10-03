@@ -3,7 +3,7 @@ use crate::sztorm::state::{
     ContractAction,
     ContractState};
 use log::warn;
-use sztorm::{comm::CommEndpoint, Reward};
+use sztorm::{comm::CommEndpoint};
 use sztorm::env::{
     BroadcastingEnv,
     CommunicatingEnv,
@@ -12,10 +12,7 @@ use sztorm::env::{
     EnvironmentWithAgents,
     ScoreEnvironment,
     StatefulEnvironment};
-use sztorm::domain::{
-    AgentMessage,
-    DomainParameters,
-    EnvMessage};
+use sztorm::domain::{AgentMessage, DomainParameters, EnvMessage, Reward};
 use crate::error::BridgeCoreError;
 use crate::sztorm::spec::ContractDP;
 
