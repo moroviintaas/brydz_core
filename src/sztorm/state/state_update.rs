@@ -1,5 +1,5 @@
 use std::fmt::{Debug, Display, Formatter};
-use sztorm::state::StateUpdate;
+//use sztorm::state::StateUpdate;
 use crate::player::side::Side;
 use crate::sztorm::state::ContractAction;
 
@@ -41,10 +41,12 @@ impl Display for ContractStateUpdate{
 }
 
 
-
+/*
 impl StateUpdate for ContractStateUpdate{
 
 }
+
+ */
 
 #[cfg(feature = "neuro")]
 mod tensor{

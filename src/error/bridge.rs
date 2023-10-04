@@ -78,8 +78,3 @@ impl From<BridgeCoreError> for SztormError<ContractDP>{
         Self::Game(value)
     }
 }
-
-#[cfg(feature = "sztorm")]
-impl  InternalGameError<ContractDP> for BridgeCoreError{
-
-}
