@@ -5,7 +5,7 @@ use karty::suits::{SuitTrait};
 use crate::error::bidding::BiddingErrorGen;
 
 #[cfg(feature="sztorm")]
-use sztorm::error::{InternalGameError, SztormError};
+use sztorm::error::{SztormError};
 #[cfg(feature="sztorm")]
 use crate::sztorm::spec::ContractDP;
 
