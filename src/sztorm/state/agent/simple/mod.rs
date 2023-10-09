@@ -8,7 +8,6 @@ use crate::sztorm::state::{ContractAction, ContractInfoSet, ContractStateUpdate,
 use log::debug;
 use karty::cards::{Card, Card2SymTrait};
 use karty::register::Register;
-use sztorm::state::agent::{InformationSet, ScoringInformationSet};
 use crate::deal::{BiasedHandDistribution, DescriptionDeckDeal};
 use crate::sztorm::spec::ContractDP;
 
@@ -18,6 +17,7 @@ mod state_history_tensor;
 mod state_tensor;
 #[cfg(feature = "neuro")]
 pub use state_tensor::*;
+use sztorm::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 
 #[derive(Debug, Clone)]
@@ -552,7 +552,7 @@ mod tests{
     use karty::cards::{*};
     use karty::hand::CardSet;
     use karty::suits::Suit::Hearts;
-    use sztorm::state::agent::InformationSet;
+    use sztorm::agent::InformationSet;
     use crate::bidding::Bid;
     use crate::cards::trump::TrumpGen;
     use crate::contract::{Contract, ContractParametersGen};

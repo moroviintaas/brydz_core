@@ -5,7 +5,7 @@ use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
-use sztorm::state::agent::{InformationSet, ScoringInformationSet};
+use sztorm::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;

@@ -11,7 +11,7 @@ use sztorm_rl::tensor_repr::{ WayToTensor};
 /// use karty::card_set;
 /// use karty::suits::Suit::Diamonds;
 /// use karty::cards::*;
-/// use sztorm::state::agent::InformationSet;
+/// use sztorm::agent::InformationSet;
 /// use sztorm_rl::tensor_repr::ConvStateToTensor;
 /// let final_bid = Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap();
 /// let contract_spec = ContractParameters::new_d(East, final_bid, Doubling::Double);

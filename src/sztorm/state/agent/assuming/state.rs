@@ -4,7 +4,7 @@ use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
-use sztorm::state::agent::{InformationSet, ScoringInformationSet};
+use sztorm::agent::{InformationSet, ScoringInformationSet};
 use sztorm::state::ConstructedState;
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};

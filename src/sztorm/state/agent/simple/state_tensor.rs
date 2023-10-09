@@ -75,7 +75,7 @@ impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
 /// use brydz_core::sztorm::state::ContractAction::{PlaceCard, ShowHand};
 /// use karty::card_set;
 /// use karty::cards::*;
-/// use sztorm::state::agent::InformationSet;
+/// use sztorm::agent::InformationSet;
 /// use sztorm_rl::tensor_repr::ConvertToTensor;
 /// let card_set = card_set!(
 ///     THREE_CLUBS, FOUR_CLUBS, FIVE_CLUBS, NINE_CLUBS,
