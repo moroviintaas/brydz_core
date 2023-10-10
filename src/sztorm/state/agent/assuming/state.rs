@@ -5,7 +5,7 @@ use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
 use sztorm::agent::{InformationSet, ScoringInformationSet};
-use sztorm::state::ConstructedState;
+use sztorm::domain::Construct;
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};
 use crate::error::BridgeCoreError;
@@ -304,7 +304,7 @@ impl ContractInfoSet for ContractAgentInfoSetAssuming{
         }
     }
 }
-impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
+impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
 
     fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
@@ -318,7 +318,7 @@ impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDea
         Self::new(side, descript.cards[&side] , contract, None, distr)
     }
 }
-impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
+impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
     fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 

@@ -18,7 +18,7 @@ mod state_tensor;
 #[cfg(feature = "neuro")]
 pub use state_tensor::*;
 use sztorm::agent::{InformationSet, ScoringInformationSet};
-use sztorm::state::ConstructedState;
+use sztorm::domain::Construct;
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -465,7 +465,7 @@ mod tensor{
 
 }
 
-impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetSimple{
+impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetSimple{
 
     fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
@@ -474,7 +474,7 @@ impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDea
         Self::new(side, descript.cards[&side] , contract, None)
     }
 }
-impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal)> for ContractAgentInfoSetSimple{
+impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal)> for ContractAgentInfoSetSimple{
     fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 

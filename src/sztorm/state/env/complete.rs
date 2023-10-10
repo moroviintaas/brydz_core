@@ -4,8 +4,7 @@ use karty::cards::Card2SymTrait;
 use karty::error::{CardSetErrorGen};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
-use sztorm::domain::DomainParameters;
-use sztorm::state::ConstructedState;
+use sztorm::domain::{Construct, DomainParameters};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::error::{BridgeCoreError, ContractErrorGen};
@@ -221,7 +220,7 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateComplete{
 
 }
 
-impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateComplete{
+impl Construct<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateComplete{
 
     fn construct_from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
         let ( params, descript) = base;
@@ -237,7 +236,7 @@ impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> fo
     }
 }
 
-impl ConstructedState<ContractDP, (&ContractParameters, &DescriptionDeckDeal,)> for ContractEnvStateComplete {
+impl Construct<(&ContractParameters, &DescriptionDeckDeal,)> for ContractEnvStateComplete {
     fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (params, descript) = base;
         let contract = Contract::new(params.clone());

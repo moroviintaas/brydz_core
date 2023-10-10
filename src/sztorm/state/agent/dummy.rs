@@ -6,7 +6,7 @@ use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
 use sztorm::agent::{InformationSet, ScoringInformationSet};
-use sztorm::state::ConstructedState;
+use sztorm::domain::Construct;
 use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;
 use crate::sztorm::spec::ContractDP;
@@ -115,7 +115,7 @@ impl StateWithSide for ContractDummyState{
     }
 }
 
-impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDeal,)> for ContractDummyState{
+impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractDummyState{
 
     fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
@@ -124,7 +124,7 @@ impl ConstructedState<ContractDP, (Side,  ContractParameters, DescriptionDeckDea
         Self::new(side, descript.cards[&side] , contract)
     }
 }
-impl ConstructedState<ContractDP, (&Side,  &ContractParameters, &DescriptionDeckDeal)> for ContractDummyState{
+impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal)> for ContractDummyState{
     fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 

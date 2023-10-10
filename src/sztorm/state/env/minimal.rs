@@ -4,8 +4,7 @@ use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
 use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
-use sztorm::domain::DomainParameters;
-use sztorm::state::ConstructedState;
+use sztorm::domain::{Construct, DomainParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::player::side::{Side};
 use crate::player::side::Side::*;
@@ -167,7 +166,7 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateMin{
 
 }
 
-impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateMin{
+impl Construct<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateMin{
 
     fn construct_from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
         let ( params, _descript) = base;
@@ -177,7 +176,7 @@ impl ConstructedState<ContractDP, (ContractParameters, DescriptionDeckDeal,)> fo
     }
 }
 
-impl ConstructedState<ContractDP, (&ContractParameters, &DescriptionDeckDeal)> for ContractEnvStateMin{
+impl Construct<(&ContractParameters, &DescriptionDeckDeal)> for ContractEnvStateMin{
     fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (params, _descript) = base;
         let contract = Contract::new(params.clone());
