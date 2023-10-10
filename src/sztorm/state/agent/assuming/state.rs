@@ -4,7 +4,7 @@ use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
-use sztorm::agent::{InformationSet, ScoringInformationSet};
+use sztorm::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
 use sztorm::domain::Construct;
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};
@@ -93,47 +93,7 @@ impl ContractAgentInfoSetAssuming{
 
 
 impl InformationSet<ContractDP> for ContractAgentInfoSetAssuming {
-    //type ActionType = ContractAction;
-    type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
-    //type Id = Side;
-    //type RewardType = u32;
 
-    fn available_actions(&self) -> Self::ActionIteratorType {
-        match self.contract.current_side(){
-            dec if dec == self.side => {
-
-                match self.contract.current_trick().called_suit(){
-                    None => self.hand.into_iter()
-                         .map( ContractAction::PlaceCard).collect(),
-                    Some(called) => match self.hand.contains_in_suit(&called){
-                        true => self.hand.suit_iterator(&called)
-                            .map(ContractAction::PlaceCard).collect(),
-                        false => self.hand.into_iter()
-                            .map(ContractAction::PlaceCard).collect()
-                    }
-                }
-            },
-            dummy if dummy == self.side.partner()  && dummy == self.contract.dummy()=> {
-
-                if let Some(dh) = self.dummy_hand{
-                    match self.contract.current_trick().called_suit(){
-                            None => dh.into_iter()
-                                 .map(ContractAction::PlaceCard).collect(),
-                            Some(called) => match dh.contains_in_suit(&called){
-                                true => dh.suit_iterator(&called)
-                                     .map(ContractAction::PlaceCard).collect(),
-                                false => dh.into_iter()
-                                     .map( ContractAction::PlaceCard).collect()
-                            }
-                        }
-                } else {
-                    SmallVec::new()
-                }
-
-            },
-            _ => SmallVec::new()
-        }
-    }
 
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
@@ -200,6 +160,47 @@ impl InformationSet<ContractDP> for ContractAgentInfoSetAssuming {
 
 }
 
+impl PresentPossibleActions<ContractDP> for ContractAgentInfoSetAssuming{
+    type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
+
+
+    fn available_actions(&self) -> Self::ActionIteratorType {
+        match self.contract.current_side(){
+            dec if dec == self.side => {
+
+                match self.contract.current_trick().called_suit(){
+                    None => self.hand.into_iter()
+                         .map( ContractAction::PlaceCard).collect(),
+                    Some(called) => match self.hand.contains_in_suit(&called){
+                        true => self.hand.suit_iterator(&called)
+                            .map(ContractAction::PlaceCard).collect(),
+                        false => self.hand.into_iter()
+                            .map(ContractAction::PlaceCard).collect()
+                    }
+                }
+            },
+            dummy if dummy == self.side.partner()  && dummy == self.contract.dummy()=> {
+
+                if let Some(dh) = self.dummy_hand{
+                    match self.contract.current_trick().called_suit(){
+                            None => dh.into_iter()
+                                 .map(ContractAction::PlaceCard).collect(),
+                            Some(called) => match dh.contains_in_suit(&called){
+                                true => dh.suit_iterator(&called)
+                                     .map(ContractAction::PlaceCard).collect(),
+                                false => dh.into_iter()
+                                     .map( ContractAction::PlaceCard).collect()
+                            }
+                        }
+                } else {
+                    SmallVec::new()
+                }
+
+            },
+            _ => SmallVec::new()
+        }
+    }
+}
 
 impl ScoringInformationSet<ContractDP> for ContractAgentInfoSetAssuming {
     type RewardType = i32;

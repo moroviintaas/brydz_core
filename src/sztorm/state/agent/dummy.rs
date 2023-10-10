@@ -5,7 +5,7 @@ use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::sztorm::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
-use sztorm::agent::{InformationSet, ScoringInformationSet};
+use sztorm::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
 use sztorm::domain::Construct;
 use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;
@@ -24,50 +24,9 @@ impl ContractDummyState {
         Self{side, hand, contract}
     }
 }
-/*
-impl State<ContractProtocolSpec> for ContractDummyState {
 
-    fn update(&mut self, update: ContractStateUpdate) -> Result<(), BridgeCoreError> {
-        //debug!("Agent {} received state update: {:?}", self.side, &update);
-        let (side, action) = update.into_tuple();
-
-        match action{
-            ContractAction::ShowHand(h) =>{
-                debug!("Dummy ({}) got state update of shown hand {:#}", side, h);
-                Ok(())
-
-            }
-            ContractAction::PlaceCard(card) => {
-                self.contract.insert_card(side, card)?;
-                if side == self.side{
-                    self.hand.remove_card(&card)?
-                }
-                Ok(())
-            }
-        }
-    }
-
-
-}
-
- */
 
 impl InformationSet<ContractDP> for ContractDummyState {
-    //type ActionType = ContractAction;
-    type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
-    //type Id = Side;
-    //type RewardType = u32;
-
-    fn available_actions(&self) -> Self::ActionIteratorType {
-        match self.contract.current_side(){
-            s if s == self.side => {
-                smallvec![ContractAction::ShowHand(self.hand)]
-            }
-            _ => SmallVec::new()
-
-        }
-    }
-
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
@@ -95,6 +54,19 @@ impl InformationSet<ContractDP> for ContractDummyState {
         }
     }
 
+}
+impl PresentPossibleActions<ContractDP> for ContractDummyState {
+    type ActionIteratorType = SmallVec<[ContractAction; HAND_SIZE]>;
+
+
+    fn available_actions(&self) -> Self::ActionIteratorType {
+        match self.contract.current_side() {
+            s if s == self.side => {
+                smallvec![ContractAction::ShowHand(self.hand)]
+            }
+            _ => SmallVec::new()
+        }
+    }
 }
 
 impl ScoringInformationSet<ContractDP> for ContractDummyState{
