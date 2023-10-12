@@ -63,11 +63,11 @@ CommunicatingEnv<ContractDP> for ContractEnv< S, C>{
     }
 
     fn recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractDP>, Self::CommunicationError> {
-        self.comm[agent_id].recv()
+        self.comm[agent_id].receive_blocking()
     }
 
-    fn try_recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractDP>, Self::CommunicationError> {
-        self.comm[agent_id].try_recv()
+    fn try_recv_from(&mut self, agent_id: &Side) -> Result<Option<AgentMessage<ContractDP>>, Self::CommunicationError> {
+        self.comm[agent_id].receive_non_blocking()
     }
 }
 

@@ -72,9 +72,13 @@ impl<S: SuitTrait>  Bid<S> {
 }
 impl<S: SuitTrait> PartialOrd for Bid<S> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        /*
         Some(self.number.cmp(&other.number).then_with(|| {
             self.trump.cmp(&other.trump)
         }))
+
+         */
+        Some(std::cmp::Ord::cmp(self, other))
     }
 }
 
