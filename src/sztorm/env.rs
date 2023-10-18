@@ -7,7 +7,7 @@ use sztorm::{comm::CommEndpoint};
 use sztorm::env::{
     BroadcastingEnv,
     CommunicatingEnv,
-    EnvironmentState,
+    EnvStateSequential,
     EnvironmentStateUniScore,
     EnvironmentWithAgents,
     ScoreEnvironment,
@@ -16,14 +16,14 @@ use sztorm::domain::{AgentMessage, DomainParameters, EnvMessage, Reward};
 use crate::error::BridgeCoreError;
 use crate::sztorm::spec::ContractDP;
 
-pub struct ContractEnv<S: EnvironmentState<ContractDP> + ContractState, C: CommEndpoint>{
+pub struct ContractEnv<S: EnvStateSequential<ContractDP> + ContractState, C: CommEndpoint>{
     state: S,
     comm: SideMap<C>,
     penalties: SideMap<<ContractDP as DomainParameters>::UniversalReward>
 }
 
 impl<
-    S: EnvironmentState<ContractDP> + ContractState,
+    S: EnvStateSequential<ContractDP> + ContractState,
     C: CommEndpoint>
 ContractEnv<S, C>{
     pub fn new(state: S, comm: SideMap<C>) -> Self{
@@ -44,7 +44,7 @@ ContractEnv<S, C>{
 }
 
 impl<
-    S: EnvironmentState<ContractDP> + ContractState,
+    S: EnvStateSequential<ContractDP> + ContractState,
     C: CommEndpoint<
         OutwardType=EnvMessage<ContractDP>,
         InwardType=AgentMessage<ContractDP>>>
@@ -71,7 +71,7 @@ CommunicatingEnv<ContractDP> for ContractEnv< S, C>{
     }
 }
 
-impl<S: EnvironmentState<ContractDP> + ContractState,
+impl<S: EnvStateSequential<ContractDP> + ContractState,
     C: CommEndpoint<
         OutwardType=EnvMessage<ContractDP>,
         InwardType=AgentMessage<ContractDP>>>
@@ -90,7 +90,7 @@ where <C as CommEndpoint>::OutwardType: Clone{
 }
 
 impl<
-    S: EnvironmentState<ContractDP> + ContractState,
+    S: EnvStateSequential<ContractDP> + ContractState,
     C: CommEndpoint>
 EnvironmentWithAgents<ContractDP> for ContractEnv<S, C>{
 
@@ -102,10 +102,10 @@ EnvironmentWithAgents<ContractDP> for ContractEnv<S, C>{
 }
 
 impl<
-    S: EnvironmentState<ContractDP> + ContractState + ContractState,
+    S: EnvStateSequential<ContractDP> + ContractState + ContractState,
     C: CommEndpoint>
 StatefulEnvironment<ContractDP> for ContractEnv<S, C>
-where S: EnvironmentState<ContractDP> {
+where S: EnvStateSequential<ContractDP> {
     type State = S;
     //type Updates = <[(Side, ContractStateUpdate);4] as IntoIterator>::IntoIter;
 
@@ -114,7 +114,7 @@ where S: EnvironmentState<ContractDP> {
     }
 
     fn process_action(&mut self, agent: &Side, action: &ContractAction)
-        -> Result<<Self::State as EnvironmentState<ContractDP>>::Updates, BridgeCoreError> {
+        -> Result<<Self::State as EnvStateSequential<ContractDP>>::Updates, BridgeCoreError> {
 
         self.state.forward(*agent, *action)
     }
@@ -122,11 +122,11 @@ where S: EnvironmentState<ContractDP> {
 
 
 impl<
-    S: EnvironmentState<ContractDP>
+    S: EnvStateSequential<ContractDP>
         + ContractState + EnvironmentStateUniScore<ContractDP> ,
     C: CommEndpoint>
 ScoreEnvironment<ContractDP> for ContractEnv<S, C>
-where S: EnvironmentState<ContractDP> {
+where S: EnvStateSequential<ContractDP> {
     fn process_action_penalise_illegal(
         &mut self,
         agent: &<ContractDP as DomainParameters>::AgentId,
@@ -134,7 +134,7 @@ where S: EnvironmentState<ContractDP> {
         penalty_reward: <ContractDP as DomainParameters>::UniversalReward)
 
         -> Result<
-            <<Self as StatefulEnvironment<ContractDP>>::State as EnvironmentState<ContractDP>>::Updates, <ContractDP as DomainParameters>::GameErrorType> {
+            <<Self as StatefulEnvironment<ContractDP>>::State as EnvStateSequential<ContractDP>>::Updates, <ContractDP as DomainParameters>::GameErrorType> {
 
         /*
         let state_update =

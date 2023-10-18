@@ -3,7 +3,7 @@ use log::{debug, error};
 use karty::cards::Card2SymTrait;
 use karty::error::{CardSetErrorGen};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
-use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
+use sztorm::env::{EnvStateSequential, EnvironmentStateUniScore};
 use sztorm::domain::{Construct, DomainParameters};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::DescriptionDeckDeal;
@@ -71,7 +71,7 @@ impl ContractState for ContractEnvStateComplete{
     }
 }
 
-impl EnvironmentState<ContractDP> for ContractEnvStateComplete{
+impl EnvStateSequential<ContractDP> for ContractEnvStateComplete{
     type Updates = [(Side, ContractStateUpdate);4];
 
     fn current_player(&self) -> Option<Side> {
@@ -107,7 +107,7 @@ impl EnvironmentState<ContractDP> for ContractEnvStateComplete{
     /// use karty::card_set;
     /// use karty::cards::*;
     /// use karty::suits::Suit::Spades;
-    /// use sztorm::env::EnvironmentState;
+    /// use sztorm::env::EnvStateSequential;
     /// let hand_north = card_set!(TEN_CLUBS, ACE_DIAMONDS, QUEEN_HEARTS, QUEEN_SPADES);
     /// let hand_east = card_set!(FOUR_CLUBS, THREE_DIAMONDS, SIX_HEARTS, EIGHT_SPADES);
     /// let hand_south = card_set!(NINE_CLUBS, SIX_DIAMONDS, TEN_HEARTS, ACE_SPADES);

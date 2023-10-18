@@ -3,7 +3,7 @@ use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::error::BridgeCoreError;
 use crate::sztorm::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use sztorm::env::{EnvironmentState, EnvironmentStateUniScore};
+use sztorm::env::{EnvStateSequential, EnvironmentStateUniScore};
 use sztorm::domain::{Construct, DomainParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::player::side::{Side};
@@ -86,7 +86,7 @@ impl State<ContractProtocolSpec> for ContractEnvStateMin{
 
 }
 */
-impl EnvironmentState<ContractDP> for ContractEnvStateMin{
+impl EnvStateSequential<ContractDP> for ContractEnvStateMin{
     type Updates = [(Side, ContractStateUpdate);4];
 
     fn current_player(&self) -> Option<Side> {
