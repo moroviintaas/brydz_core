@@ -4,10 +4,10 @@ use karty::suits::{SuitTrait};
 
 use crate::error::bidding::BiddingErrorGen;
 
-#[cfg(feature="sztorm")]
-use sztorm::error::{SztormError};
-#[cfg(feature="sztorm")]
-use crate::sztorm::spec::ContractDP;
+#[cfg(feature="amfi")]
+use amfi::error::{AmfiError};
+#[cfg(feature="amfi")]
+use crate::amfi::spec::ContractDP;
 
 
 use crate::error::contract::ContractErrorGen;
@@ -72,8 +72,8 @@ impl<Card: Card2SymTrait> std::error::Error for BridgeCoreErrorGen<Card>{}
 
 pub type BridgeCoreError = BridgeCoreErrorGen<Card>;
 
-#[cfg(feature = "sztorm")]
-impl From<BridgeCoreError> for SztormError<ContractDP>{
+#[cfg(feature = "amfi")]
+impl From<BridgeCoreError> for AmfiError<ContractDP>{
     fn from(value: BridgeCoreError) -> Self {
         Self::Game(value)
     }

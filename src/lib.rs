@@ -15,8 +15,8 @@ pub mod meta;
 pub mod error;
 pub mod deal;
 
-#[cfg(feature = "sztorm")]
-pub mod sztorm;
+#[cfg(feature = "amfi")]
+pub mod amfi;
 
 
 #[cfg(feature = "serde")]

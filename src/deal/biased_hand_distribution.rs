@@ -15,7 +15,7 @@ use crate::error::FuzzyCardSetErrorGen;
 use crate::meta::HAND_SIZE;
 use crate::player::side::{Side, SideMap, SIDES};
 use crate::player::side::Side::{East, North, South, West};
-use crate::sztorm::state::{FProbability, FuzzyCardSet};
+use crate::amfi::state::{FProbability, FuzzyCardSet};
 
 #[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
 pub struct BiasedHandDistribution {
