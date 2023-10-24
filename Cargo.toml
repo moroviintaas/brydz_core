@@ -19,8 +19,8 @@ parking_lot = {version = "0.12.1", optional = true}
 speedy = {version = "0.8.6", optional =true}
 tokio = {version = "1.21.1", features = ["net", "rt", "rt-multi-thread", "io-util", "sync"], optional = true}
 postcard = {version = "1.0.2", optional = true}
-amfi = {path = "../sztorm", features = ["serde"] , optional = true}
-amfi_rl = {path = "../sztorm_rl", optional = true}
+amfi = {path = "../amfi", features = ["serde"] , optional = true}
+amfi_rl = {path = "../amfi_rl", optional = true}
 smallvec = {version = "1.10.0", optional = true}
 num-rational = {version = "0.4.1", optional = true}
 serde-big-array = "0.5.1"
