@@ -5,7 +5,7 @@ use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
 use amfi::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
-use amfi::domain::Construct;
+use amfi::domain::{Construct, DomainParameters};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};
 use crate::error::BridgeCoreError;
@@ -94,7 +94,9 @@ impl ContractAgentInfoSetAssuming{
 
 impl InformationSet<ContractDP> for ContractAgentInfoSetAssuming {
 
-
+    fn agent_id(&self) -> &<ContractDP as DomainParameters>::AgentId {
+        &self.side
+    }
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{

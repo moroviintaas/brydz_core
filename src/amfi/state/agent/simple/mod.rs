@@ -18,7 +18,7 @@ mod state_tensor;
 #[cfg(feature = "neuro")]
 pub use state_tensor::*;
 use amfi::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
-use amfi::domain::Construct;
+use amfi::domain::{Construct, DomainParameters};
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -100,7 +100,9 @@ impl ContractAgentInfoSetSimple {
 }
 
 impl InformationSet<ContractDP> for ContractAgentInfoSetSimple {
-
+    fn agent_id(&self) -> &<ContractDP as DomainParameters>::AgentId {
+        &self.side
+    }
 
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {

@@ -6,7 +6,7 @@ use crate::player::side::Side;
 use crate::amfi::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
 use amfi::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
-use amfi::domain::Construct;
+use amfi::domain::{Construct, DomainParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;
 use crate::amfi::spec::ContractDP;
@@ -27,6 +27,9 @@ impl ContractDummyState {
 
 
 impl InformationSet<ContractDP> for ContractDummyState {
+    fn agent_id(&self) -> &<ContractDP as DomainParameters>::AgentId {
+        &self.side
+    }
 
     fn is_action_valid(&self, action: &ContractAction) -> bool {
         match action{
