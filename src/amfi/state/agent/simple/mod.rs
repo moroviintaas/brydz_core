@@ -217,7 +217,7 @@ impl ScoringInformationSet<ContractDP> for ContractAgentInfoSetSimple {
         self.contract.total_tricks_taken_axis(self.side.axis()) as i32
     }
 
-    fn penalty_for_illegal() -> Self::RewardType {
+    fn penalty_for_illegal(&self) -> Self::RewardType {
         -100
     }
 }
