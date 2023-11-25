@@ -8,7 +8,7 @@ use crate::amfi::state::{ContractInfoSet};
 pub struct ContractInfoSetConvertSparse{}
 
 impl WayToTensor for ContractInfoSetConvertSparse{
-    fn desired_shape() -> &'static [i64] {
+    fn desired_shape(&self) -> &'static [i64] {
         &[contract_state_sparse_convert_with_init_assumption::STATE_REPR_SIZE as i64;1]
     }
 }

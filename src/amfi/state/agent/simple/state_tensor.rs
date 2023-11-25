@@ -1,4 +1,5 @@
 use tch::Tensor;
+use amfi_rl::error::TensorRepresentationError;
 use amfi_rl::tensor_repr::{ConvertToTensor, ConvStateToTensor};
 use crate::amfi::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised, ContractInfoSetConvertSparse};
 
@@ -59,8 +60,8 @@ impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420
 }
 
 impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
-    fn to_tensor(&self, way: &ContractInfoSetConvert420) -> Tensor {
-        way.make_tensor(self)
+    fn try_to_tensor(&self, way: &ContractInfoSetConvert420) -> Result<Tensor, TensorRepresentationError> {
+        Ok(way.make_tensor(self))
     }
 }
 
@@ -183,14 +184,14 @@ impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
 ///  assert_eq!(v, expected);
 /// ```
 impl ConvertToTensor<ContractInfoSetConvertSparse> for ContractAgentInfoSetSimple{
-    fn to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Tensor {
-        way.make_tensor(self)
+    fn try_to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Result<Tensor, TensorRepresentationError> {
+        Ok(way.make_tensor(self))
     }
 }
 
 impl ConvertToTensor<ContractInfoSetConvert420Normalised> for ContractAgentInfoSetSimple{
-    fn to_tensor(&self, way: &ContractInfoSetConvert420Normalised) -> Tensor {
-        way.make_tensor(self)
+    fn try_to_tensor(&self, way: &ContractInfoSetConvert420Normalised) -> Result<Tensor, TensorRepresentationError> {
+        Ok(way.make_tensor(self))
     }
 }
 

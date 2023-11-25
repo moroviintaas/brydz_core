@@ -52,14 +52,14 @@ use amfi_rl::tensor_repr::{ WayToTensor};
 pub struct ContractInfoSetConvert420 {}
 
 impl WayToTensor for ContractInfoSetConvert420 {
-    fn desired_shape() -> &'static [i64] {
+    fn desired_shape(&self) -> &'static [i64] {
         &[420]
     }
 }
 #[derive(Default)]
 pub struct ContractInfoSetConvert420Normalised {}
 impl WayToTensor for ContractInfoSetConvert420Normalised{
-    fn desired_shape() -> &'static [i64] {
+    fn desired_shape(&self) -> &'static [i64] {
         &[420]
     }
 }

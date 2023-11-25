@@ -1,4 +1,5 @@
 use tch::Tensor;
+use amfi_rl::error::TensorRepresentationError;
 use karty::cards::{Card, DECK_SIZE};
 use karty::hand::HandTrait;
 use karty::symbol::CardSymbol;
@@ -36,13 +37,13 @@ impl ConvStateToTensor<ContractAgentInfoSetAllKnowing> for ContractInfoSetConver
 }
 
 impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetAllKnowing{
-    fn to_tensor(&self, way: &ContractInfoSetConvert420) -> Tensor {
-        way.make_tensor(self)
+    fn try_to_tensor(&self, way: &ContractInfoSetConvert420) -> Result<Tensor, TensorRepresentationError> {
+        Ok(way.make_tensor(self))
     }
 }
 
 impl ConvertToTensor<ContractInfoSetConvertSparse> for ContractAgentInfoSetAllKnowing{
-    fn to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Tensor {
-        way.make_tensor(self)
+    fn try_to_tensor(&self, way: &ContractInfoSetConvertSparse) -> Result<Tensor, TensorRepresentationError> {
+        Ok(way.make_tensor(self))
     }
 }
