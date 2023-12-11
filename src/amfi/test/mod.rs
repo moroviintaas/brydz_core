@@ -1,7 +1,7 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use amfi::agent::{AutomaticAgentRewarded, RandomPolicy, EnvRewardedAgent, StatefulAgent, ScoringInformationSet};
+use amfi::agent::{AutomaticAgentRewarded, RandomPolicy, RewardedAgent, StatefulAgent, EvaluatedInformationSet};
 use amfi::env::RoundRobinUniversalEnvironment;
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;

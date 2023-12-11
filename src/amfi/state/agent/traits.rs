@@ -1,6 +1,6 @@
 use karty::cards::Card;
 use karty::hand::CardSet;
-use amfi::agent::ScoringInformationSet;
+use amfi::agent::EvaluatedInformationSet;
 use crate::contract::{Contract, ContractMechanics};
 use crate::deal::BiasedHandDistribution;
 use crate::player::side::Side;
@@ -18,7 +18,7 @@ pub trait ContractInfoSet{
 
 }
 
-pub trait RenewableContractInfoSet: ScoringInformationSet<ContractDP>{
+pub trait RenewableContractInfoSet: EvaluatedInformationSet<ContractDP>{
     fn renew(&mut self, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>);
 
 }
@@ -28,7 +28,7 @@ impl<T: RenewableContractInfoSet> RenewableContractInfoSet for Box<T>{
     }
 }
 
-pub trait CreatedContractInfoSet: ScoringInformationSet<ContractDP>{
+pub trait CreatedContractInfoSet: EvaluatedInformationSet<ContractDP>{
     fn create_new(side: Side, hand: CardSet, contract: Contract, dummy_hand: Option<CardSet>, distribution: BiasedHandDistribution) -> Self;
 }
 

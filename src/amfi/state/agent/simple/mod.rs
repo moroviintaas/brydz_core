@@ -17,7 +17,7 @@ mod state_history_tensor;
 mod state_tensor;
 #[cfg(feature = "neuro")]
 pub use state_tensor::*;
-use amfi::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
+use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
 use amfi::domain::{Construct, DomainParameters};
 
 #[derive(Debug, Clone)]
@@ -210,7 +210,7 @@ impl PresentPossibleActions<ContractDP> for ContractAgentInfoSetSimple{
         }
     }
 }
-impl ScoringInformationSet<ContractDP> for ContractAgentInfoSetSimple {
+impl EvaluatedInformationSet<ContractDP> for ContractAgentInfoSetSimple {
     type RewardType = i32;
 
     fn current_subjective_score(&self) -> Self::RewardType {

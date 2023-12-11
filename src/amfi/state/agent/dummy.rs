@@ -5,7 +5,7 @@ use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::amfi::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
-use amfi::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
+use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
 use amfi::domain::{Construct, DomainParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;
@@ -72,7 +72,7 @@ impl PresentPossibleActions<ContractDP> for ContractDummyState {
     }
 }
 
-impl ScoringInformationSet<ContractDP> for ContractDummyState{
+impl EvaluatedInformationSet<ContractDP> for ContractDummyState{
     type RewardType = i32;
 
     fn current_subjective_score(&self) -> Self::RewardType {

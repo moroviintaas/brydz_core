@@ -4,7 +4,7 @@ use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
-use amfi::agent::{InformationSet, PresentPossibleActions, ScoringInformationSet};
+use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
 use amfi::domain::{Construct, DomainParameters};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};
@@ -204,7 +204,7 @@ impl PresentPossibleActions<ContractDP> for ContractAgentInfoSetAssuming{
     }
 }
 
-impl ScoringInformationSet<ContractDP> for ContractAgentInfoSetAssuming {
+impl EvaluatedInformationSet<ContractDP> for ContractAgentInfoSetAssuming {
     type RewardType = i32;
 
     fn current_subjective_score(&self) -> Self::RewardType {
