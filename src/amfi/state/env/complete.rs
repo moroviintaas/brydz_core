@@ -17,7 +17,7 @@ use crate::amfi::state::ContractAction::{PlaceCard, ShowHand};
 
 
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ContractEnvStateComplete{
     dummy_hand: CardSet,
     declarer_hand: CardSet,

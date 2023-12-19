@@ -11,7 +11,7 @@ use crate::player::side::Side::*;
 use crate::amfi::spec::ContractDP;
 use crate::amfi::state::ContractAction::{PlaceCard, ShowHand};
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct ContractEnvStateMin{
     dummy_hand: Option<CardSet>,
     contract: Contract,
