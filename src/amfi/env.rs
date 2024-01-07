@@ -5,8 +5,8 @@ use crate::amfi::state::{
 use log::warn;
 use amfi::{comm::BidirectionalEndpoint};
 use amfi::env::{
-    BroadcastingEnv,
-    CommunicatingEnv,
+    BroadcastingEndpointEnvironment,
+    CommunicatingEndpointEnvironment,
     EnvStateSequential,
     EnvironmentStateUniScore,
     EnvironmentWithAgents,
@@ -48,7 +48,7 @@ impl<
     C: BidirectionalEndpoint<
         OutwardType=EnvironmentMessage<ContractDP>,
         InwardType=AgentMessage<ContractDP>>>
-CommunicatingEnv<ContractDP> for ContractEnv< S, C>{
+CommunicatingEndpointEnvironment<ContractDP> for ContractEnv< S, C>{
 
     type CommunicationError = C::Error;
     //type AgentId = Side;
@@ -62,11 +62,11 @@ CommunicatingEnv<ContractDP> for ContractEnv< S, C>{
         self.comm[agent_id].send(message)
     }
 
-    fn recv_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractDP>, Self::CommunicationError> {
+    fn blocking_receive_from(&mut self, agent_id: &Side) -> Result<AgentMessage<ContractDP>, Self::CommunicationError> {
         self.comm[agent_id].receive_blocking()
     }
 
-    fn try_recv_from(&mut self, agent_id: &Side) -> Result<Option<AgentMessage<ContractDP>>, Self::CommunicationError> {
+    fn nonblocking_receive_from(&mut self, agent_id: &Side) -> Result<Option<AgentMessage<ContractDP>>, Self::CommunicationError> {
         self.comm[agent_id].receive_non_blocking()
     }
 }
@@ -75,7 +75,7 @@ impl<S: EnvStateSequential<ContractDP> + ContractState,
     C: BidirectionalEndpoint<
         OutwardType=EnvironmentMessage<ContractDP>,
         InwardType=AgentMessage<ContractDP>>>
-BroadcastingEnv<ContractDP> for ContractEnv<S, C>
+BroadcastingEndpointEnvironment<ContractDP> for ContractEnv<S, C>
 where <C as BidirectionalEndpoint>::OutwardType: Clone{
 
     fn send_to_all(&mut self, message: EnvironmentMessage<ContractDP>) -> Result<(), Self::CommunicationError> {
