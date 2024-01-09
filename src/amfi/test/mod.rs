@@ -50,7 +50,7 @@ fn random_agents_sync_comm(){
 
     thread::scope(|s|{
         s.spawn(||{
-            simple_env.run_round_robin_uni_rewards().unwrap();
+            simple_env.run_round_robin_with_rewards().unwrap();
         });
         s.spawn(||{
             agent_east.run_rewarded().unwrap();
