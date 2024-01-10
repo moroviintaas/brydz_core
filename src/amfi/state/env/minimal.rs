@@ -3,8 +3,8 @@ use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::error::BridgeCoreError;
 use crate::amfi::state::{ContractAction, ContractState, ContractStateUpdate};
 use log::{debug};
-use amfi::env::{EnvironmentStateSequential, EnvironmentStateUniScore};
-use amfi::domain::{Construct, DomainParameters};
+use amfi_core::env::{EnvironmentStateSequential, EnvironmentStateUniScore};
+use amfi_core::domain::{DomainParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::player::side::{Side};
 use crate::player::side::Side::*;
@@ -166,9 +166,9 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateMin{
 
 }
 
-impl Construct<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateMin{
+impl From<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateMin{
 
-    fn construct_from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
         let ( params, _descript) = base;
 
         let contract = Contract::new(params);
@@ -176,8 +176,8 @@ impl Construct<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateM
     }
 }
 
-impl Construct<(&ContractParameters, &DescriptionDeckDeal)> for ContractEnvStateMin{
-    fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
+impl From<(&ContractParameters, &DescriptionDeckDeal)> for ContractEnvStateMin{
+    fn from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (params, _descript) = base;
         let contract = Contract::new(params.clone());
         Self::new(contract, None)

@@ -11,7 +11,7 @@ use amfi_rl::tensor_repr::{ WayToTensor};
 /// use karty::card_set;
 /// use karty::suits::Suit::Diamonds;
 /// use karty::cards::*;
-/// use amfi::agent::InformationSet;
+/// use amfi_core::agent::InformationSet;
 /// use amfi_rl::tensor_repr::ConvStateToTensor;
 /// let final_bid = Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap();
 /// let contract_spec = ContractParameters::new_d(East, final_bid, Doubling::Double);

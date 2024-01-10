@@ -17,8 +17,8 @@ mod state_history_tensor;
 mod state_tensor;
 #[cfg(feature = "neuro")]
 pub use state_tensor::*;
-use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
-use amfi::domain::{Construct, DomainParameters};
+use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
+use amfi_core::domain::{DomainParameters};
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -469,17 +469,17 @@ mod tensor{
 
 }
 
-impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetSimple{
+impl From<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetSimple{
 
-    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params);
         Self::new(side, descript.cards[&side] , contract, None)
     }
 }
-impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal)> for ContractAgentInfoSetSimple{
-    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
+impl From<(&Side, &ContractParameters, &DescriptionDeckDeal)> for ContractAgentInfoSetSimple{
+    fn from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params.clone());
@@ -556,7 +556,7 @@ mod tests{
     use karty::cards::{*};
     use karty::hand::CardSet;
     use karty::suits::Suit::Hearts;
-    use amfi::agent::InformationSet;
+    use amfi_core::agent::InformationSet;
     use crate::bidding::Bid;
     use crate::cards::trump::TrumpGen;
     use crate::contract::{Contract, ContractParametersGen};

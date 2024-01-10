@@ -3,8 +3,8 @@ use log::{debug, error};
 use karty::cards::Card2SymTrait;
 use karty::error::{CardSetErrorGen};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
-use amfi::env::{EnvironmentStateSequential, EnvironmentStateUniScore};
-use amfi::domain::{Construct, DomainParameters};
+use amfi_core::env::{EnvironmentStateSequential, EnvironmentStateUniScore};
+use amfi_core::domain::{DomainParameters};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::error::{BridgeCoreError, ContractErrorGen};
@@ -107,7 +107,7 @@ impl EnvironmentStateSequential<ContractDP> for ContractEnvStateComplete{
     /// use karty::card_set;
     /// use karty::cards::*;
     /// use karty::suits::Suit::Spades;
-    /// use amfi::env::EnvironmentStateSequential;
+    /// use amfi_core::env::EnvironmentStateSequential;
     /// let hand_north = card_set!(TEN_CLUBS, ACE_DIAMONDS, QUEEN_HEARTS, QUEEN_SPADES);
     /// let hand_east = card_set!(FOUR_CLUBS, THREE_DIAMONDS, SIX_HEARTS, EIGHT_SPADES);
     /// let hand_south = card_set!(NINE_CLUBS, SIX_DIAMONDS, TEN_HEARTS, ACE_SPADES);
@@ -220,9 +220,9 @@ impl EnvironmentStateUniScore<ContractDP> for ContractEnvStateComplete{
 
 }
 
-impl Construct<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateComplete{
+impl From<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateComplete{
 
-    fn construct_from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn from(base: (ContractParameters, DescriptionDeckDeal,)) -> Self {
         let ( params, descript) = base;
 
 
@@ -236,8 +236,8 @@ impl Construct<(ContractParameters, DescriptionDeckDeal,)> for ContractEnvStateC
     }
 }
 
-impl Construct<(&ContractParameters, &DescriptionDeckDeal,)> for ContractEnvStateComplete {
-    fn construct_from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
+impl From<(&ContractParameters, &DescriptionDeckDeal,)> for ContractEnvStateComplete {
+    fn from(base: (&ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (params, descript) = base;
         let contract = Contract::new(params.clone());
         let declarer = params.declarer();

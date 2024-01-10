@@ -5,7 +5,7 @@ use karty::suits::{SuitTrait};
 use crate::error::bidding::BiddingErrorGen;
 
 #[cfg(feature="amfi")]
-use amfi::error::{AmfiError};
+use amfi_core::error::{AmfiError};
 #[cfg(feature="amfi")]
 use crate::amfi::spec::ContractDP;
 

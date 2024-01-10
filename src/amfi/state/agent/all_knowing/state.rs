@@ -3,8 +3,8 @@ use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
-use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
-use amfi::domain::{Construct, DomainParameters};
+use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
+use amfi_core::domain::{DomainParameters};
 
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{DescriptionDeckDeal};
@@ -196,16 +196,16 @@ impl ContractInfoSet for ContractAgentInfoSetAllKnowing{
     }
 }
 
-impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAllKnowing{
+impl From<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAllKnowing{
 
-    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
         let contract = Contract::new(params);
         Self::new(side, descript.cards , contract)
     }
 }
-impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAllKnowing{
-    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
+impl From<(&Side, &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAllKnowing{
+    fn from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params.clone());

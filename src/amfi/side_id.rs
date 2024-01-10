@@ -1,4 +1,4 @@
-use amfi::agent::AgentIdentifier;
+use amfi_core::agent::AgentIdentifier;
 use crate::player::side::Side;
 
 

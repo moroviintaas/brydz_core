@@ -4,8 +4,8 @@ use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
-use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
-use amfi::domain::{Construct, DomainParameters};
+use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
+use amfi_core::domain::{DomainParameters};
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{BiasedHandDistribution, DealDistribution, DescriptionDeckDeal};
 use crate::error::BridgeCoreError;
@@ -307,9 +307,9 @@ impl ContractInfoSet for ContractAgentInfoSetAssuming{
         }
     }
 }
-impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
+impl From<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
 
-    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
          let distr = match descript.probabilities{
@@ -321,8 +321,8 @@ impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractAge
         Self::new(side, descript.cards[&side] , contract, None, distr)
     }
 }
-impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
-    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
+impl From<(&Side, &ContractParameters, &DescriptionDeckDeal,)> for ContractAgentInfoSetAssuming{
+    fn from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let distr = match &descript.probabilities{

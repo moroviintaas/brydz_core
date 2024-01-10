@@ -76,7 +76,7 @@ impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
 /// use brydz_core::amfi::state::ContractAction::{PlaceCard, ShowHand};
 /// use karty::card_set;
 /// use karty::cards::*;
-/// use amfi::agent::InformationSet;
+/// use amfi_core::agent::InformationSet;
 /// use amfi_rl::tensor_repr::ConvertToTensor;
 /// let card_set = card_set!(
 ///     THREE_CLUBS, FOUR_CLUBS, FIVE_CLUBS, NINE_CLUBS,

@@ -5,8 +5,8 @@ use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::amfi::state::{ContractAction, ContractStateUpdate, StateWithSide};
 use log::debug;
-use amfi::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
-use amfi::domain::{Construct, DomainParameters};
+use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
+use amfi_core::domain::{DomainParameters};
 use crate::deal::DescriptionDeckDeal;
 use crate::meta::HAND_SIZE;
 use crate::amfi::spec::ContractDP;
@@ -90,17 +90,17 @@ impl StateWithSide for ContractDummyState{
     }
 }
 
-impl Construct<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractDummyState{
+impl From<(Side, ContractParameters, DescriptionDeckDeal,)> for ContractDummyState{
 
-    fn construct_from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
+    fn from(base: (Side, ContractParameters, DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params);
         Self::new(side, descript.cards[&side] , contract)
     }
 }
-impl Construct<(&Side, &ContractParameters, &DescriptionDeckDeal)> for ContractDummyState{
-    fn construct_from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
+impl From<(&Side, &ContractParameters, &DescriptionDeckDeal)> for ContractDummyState{
+    fn from(base: (&Side, &ContractParameters, &DescriptionDeckDeal,)) -> Self {
         let (side, params, descript) = base;
 
         let contract = Contract::new(params.clone());

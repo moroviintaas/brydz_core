@@ -1,4 +1,4 @@
-use amfi::agent::Policy;
+use amfi_core::agent::Policy;
 use crate::amfi::spec::ContractDP;
 
 pub trait ContractPolicy: Policy<ContractDP>{}

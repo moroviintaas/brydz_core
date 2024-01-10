@@ -9,5 +9,5 @@ mod test;
 pub mod world;
 mod policy;
 
-pub use amfi as re_export;
+pub use amfi_core as re_export;
 pub use policy::*;
