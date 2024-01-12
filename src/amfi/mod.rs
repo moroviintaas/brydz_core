@@ -6,7 +6,7 @@ pub mod spec;
 pub mod comm;
 #[cfg(test)]
 mod test;
-pub mod world;
+//pub mod world;
 mod policy;
 
 pub use amfi_core as re_export;

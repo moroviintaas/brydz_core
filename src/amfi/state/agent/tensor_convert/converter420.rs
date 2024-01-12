@@ -12,7 +12,7 @@ use amfi_rl::tensor_data::{ConversionToTensor};
 /// use karty::suits::Suit::Diamonds;
 /// use karty::cards::*;
 /// use amfi_core::agent::InformationSet;
-/// use amfi_rl::tensor_data::ConvStateToTensor;
+/// use amfi_rl::tensor_data::SimpleConvertToTensor;
 /// let final_bid = Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap();
 /// let contract_spec = ContractParameters::new_d(East, final_bid, Doubling::Double);
 /// let contract = Contract::new(contract_spec);

@@ -1,5 +1,5 @@
 use tch::Tensor;
-use amfi_rl::tensor_data::{ConvStateToTensor, ConversionToTensor};
+use amfi_rl::tensor_data::{SimpleConvertToTensor, ConversionToTensor};
 use crate::player::side::SIDES;
 
 use crate::amfi::state::{ContractInfoSet};
@@ -160,7 +160,7 @@ pub(crate) mod contract_state_sparse_convert_with_init_assumption{
 
 }
 
-impl<T: ContractInfoSet> ConvStateToTensor<T> for ContractInfoSetConvertSparse{
+impl<T: ContractInfoSet> SimpleConvertToTensor<T> for ContractInfoSetConvertSparse{
     fn make_tensor(&self, t: &T) -> Tensor {
         use crate::amfi::state::contract_state_sparse_convert_with_init_assumption::*;
         let mut buffer = [0f32; STATE_REPR_SIZE];

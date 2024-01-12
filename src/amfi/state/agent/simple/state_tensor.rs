@@ -1,6 +1,6 @@
 use tch::Tensor;
 use amfi_rl::error::TensorRepresentationError;
-use amfi_rl::tensor_data::{ConvertToTensor, ConvStateToTensor};
+use amfi_rl::tensor_data::{ConvertToTensor, SimpleConvertToTensor};
 use crate::amfi::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised, ContractInfoSetConvertSparse};
 
 
@@ -18,7 +18,7 @@ use crate::amfi::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, 
 //  0316:   TRICKS [TRICK_NUMBER * TRICK_REPRESENTATION_SIZE]
 //              representing trick: [DECLARER[S,F], WHIST[S,F], DUMMY[S,F], OFFSIDE[S,F]] (-1.0, -1.0) for non yet
 //  0420:
-impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420 {
+impl SimpleConvertToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420 {
 
     fn make_tensor(&self, t: &ContractAgentInfoSetSimple) -> Tensor {
         use crate::amfi::state::contract_state_converter_common::*;
@@ -39,7 +39,7 @@ impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420
     }
 }
 
-impl ConvStateToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420Normalised{
+impl SimpleConvertToTensor<ContractAgentInfoSetSimple> for ContractInfoSetConvert420Normalised{
     fn make_tensor(&self, t: &ContractAgentInfoSetSimple) -> Tensor {
         use crate::amfi::state::contract_state_converter_common::*;
 

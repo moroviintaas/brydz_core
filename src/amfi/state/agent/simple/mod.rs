@@ -15,8 +15,8 @@ use crate::amfi::spec::ContractDP;
 mod state_history_tensor;
 #[cfg(feature = "neuro")]
 mod state_tensor;
-#[cfg(feature = "neuro")]
-pub use state_tensor::*;
+//#[cfg(feature = "neuro")]
+//pub use state_tensor::*;
 use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
 use amfi_core::domain::{DomainParameters};
 

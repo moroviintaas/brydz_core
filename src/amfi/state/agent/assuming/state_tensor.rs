@@ -2,13 +2,13 @@ use tch::Tensor;
 use amfi_rl::error::TensorRepresentationError;
 use karty::cards::{Card, DECK_SIZE};
 use karty::symbol::CardSymbol;
-use amfi_rl::tensor_data::{ConvertToTensor, ConvStateToTensor};
+use amfi_rl::tensor_data::{ConvertToTensor, SimpleConvertToTensor};
 use crate::contract::ContractMechanics;
 use crate::amfi::state::agent::assuming::ContractAgentInfoSetAssuming;
 use crate::amfi::state::{ContractInfoSet, ContractInfoSetConvert420, ContractInfoSetConvertSparse};
 use crate::amfi::state::contract_state_converter_common::{DECLARER_DIST_OFFSET, STATE_REPR_SIZE, write_contract_params, write_current_dummy, write_current_hand, write_tricks};
 
-impl ConvStateToTensor<ContractAgentInfoSetAssuming> for ContractInfoSetConvert420 {
+impl SimpleConvertToTensor<ContractAgentInfoSetAssuming> for ContractInfoSetConvert420 {
 
     fn make_tensor(&self, t: &ContractAgentInfoSetAssuming) -> Tensor {
 
