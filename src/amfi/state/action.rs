@@ -32,7 +32,7 @@ mod neuro_impls{
     use karty::cards::{Card};
     use karty::symbol::CardSymbol;
     use amfi_core::error::ConvertError;
-    use amfi_rl::tensor_repr::ActionTensor;
+    use amfi_rl::tensor_data::ActionTensor;
     use crate::amfi::state::ContractAction;
 
 

@@ -2,7 +2,7 @@ use tch::Tensor;
 use amfi_rl::error::TensorRepresentationError;
 use karty::cards::{Card, DECK_SIZE};
 use karty::symbol::CardSymbol;
-use amfi_rl::tensor_repr::{ConvertToTensor, ConvStateToTensor};
+use amfi_rl::tensor_data::{ConvertToTensor, ConvStateToTensor};
 use crate::contract::ContractMechanics;
 use crate::amfi::state::agent::assuming::ContractAgentInfoSetAssuming;
 use crate::amfi::state::{ContractInfoSet, ContractInfoSetConvert420, ContractInfoSetConvertSparse};

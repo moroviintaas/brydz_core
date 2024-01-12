@@ -1,4 +1,4 @@
-use amfi_rl::tensor_repr::{ WayToTensor};
+use amfi_rl::tensor_data::{ConversionToTensor};
 
 /// ```
 /// use brydz_core::bidding::{Bid, Doubling};
@@ -12,7 +12,7 @@ use amfi_rl::tensor_repr::{ WayToTensor};
 /// use karty::suits::Suit::Diamonds;
 /// use karty::cards::*;
 /// use amfi_core::agent::InformationSet;
-/// use amfi_rl::tensor_repr::ConvStateToTensor;
+/// use amfi_rl::tensor_data::ConvStateToTensor;
 /// let final_bid = Bid::init(TrumpGen::Colored(Diamonds), 3).unwrap();
 /// let contract_spec = ContractParameters::new_d(East, final_bid, Doubling::Double);
 /// let contract = Contract::new(contract_spec);
@@ -51,14 +51,14 @@ use amfi_rl::tensor_repr::{ WayToTensor};
 #[derive(Default)]
 pub struct ContractInfoSetConvert420 {}
 
-impl WayToTensor for ContractInfoSetConvert420 {
+impl ConversionToTensor for ContractInfoSetConvert420 {
     fn desired_shape(&self) -> &'static [i64] {
         &[420]
     }
 }
 #[derive(Default)]
 pub struct ContractInfoSetConvert420Normalised {}
-impl WayToTensor for ContractInfoSetConvert420Normalised{
+impl ConversionToTensor for ContractInfoSetConvert420Normalised{
     fn desired_shape(&self) -> &'static [i64] {
         &[420]
     }

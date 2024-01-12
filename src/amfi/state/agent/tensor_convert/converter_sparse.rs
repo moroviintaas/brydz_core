@@ -1,5 +1,5 @@
 use tch::Tensor;
-use amfi_rl::tensor_repr::{ConvStateToTensor, WayToTensor};
+use amfi_rl::tensor_data::{ConvStateToTensor, ConversionToTensor};
 use crate::player::side::SIDES;
 
 use crate::amfi::state::{ContractInfoSet};
@@ -7,7 +7,7 @@ use crate::amfi::state::{ContractInfoSet};
 #[derive(Default)]
 pub struct ContractInfoSetConvertSparse{}
 
-impl WayToTensor for ContractInfoSetConvertSparse{
+impl ConversionToTensor for ContractInfoSetConvertSparse{
     fn desired_shape(&self) -> &'static [i64] {
         &[contract_state_sparse_convert_with_init_assumption::STATE_REPR_SIZE as i64;1]
     }

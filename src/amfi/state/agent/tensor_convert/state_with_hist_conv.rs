@@ -1,7 +1,7 @@
 use tch::Tensor;
 use karty::cards::Card;
 use karty::symbol::CardSymbol;
-use amfi_rl::tensor_repr::{TensorBuilder, TensorInterpreter};
+use amfi_rl::tensor_data::{TensorBuilder, TensorInterpreter};
 use crate::amfi::state::{BuildStateHistoryTensor, ContractAction, ContractAgentInfoSetSimple, ConvertError};
 use crate::amfi::state::agent::assuming::ContractAgentInfoSetAssuming;
 
