@@ -30,6 +30,7 @@ pub(crate) fn is_uncertain(proba: f32) -> bool {
 */
 
 //#[derive(serde::Serialize, serde::Deserialize, Clone)]
+/// Set of cards that can include card with certain probability
 #[derive(Clone, Debug)]
 pub struct FuzzyCardSet {
     //#[serde(with = "BigArray")]

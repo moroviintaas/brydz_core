@@ -38,6 +38,6 @@ serde_derive = ["dep:serde", "serde", "dep:ron"]
 serde_dedicate = ["dep:serde", "serde", "dep:ron"]
 serde_ron = ["dep:serde", "serde", "dep:ron"]
 amfi = ["dep:amfi_core", "dep:smallvec", "dep:log", "dep:num-rational"]
-neuro = ["dep:amfi_rl", "dep:tch", "amfi"]
+torch = ["dep:amfi_rl", "dep:tch", "amfi"]
 parse = []
 

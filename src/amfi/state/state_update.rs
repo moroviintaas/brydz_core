@@ -48,7 +48,7 @@ impl StateUpdate for ContractStateUpdate{
 
  */
 
-#[cfg(feature = "neuro")]
+#[cfg(feature = "torch")]
 mod tensor{
     use karty::cards::{Card2SymTrait, DECK_SIZE};
     use karty::symbol::CardSymbol;

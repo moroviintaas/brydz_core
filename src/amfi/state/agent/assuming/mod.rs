@@ -2,7 +2,7 @@ mod state;
 
 //#[cfg(feature = "neuro")]
 //mod state_history_tensor;
-#[cfg(feature = "neuro")]
+#[cfg(feature = "torch")]
 mod state_tensor;
 
 //#[cfg(feature = "neuro")]

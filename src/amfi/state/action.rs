@@ -26,7 +26,7 @@ impl Display for ContractAction{
 impl Action for ContractAction{}
 
 
-#[cfg(feature = "neuro")]
+#[cfg(feature = "torch")]
 mod neuro_impls{
     use tch::Tensor;
     use karty::cards::{Card};

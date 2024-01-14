@@ -11,9 +11,9 @@ use karty::register::Register;
 use crate::deal::{BiasedHandDistribution, DescriptionDeckDeal};
 use crate::amfi::spec::ContractDP;
 
-#[cfg(feature = "neuro")]
+#[cfg(feature = "torch")]
 mod state_history_tensor;
-#[cfg(feature = "neuro")]
+#[cfg(feature = "torch")]
 mod state_tensor;
 //#[cfg(feature = "neuro")]
 //pub use state_tensor::*;
@@ -248,7 +248,7 @@ impl StateWithSide for ContractAgentInfoSetSimple{
 }
 
 
-#[cfg(feature = "neuro")]
+#[cfg(feature = "torch")]
 mod tensor{
     //use tensorflow::{QUInt8, Tensor};
     use crate::amfi::state::ContractAgentInfoSetSimple;
