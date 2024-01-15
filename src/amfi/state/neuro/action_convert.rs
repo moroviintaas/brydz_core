@@ -1,8 +1,8 @@
 use tch::Tensor;
-use amfi_rl::error::TensorRepresentationError;
+use amfiteatr_rl::error::TensorRepresentationError;
 use karty::cards::Card2SymTrait;
 use karty::symbol::CardSymbol;
-use amfi_rl::tensor_data::{ConvertToTensor, ConversionToTensor};
+use amfiteatr_rl::tensor_data::{ConvertToTensor, ConversionToTensor};
 use crate::amfi::state::ContractAction;
 
 #[derive(Default)]

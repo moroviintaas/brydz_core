@@ -1,6 +1,6 @@
 use tch::Tensor;
-use amfi_rl::error::TensorRepresentationError;
-use amfi_rl::tensor_data::{ConvertToTensor, SimpleConvertToTensor};
+use amfiteatr_rl::error::TensorRepresentationError;
+use amfiteatr_rl::tensor_data::{ConvertToTensor, SimpleConvertToTensor};
 use crate::amfi::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised, ContractInfoSetConvertSparse};
 
 
@@ -76,8 +76,8 @@ impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
 /// use brydz_core::amfi::state::ContractAction::{PlaceCard, ShowHand};
 /// use karty::card_set;
 /// use karty::cards::*;
-/// use amfi_core::agent::InformationSet;
-/// use amfi_rl::tensor_data::ConvertToTensor;
+/// use amfiteatr_core::agent::InformationSet;
+/// use amfiteatr_rl::tensor_data::ConvertToTensor;
 /// let card_set = card_set!(
 ///     THREE_CLUBS, FOUR_CLUBS, FIVE_CLUBS, NINE_CLUBS,
 ///     QUEEN_CLUBS, KING_CLUBS, ACE_CLUBS, TWO_DIAMONDS,

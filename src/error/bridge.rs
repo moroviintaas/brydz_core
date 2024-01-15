@@ -4,9 +4,9 @@ use karty::suits::{SuitTrait};
 
 use crate::error::bidding::BiddingErrorGen;
 
-#[cfg(feature="amfi")]
-use amfi_core::error::{AmfiError};
-#[cfg(feature="amfi")]
+#[cfg(feature= "amfiteatr")]
+use amfiteatr_core::error::{AmfiError};
+#[cfg(feature= "amfiteatr")]
 use crate::amfi::spec::ContractDP;
 
 
@@ -72,7 +72,7 @@ impl<Card: Card2SymTrait> std::error::Error for BridgeCoreErrorGen<Card>{}
 
 pub type BridgeCoreError = BridgeCoreErrorGen<Card>;
 
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 impl From<BridgeCoreError> for AmfiError<ContractDP>{
     fn from(value: BridgeCoreError) -> Self {
         Self::Game(value)

@@ -3,8 +3,8 @@ use crate::amfi::state::{
     ContractAction,
     ContractState};
 use log::warn;
-use amfi_core::{comm::BidirectionalEndpoint};
-use amfi_core::env::{
+use amfiteatr_core::{comm::BidirectionalEndpoint};
+use amfiteatr_core::env::{
     BroadcastingEndpointEnvironment,
     CommunicatingEndpointEnvironment,
     EnvironmentStateSequential,
@@ -12,7 +12,7 @@ use amfi_core::env::{
     EnvironmentWithAgents,
     ScoreEnvironment,
     StatefulEnvironment};
-use amfi_core::domain::{AgentMessage, DomainParameters, EnvironmentMessage, Reward};
+use amfiteatr_core::domain::{AgentMessage, DomainParameters, EnvironmentMessage, Reward};
 use crate::error::BridgeCoreError;
 use crate::amfi::spec::ContractDP;
 

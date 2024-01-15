@@ -1,5 +1,5 @@
 use tch::Tensor;
-use amfi_rl::tensor_data::{SimpleConvertToTensor, ConversionToTensor};
+use amfiteatr_rl::tensor_data::{SimpleConvertToTensor, ConversionToTensor};
 use crate::player::side::SIDES;
 
 use crate::amfi::state::{ContractInfoSet};

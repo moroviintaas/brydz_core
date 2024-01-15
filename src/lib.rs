@@ -15,7 +15,7 @@ pub mod meta;
 pub mod error;
 pub mod deal;
 
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 pub mod amfi;
 
 

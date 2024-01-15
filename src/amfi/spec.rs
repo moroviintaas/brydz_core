@@ -1,4 +1,4 @@
-use amfi_core::domain::DomainParameters;
+use amfiteatr_core::domain::DomainParameters;
 use crate::error::BridgeCoreError;
 use crate::player::side::Side;
 use crate::amfi::state::{ContractAction, ContractStateUpdate};

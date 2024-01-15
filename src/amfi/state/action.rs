@@ -31,8 +31,8 @@ mod neuro_impls{
     use tch::Tensor;
     use karty::cards::{Card};
     use karty::symbol::CardSymbol;
-    use amfi_core::error::ConvertError;
-    use amfi_rl::tensor_data::ActionTensor;
+    use amfiteatr_core::error::ConvertError;
+    use amfiteatr_rl::tensor_data::ActionTensor;
     use crate::amfi::state::ContractAction;
 
 
@@ -64,4 +64,4 @@ mod neuro_impls{
 
 //#[cfg(feature = "neuro")]
 //pub use neuro_impls::*;
-use amfi_core::domain::Action;
+use amfiteatr_core::domain::Action;

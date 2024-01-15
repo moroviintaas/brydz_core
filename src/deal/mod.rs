@@ -1,9 +1,9 @@
 mod hand_distribution;
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 mod biased_hand_distribution;
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 mod deck_distr_description;
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 mod deal_distribution;
 //mod stack_hand;
 //mod hand_vector;
@@ -11,11 +11,11 @@ mod deal_distribution;
 //pub mod hand;
 
 pub use hand_distribution::*;
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 pub use biased_hand_distribution::*;
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 pub use deck_distr_description::*;
-#[cfg(feature = "amfi")]
+#[cfg(feature = "amfiteatr")]
 pub use deal_distribution::*;
 
 

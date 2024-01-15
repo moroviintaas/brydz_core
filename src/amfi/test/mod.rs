@@ -1,8 +1,8 @@
 use std::thread;
 use karty::hand::CardSet;
 use karty::suits::Suit::Spades;
-use amfi_core::agent::{AutomaticAgentRewarded, RandomPolicy, RewardedAgent, StatefulAgent, EvaluatedInformationSet};
-use amfi_core::env::RoundRobinUniversalEnvironment;
+use amfiteatr_core::agent::{AutomaticAgentRewarded, RandomPolicy, RewardedAgent, StatefulAgent, EvaluatedInformationSet};
+use amfiteatr_core::env::RoundRobinUniversalEnvironment;
 use crate::bidding::Bid;
 use crate::cards::trump::TrumpGen;
 use crate::contract::{Contract, ContractParametersGen};

@@ -19,8 +19,7 @@ parking_lot = {version = "0.12.1", optional = true}
 speedy = {version = "0.8.6", optional =true}
 tokio = {version = "1.35.1", features = ["net", "rt", "rt-multi-thread", "io-util", "sync"], optional = true}
 postcard = {version = "1.0.8", optional = true}
-amfi_core = {path = "../amfi_core", features = ["serde"] , optional = true}
-amfi_rl = {path = "../amfi_rl", optional = true}
+
 smallvec = {version = "1.11.2", optional = true}
 num-rational = {version = "0.4.1", optional = true}
 serde-big-array = "0.5.1"
@@ -29,6 +28,8 @@ approx = "0.5.1"
 thiserror = "1.0.56"
 statrs = {version = "0.16.0"}
 
+amfiteatr_core = {path = "../amfiteatr_core", features = ["serde"] , optional = true}
+amfiteatr_rl = {path = "../amfiteatr_rl", optional = true}
 
 [features]
 
@@ -37,7 +38,9 @@ serde = ["dep:serde", "parse"]
 serde_derive = ["dep:serde", "serde", "dep:ron"]
 serde_dedicate = ["dep:serde", "serde", "dep:ron"]
 serde_ron = ["dep:serde", "serde", "dep:ron"]
-amfi = ["dep:amfi_core", "dep:smallvec", "dep:log", "dep:num-rational"]
-torch = ["dep:amfi_rl", "dep:tch", "amfi"]
+amfiteatr = ["dep:amfiteatr_core", "dep:smallvec", "dep:log", "dep:num-rational"]
+torch = ["dep:amfiteatr_rl", "dep:tch", "amfiteatr"]
 parse = []
+
+
 

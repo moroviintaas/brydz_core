@@ -3,8 +3,8 @@ use smallvec::SmallVec;
 use karty::cards::{Card, Card2SymTrait};
 use karty::hand::{CardSet, HandSuitedTrait, HandTrait};
 use karty::register::Register;
-use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
-use amfi_core::domain::{DomainParameters};
+use amfiteatr_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
+use amfiteatr_core::domain::{DomainParameters};
 
 use crate::contract::{Contract, ContractMechanics, ContractParameters};
 use crate::deal::{DescriptionDeckDeal};

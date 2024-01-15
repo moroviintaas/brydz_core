@@ -17,8 +17,8 @@ mod state_history_tensor;
 mod state_tensor;
 //#[cfg(feature = "neuro")]
 //pub use state_tensor::*;
-use amfi_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
-use amfi_core::domain::{DomainParameters};
+use amfiteatr_core::agent::{InformationSet, PresentPossibleActions, EvaluatedInformationSet};
+use amfiteatr_core::domain::{DomainParameters};
 
 #[derive(Debug, Clone)]
 pub struct ContractAgentInfoSetSimple {
@@ -556,7 +556,7 @@ mod tests{
     use karty::cards::{*};
     use karty::hand::CardSet;
     use karty::suits::Suit::Hearts;
-    use amfi_core::agent::InformationSet;
+    use amfiteatr_core::agent::InformationSet;
     use crate::bidding::Bid;
     use crate::cards::trump::TrumpGen;
     use crate::contract::{Contract, ContractParametersGen};
