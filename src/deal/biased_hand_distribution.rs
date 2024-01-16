@@ -17,7 +17,8 @@ use crate::player::side::{Side, SideMap, SIDES};
 use crate::player::side::Side::{East, North, South, West};
 use crate::amfi::state::{FProbability, FuzzyCardSet};
 
-#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone, Debug)]
 pub struct BiasedHandDistribution {
     side_probabilities: SideMap<FuzzyCardSet>
 }

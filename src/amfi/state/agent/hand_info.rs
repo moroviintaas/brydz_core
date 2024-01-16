@@ -6,7 +6,8 @@ pub trait HandInfo{
     fn own_cards(&self) -> CardSet;
 }
 
-#[derive(serde::Serialize, serde::Deserialize, Clone)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive(Clone)]
 pub struct HandInfoSimple {
     //side: Side,
     own_cards: CardSet,

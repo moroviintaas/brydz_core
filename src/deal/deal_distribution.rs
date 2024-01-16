@@ -5,7 +5,8 @@ use karty::hand::CardSet;
 use crate::deal::{BiasedHandDistribution, distribute_standard_deck_on_4};
 use crate::player::side::SideMap;
 
-#[derive(serde::Serialize, serde::Deserialize, Clone, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[derive( Clone, Debug)]
 pub enum DealDistribution{
     Fair,
     Biased(Box<BiasedHandDistribution>),

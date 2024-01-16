@@ -564,6 +564,7 @@ mod tests{
     use crate::amfi::state::{ContractAgentInfoSetSimple, ContractStateUpdate};
     use crate::amfi::state::ContractAction::{PlaceCard, ShowHand};
 
+    #[cfg(feature = "torch")]
     #[test]
     fn convert_simple_info_set_to_bytes(){
         let contract = Contract::new(
