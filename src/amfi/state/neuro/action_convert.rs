@@ -1,4 +1,4 @@
-use tch::Tensor;
+use amfiteatr_rl::tch::Tensor;
 use amfiteatr_rl::error::TensorRepresentationError;
 use karty::cards::Card2SymTrait;
 use karty::symbol::CardSymbol;

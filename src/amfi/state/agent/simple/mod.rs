@@ -461,9 +461,9 @@ mod tensor{
     }
 
 
-    impl From<&ContractAgentInfoSetSimple> for tch::Tensor{
+    impl From<&ContractAgentInfoSetSimple> for amfiteatr_rl::tch::Tensor{
         fn from(value: &ContractAgentInfoSetSimple) -> Self {
-            tch::Tensor::from_slice(&Into::<[f32;SIMPLE_INFO_SET_LENGTH]>::into(value))
+            amfiteatr_rl::tch::Tensor::from_slice(&Into::<[f32;SIMPLE_INFO_SET_LENGTH]>::into(value))
         }
     }
 

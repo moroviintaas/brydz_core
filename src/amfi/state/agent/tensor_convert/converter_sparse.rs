@@ -1,4 +1,4 @@
-use tch::Tensor;
+use amfiteatr_rl::tch::Tensor;
 use amfiteatr_rl::tensor_data::{SimpleConvertToTensor, ConversionToTensor};
 use crate::player::side::SIDES;
 

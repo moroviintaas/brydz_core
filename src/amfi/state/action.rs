@@ -28,7 +28,7 @@ impl Action for ContractAction{}
 
 #[cfg(feature = "torch")]
 mod neuro_impls{
-    use tch::Tensor;
+    use amfiteatr_rl::tch::Tensor;
     use karty::cards::{Card};
     use karty::symbol::CardSymbol;
     use amfiteatr_core::error::ConvertError;

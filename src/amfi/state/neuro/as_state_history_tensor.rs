@@ -1,4 +1,4 @@
-use tch::Tensor;
+use amfiteatr_rl::tch::Tensor;
 use karty::cards::DECK_SIZE;
 use crate::meta::TOTAL_TRICKS;
 

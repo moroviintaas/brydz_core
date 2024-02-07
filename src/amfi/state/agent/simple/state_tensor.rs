@@ -1,4 +1,4 @@
-use tch::Tensor;
+use amfiteatr_rl::tch::Tensor;
 use amfiteatr_rl::error::TensorRepresentationError;
 use amfiteatr_rl::tensor_data::{ConvertToTensor, SimpleConvertToTensor};
 use crate::amfi::state::{ContractAgentInfoSetSimple, ContractInfoSetConvert420, ContractInfoSetConvert420Normalised, ContractInfoSetConvertSparse};
@@ -66,7 +66,7 @@ impl ConvertToTensor<ContractInfoSetConvert420> for ContractAgentInfoSetSimple{
 }
 
 /// ```
-/// use tch::Tensor;
+/// use amfiteatr_rl::tch::Tensor;
 /// use brydz_core::bidding::Bid;
 /// use brydz_core::cards::trump::TRUMP_CLUBS;
 /// use brydz_core::contract::{Contract, ContractParameters};

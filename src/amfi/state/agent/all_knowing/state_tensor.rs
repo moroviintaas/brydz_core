@@ -1,4 +1,4 @@
-use tch::Tensor;
+use amfiteatr_rl::tch::Tensor;
 use amfiteatr_rl::error::TensorRepresentationError;
 use karty::cards::{Card, DECK_SIZE};
 use karty::hand::HandTrait;

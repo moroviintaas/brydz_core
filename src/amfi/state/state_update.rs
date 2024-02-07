@@ -72,9 +72,9 @@ mod tensor{
         }
     }
 
-    impl From<&ContractAction> for tch::Tensor{
+    impl From<&ContractAction> for amfiteatr_rl::tch::Tensor{
         fn from(value: &ContractAction) -> Self {
-            tch::Tensor::from_slice(&Into::<[f32;MIN_ACTION_SIZE]>::into(value))
+            amfiteatr_rl::tch::Tensor::from_slice(&Into::<[f32;MIN_ACTION_SIZE]>::into(value))
         }
     }
 
