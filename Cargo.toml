@@ -1,6 +1,6 @@
 [package]
 name = "brydz_core"
-version = "0.1.1"
+version = "0.2.0"
 edition = "2021"
 repository = "https://github.com/moroviintaas/brydz_core"
 license-file = "LICENSE"
@@ -32,8 +32,8 @@ approx = "0.5.1"
 thiserror = "1.0.56"
 statrs = {version = "0.16.0"}
 
-amfiteatr_core = {version = "0.1.0", features = ["serde"] , optional = true}
-amfiteatr_rl = {version = "0.1.0", optional = true}
+amfiteatr_core = {version = "0.2.0", features = ["serde"] , optional = true}
+amfiteatr_rl = {version = "0.2.0", optional = true}
 karty = {version = "0.1.1", features = ["register", "parse", "speedy", "serde", "random", "parse"]}
 
 
